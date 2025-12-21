@@ -1,4 +1,15 @@
 import streamlit as st
+st.set_page_config(
+    page_title="Tuvalum Dashboard",  # Tu peux changer le titre ici
+    page_icon="🚲",                  # Tu peux changer l'icône (emoji)
+    layout="wide",                   # Utilise toute la largeur de l'écran
+    # C'est LA partie magique qui cache les menus :
+    menu_items={
+        'Get Help': None,
+        'Report a bug': None,
+        'About': None
+    }
+)
 import pandas as pd
 import requests
 from datetime import datetime, timedelta, date
@@ -103,9 +114,9 @@ def check_password():
     if "password_correct" not in st.session_state: st.session_state["password_correct"] = False
     if st.session_state["password_correct"]: return True
     
-    bg_path = "images/fondo.png"
-    if not os.path.exists(bg_path): bg_path = "images/fondo.png"
-    logo_path = "images/logo_blanc.png"
+    bg_path = "fondo.png"
+    if not os.path.exists(bg_path): bg_path = "fondo.png"
+    logo_path = "logo_blanc.png"
     bg_b64 = get_img_as_base64(bg_path)
     logo_b64 = get_img_as_base64(logo_path)
     bg_css = f"background-image: url('data:image/jpeg;base64,{bg_b64}');" if bg_b64 else "background-color: #0a4650;"
@@ -906,3 +917,4 @@ elif page == T["nav_price"]:
             else: st.info("0 vélos.")
 
     else: st.info("No data.")
+
