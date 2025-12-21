@@ -10,6 +10,13 @@ st.set_page_config(
         'About': None
     }
 )
+st.markdown(
+    """
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
+    """,
+    unsafe_allow_html=True
+)
 import pandas as pd
 import requests
 from datetime import datetime, timedelta, date
@@ -917,4 +924,5 @@ elif page == T["nav_price"]:
             else: st.info("0 vélos.")
 
     else: st.info("No data.")
+
 
