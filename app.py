@@ -17,6 +17,15 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+# --- MASQUER LE PIED DE PAGE ET LE MENU ---
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
 import pandas as pd
 import requests
 from datetime import datetime, timedelta, date
@@ -924,5 +933,6 @@ elif page == T["nav_price"]:
             else: st.info("0 vélos.")
 
     else: st.info("No data.")
+
 
 
