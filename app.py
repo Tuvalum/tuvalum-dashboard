@@ -103,7 +103,7 @@ def check_password():
     if "password_correct" not in st.session_state: st.session_state["password_correct"] = False
     if st.session_state["password_correct"]: return True
     
-    bg_path = "images/fondo.jpg"
+    bg_path = "images/fondo.png"
     if not os.path.exists(bg_path): bg_path = "images/fondo.png"
     logo_path = "images/logo_blanc.png"
     bg_b64 = get_img_as_base64(bg_path)
@@ -904,4 +904,5 @@ elif page == T["nav_price"]:
         with st.expander(f"🟢 MONITORIZAR (45-90 días) - {len(df_watch)} vélos", expanded=False): 
             if not df_watch.empty: st.data_editor(df_watch, column_config=cfg, use_container_width=True, hide_index=True, key="watch")
             else: st.info("0 vélos.")
+
     else: st.info("No data.")
