@@ -8,7 +8,6 @@ from plotly.subplots import make_subplots
 import os
 import re
 import base64
-# IMPORT DU NOUVEAU MENU MODERNE
 from streamlit_option_menu import option_menu
 
 # ==============================================================================
@@ -54,7 +53,7 @@ SHIPPING_COSTS = {
 }
 RECOND_UNIT_COST = 54.5
 
-# CSS GLOBAL (VERDE TOTAL + KPI FIXED HEIGHT)
+# CSS GLOBAL 
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
@@ -63,6 +62,13 @@ st.markdown(
         #MainMenu, header, footer {{visibility: hidden; display: none !important;}}
         [data-testid="stAppViewContainer"], .stApp {{background-color: white !important;}}
         
+        /* HACK SIDEBAR PADDING POUR QUE LE MENU TOUCHE LES BORDS */
+        [data-testid="stSidebar"] > div:first-child {{
+            padding-top: 1rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }}
+
         /* INPUTS & DATEPICKERS */
         div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"], div[data-testid="stDateInput"] input {{
             border-color: #e2e8f0 !important; border-width: 1px !important;
@@ -75,7 +81,7 @@ st.markdown(
             box-shadow: 0 0 0 1px {C_SEC} !important;
         }}
         
-        /* CALENDARIO */
+        /* CALENDARIO & CHECKBOX */
         div[data-baseweb="calendar"] button[aria-selected="true"], 
         div[data-baseweb="calendar"] div[aria-selected="true"] {{
             background-color: {C_SEC} !important; color: {C_MAIN} !important; font-weight: bold;
@@ -126,9 +132,7 @@ st.markdown(
 # TRADUCTIONS
 TRADUCTIONS = {
     "Español": {
-        "nav_header": "DASHBOARD", 
         "nav_res": "Resultados", "nav_evol": "Evolución", "nav_table": "Tabla Ventas", "nav_calc": "Margen & Dto", "nav_price": "Control Precios",
-        "date_header": "PERIODO", 
         "opt_prev_month": "Mes Pasado", "opt_yesterday": "Ayer", "opt_today": "Hoy", "opt_month": "Este Mes", "opt_year": "Este Año", "opt_custom": "Personalizado", 
         "btn_refresh": "Actualizar",
         "t_kpi1": "Ventas Hoy (Pagadas)", "t_kpi2": "Ventas Hoy (Pendientes)", 
@@ -242,39 +246,38 @@ if not check_password(): st.stop()
 
 # --- SIDEBAR (NEW MODERN MENU) ---
 with st.sidebar:
-    if os.path.exists("logo rond.png"): 
-        st.markdown("<br>", unsafe_allow_html=True)
-        c_logo, _ = st.columns([1, 0.5])
-        with c_logo: st.image("logo rond.png", width=120)
-    elif os.path.exists("logo.png"):
-        st.image("logo.png", width=150)
+    st.image("logo.png", width=120)
 
     st.markdown("---")
-    # MODERN MENU REPLACEMENT FOR RADIO BUTTONS
+    
+    # 1. NAVIGATION MENU (COMPACT)
+    st.markdown("<p style='font-size: 12px; color: #888; font-weight: bold; margin-bottom: 5px; padding-left: 5px;'>DASHBOARD</p>", unsafe_allow_html=True)
     page = option_menu(
-        menu_title=t["nav_header"], 
+        menu_title=None, 
         options=[t["nav_res"], t["nav_evol"], t["nav_table"], t["nav_calc"], t["nav_price"]],
         icons=["bar-chart-fill", "graph-up", "table", "calculator", "tag"],
         default_index=0,
         styles={
-            "container": {"padding": "0!important", "background-color": "transparent"},
-            "icon": {"color": "#64748b", "font-size": "16px"}, 
-            "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px", "--hover-color": "#f0f2f6", "color": "#333"},
+            "container": {"padding": "0!important", "background-color": "transparent", "margin": "0!important"},
+            "icon": {"color": "#64748b", "font-size": "14px"}, 
+            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "8px 10px", "--hover-color": "#e2e8f0", "color": "#333", "border-radius": "0px"},
             "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
         }
     )
 
     st.markdown("---")
-    # MODERN DATE MENU
+    
+    # 2. DATE MENU (COMPACT)
+    st.markdown("<p style='font-size: 12px; color: #888; font-weight: bold; margin-bottom: 5px; padding-left: 5px;'>PERIODO</p>", unsafe_allow_html=True)
     date_mode = option_menu(
-        menu_title=t["date_header"],
+        menu_title=None,
         options=[t['opt_prev_month'], t['opt_yesterday'], t['opt_today'], t['opt_month'], t['opt_year'], t['opt_custom']],
         icons=["calendar-minus", "calendar-check", "calendar-event", "calendar-month", "calendar-range", "calendar3"],
         default_index=3,
         styles={
-            "container": {"padding": "0!important", "background-color": "transparent"},
+            "container": {"padding": "0!important", "background-color": "transparent", "margin": "0!important"},
             "icon": {"color": "#64748b", "font-size": "14px"}, 
-            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "--hover-color": "#f0f2f6", "color": "#333"},
+            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "8px 10px", "--hover-color": "#e2e8f0", "color": "#333", "border-radius": "0px"},
             "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
         }
     )
