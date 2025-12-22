@@ -22,14 +22,14 @@ st.set_page_config(
 
 # COULEURS
 C_MAIN = "#0a4650"   # Vert Foncé
-C_SEC = "#08e394"    # Vert Flashy
+C_SEC = "#08e394"    # Vert Flashy (Boutons, Focus, Bordures)
 C_TER = "#dcff54"    # Vert Clair
-C_SOFT = "#e0fdf4"   # Vert Doux
+C_SOFT = "#e0fdf4"   # Vert Doux (Fonds)
 C_BG = "#ffffff"     # Fond Blanc
-C_ALERT = "#ff4b4b"  # Rouge
+C_ALERT = "#ff4b4b"  # Rouge (Alertes)
 C_GRAY_LIGHT = "#f8f9fa"
 
-# CSS GLOBAL "TOTAL GREEN FLASHY"
+# CSS GLOBAL "TOTAL GREEN FLASHY - NO MORE RED"
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
@@ -38,26 +38,68 @@ st.markdown(
         #MainMenu, header, footer {{visibility: hidden; display: none !important;}}
         [data-testid="stAppViewContainer"], .stApp {{background-color: white !important;}}
         
-        /* --- ELIMINAR ROJO NATIVO & FORZAR VERDE FLASHY --- */
-        div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"] {{border-color: #e2e8f0;}}
-        div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within, div[data-baseweb="base-input"]:focus-within, div[data-testid="stDateInput"] > div:focus-within {{border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important;}}
+        /* --- 1. INPUTS & SELECTBOX (ELIMINAR ROJO) --- */
+        /* Estado Normal */
+        div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"] {{
+            border-color: #e2e8f0 !important;
+        }}
+        /* Estado Focus/Activo (Verde Flashy) */
+        div[data-baseweb="input"]:focus-within, 
+        div[data-baseweb="select"]:focus-within, 
+        div[data-baseweb="base-input"]:focus-within,
+        div[data-testid="stDateInput"] > div:focus-within {{
+            border-color: {C_SEC} !important;
+            box-shadow: 0 0 0 1px {C_SEC} !important;
+        }}
         
-        /* BOUTONS */
-        .stButton > button {{background-color: {C_MAIN} !important; color: white !important; border: 2px solid {C_MAIN} !important; border-radius: 8px !important; transition: all 0.3s ease !important;}}
-        .stButton > button:hover {{background-color: {C_SEC} !important; color: {C_MAIN} !important; border-color: {C_SEC} !important;}}
+        /* --- 2. BOUTONS (Siempre Verdes) --- */
+        .stButton > button {{
+            background-color: {C_MAIN} !important; color: white !important; 
+            border: 2px solid {C_MAIN} !important; border-radius: 8px !important; 
+            transition: all 0.3s ease !important;
+        }}
+        .stButton > button:hover {{
+            background-color: {C_SEC} !important; color: {C_MAIN} !important; border-color: {C_SEC} !important;
+        }}
         a[href] {{color: {C_MAIN} !important;}}
 
-        /* CALENDRIER & CHECKBOXES */
-        div[data-baseweb="calendar"] button[aria-selected="true"], div[data-baseweb="calendar"] div[aria-selected="true"] {{background-color: {C_SEC} !important; color: {C_MAIN} !important; font-weight: bold;}}
-        div[role="radiogroup"] div[aria-checked="true"] > div:first-child, div[data-baseweb="checkbox"] div[aria-checked="true"] > div:first-child {{background-color: {C_SEC} !important; border-color: {C_SEC} !important;}}
-        div[role="radiogroup"] div[aria-checked="true"] + div {{color: {C_MAIN} !important; font-weight: bold !important;}}
+        /* --- 3. SIDEBAR & CALENDARIO (ADIOS ROJO) --- */
+        /* Radio Buttons (Círculos) */
+        div[role="radiogroup"] div[aria-checked="true"] > div:first-child {{
+            background-color: {C_SEC} !important; border-color: {C_SEC} !important;
+        }}
+        /* Texto Radio seleccionado */
+        div[role="radiogroup"] div[aria-checked="true"] + div {{
+            color: {C_MAIN} !important; font-weight: bold !important;
+        }}
+        
+        /* Calendario */
+        div[data-baseweb="calendar"] button[aria-selected="true"], 
+        div[data-baseweb="calendar"] div[aria-selected="true"] {{
+            background-color: {C_SEC} !important; color: {C_MAIN} !important; font-weight: bold;
+        }}
+        div[data-baseweb="calendar"] div[text-decoration="underline"] {{
+            text-decoration-color: {C_SEC} !important;
+        }}
 
-        /* --- KPI CARDS (STRUCTURE FIXE) --- */
-        .kpi-card {{background-color: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e1e8e8; margin-bottom: 20px; min-height: 140px; display: flex; flex-direction: column; justify-content: center;}}
-        .kpi-card-soft {{background-color: {C_SOFT}; border: 1px solid #d1fae5; opacity: 0.95; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; min-height: 140px; display: flex; flex-direction: column; justify-content: center;}}
+        /* --- 4. KPI CARDS (DISEÑO ORIGINAL) --- */
+        .kpi-card {{
+            background-color: white; padding: 20px; border-radius: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e1e8e8; 
+            margin-bottom: 20px; min-height: 140px; display: flex; flex-direction: column; justify-content: center;
+        }}
+        .kpi-card-soft {{
+            background-color: {C_SOFT}; border: 1px solid #d1fae5; opacity: 0.95;
+            padding: 20px; border-radius: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px; min-height: 140px; display: flex; flex-direction: column; justify-content: center;
+        }}
+        
         .kpi-title {{font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase;}} 
         .kpi-value {{font-size: 32px; color: {C_MAIN}; font-weight: 800; margin: 5px 0;}} 
-        .kpi-sub {{font-size: 15px; font-weight: 700; color: #64748b; display:flex; justify-content:space-between; margin-top:8px; border-top: 1px solid #eee; padding-top: 5px;}}
+        .kpi-sub {{font-size: 14px; font-weight: 600; color: #64748b; display:flex; justify-content:space-between; margin-top:8px; border-top: 1px solid #eee; padding-top: 8px;}}
+        .kpi-pending-txt {{font-size: 14px; color: #f59e0b; font-weight: 600; margin-left: 5px;}}
+
         .product-img {{border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; width: 100%; object-fit: cover;}}
     </style>
     """,
@@ -72,7 +114,7 @@ TRADUCTIONS = {
     "Español": {
         "nav_header": "📊 Dashboard", "nav_res": "Resultados", "nav_evol": "Evolución", "nav_table": "Tabla Ventas", "nav_calc": "Margen & Dto", "nav_price": "Control Precios",
         "date_header": "📅 Periodo", "opt_prev_month": "Mes Pasado", "opt_yesterday": "Ayer", "opt_today": "Hoy", "opt_month": "Este Mes", "opt_year": "Este Año", "opt_custom": "Personalizado", "btn_refresh": "Actualizar",
-        "t_kpi1": "Ventas Hoy (Pagadas)", "t_kpi2": "Ventas Hoy (Pendientes)", "t_kpi3": "Ventas Selecc. (Pagadas)", "t_kpi4": "Ventas Selecc. (Pendientes)",
+        "t_kpi1": "Ventas Hoy", "t_kpi2": "Ventas Hoy (Pendientes)", "t_kpi3": "Ventas Selecc.", "t_kpi4": "Ventas Pendientes",
         "sub_rev": "Ingresos", "sub_mar": "Margen", "sub_pending": "Pendiente",
         "chart_channel": "Canales", "chart_mp": "Marketplaces", "chart_subcat": "Categoría", "chart_brand": "Top 5 Marcas", "chart_price": "Rango de Precios", "chart_country": "Países",
         "avg_price": "Precio Medio", "avg_margin": "Margen Medio", "avg_margin_pct": "% Margen", "avg_rot": "Rotación Media", "loading": "⏳ Cargando...", 
@@ -97,38 +139,56 @@ def get_img_as_base64(file_path):
         with open(file_path, "rb") as f: data = f.read(); return base64.b64encode(data).decode()
     except: return None
 
-# KPI HELPERS CORRIGÉS (Avec 6 arguments comme demandé)
-def card_kpi_white(c, t, n, r, m, col): 
-    # n = Gros chiffre central
-    # r = Texte Gauche bas (ex: Ingresos: 100€)
-    # m = Texte Droite bas (ex: Margen: 20€)
-    c.markdown(f"""<div class="kpi-card" style="border-left:5px solid {col};"><div class="kpi-title">{t}</div><div class="kpi-value">{n}</div><div class="kpi-sub"><span>{r}</span><span style="color:#0a4650">{m}</span></div></div>""", unsafe_allow_html=True)
+# KPI HELPERS (DISEÑO 100% ORIGINAL CON BORDE IZQUIERDO Y DATOS AGRUPADOS)
+def card_kpi_complex(c, title, count, rev, marg, col):
+    # Función para las tarjetas de HOY y SELECCION (Combina todo en una tarjeta)
+    html = f"""
+    <div class="kpi-card" style="border-left:5px solid {col};">
+        <div class="kpi-title">{title}</div>
+        <div class="kpi-value">{count} <span style="font-size:16px; color:#666; font-weight:normal;">ventas</span></div>
+        <div class="kpi-sub">
+            <span>💶 {rev}</span>
+            <span style="color:#0a4650">📈 {marg}</span>
+        </div>
+    </div>
+    """
+    c.markdown(html, unsafe_allow_html=True)
 
-def card_kpi_soft(c, t, n, r, m, col): 
-    # Même structure mais fond vert doux
-    style_col = f"border-left:5px solid {col};" if col else ""
-    c.markdown(f"""<div class="kpi-card-soft" style="{style_col}"><div class="kpi-title">{t}</div><div class="kpi-value">{n}</div><div class="kpi-sub"><span>{r}</span><span style="color:#0a4650">{m}</span></div></div>""", unsafe_allow_html=True)
+def card_kpi_soft(c, title, value, footer_text): 
+    # Para la línea de medias (Fondo verde)
+    c.markdown(f"""<div class="kpi-card-soft"><div class="kpi-title">{title}</div><div class="kpi-value" style="font-size: 28px;">{value}</div><div class="kpi-sub">{footer_text}</div></div>""", unsafe_allow_html=True)
 
-def plot_bar_smart(df, x_col, y_col, color_col=None, colors=None, orientation='v'):
+def plot_bar_smart(df, x_col, y_col, color_col=None, colors=None, orientation='v', strict_order=None):
     if df.empty: return go.Figure()
-    df = df.sort_values(by=y_col, ascending=False)
+    
+    # Ordenación: Si hay strict_order (Precio), usarlo. Si no, por valor descendente (Canales, Marcas)
+    if strict_order:
+        # Forzar orden estricto
+        df = df.set_index(x_col).reindex(strict_order).fillna(0).reset_index()
+    else:
+        # Ordenar de Mayor a Menor (Izquierda a Derecha)
+        df = df.sort_values(by=y_col, ascending=False)
+    
     total = df[y_col].sum(); total = 1 if total == 0 else total
     df["pct"] = (df[y_col] / total * 100).round(1)
     df["text_inside"] = df.apply(lambda x: f"<b>{x['pct']}%</b>" if x[y_col] > 0 else "", axis=1)
+    
     fig = go.Figure()
     if orientation == 'v':
         if color_col: fig = px.bar(df, x=x_col, y=y_col, color=color_col, color_discrete_map=colors, text="text_inside")
         else: fig.add_trace(go.Bar(x=df[x_col], y=df[y_col], text=df["text_inside"], textposition='inside', marker_color=C_MAIN, textfont=dict(size=14, color='white')))
         fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide', margin=dict(t=40,b=20,l=0,r=0), height=400, xaxis_title=None, yaxis_title=None)
         fig.update_yaxes(range=[0, df[y_col].max() * 1.15])
-        for i, row in df.iterrows(): fig.add_annotation(x=row[x_col], y=row[y_col], text=f"<b>{int(row[y_col])}</b>", yshift=15, showarrow=False, font=dict(size=16, color="black"))
+        for i, row in df.iterrows(): 
+            if row[y_col]>0: fig.add_annotation(x=row[x_col], y=row[y_col], text=f"<b>{int(row[y_col])}</b>", yshift=15, showarrow=False, font=dict(size=16, color="black"))
     else:
         df = df.sort_values(by=y_col, ascending=True) 
         fig.add_trace(go.Bar(y=df[x_col], x=df[y_col], text=df["text_inside"], textposition='inside', orientation='h', marker_color=C_MAIN, textfont=dict(size=12, color='white')))
         fig.update_layout(margin=dict(t=20,b=20,l=0,r=20), height=400, xaxis_title=None, yaxis_title=None)
         max_x = df[y_col].max() * 1.15
         fig.update_xaxes(range=[0, max_x])
-        for i, row in df.iterrows(): fig.add_annotation(y=row[x_col], x=row[y_col], text=f"<b>{int(row[y_col])}</b>", xshift=20, showarrow=False, font=dict(size=14, color="black"))
+        for i, row in df.iterrows(): 
+            if row[y_col]>0: fig.add_annotation(y=row[x_col], x=row[y_col], text=f"<b>{int(row[y_col])}</b>", xshift=20, showarrow=False, font=dict(size=14, color="black"))
     return fig
 
 # ==============================================================================
@@ -257,6 +317,7 @@ def get_data_v100(start_date_limit):
         df_ord[["cost", "fiscal", "margin_real", "brand", "subcat", "rotation"]] = df_ord.apply(apply_data, axis=1)
     return df_ord, pd.DataFrame()
 
+# CORRECCIÓN DE BUG CRITICO EN CONTROL DE PRECIOS
 def get_current_stock_and_pricing():
     shop_url = st.secrets["shopify"]["shop_url"]; token = st.secrets["shopify"]["access_token"]; all_nodes = []; has_next = True; cursor = None
     for _ in range(15):
@@ -272,13 +333,35 @@ def get_current_stock_and_pricing():
         node = n["node"]; title_lower = node.get("title", "").lower(); tags = (node.get("tags") or []); inv = node.get("totalInventory", 0)
         if inv < 1 or "bici_market" in tags or any(bad in title_lower for bad in BLACKLIST): continue
         days = (datetime.now() - pd.to_datetime(node["createdAt"]).tz_convert(None)).days; updated_at = pd.to_datetime(node["updatedAt"]).tz_convert(None)
-        v_edges = node["variants"]["edges"]; 
+        
+        # FIX ROBUSTO PARA PRECIOS
+        v_edges = node["variants"]["edges"]
         if not v_edges: continue
-        v = v_edges[0]["node"]; p_curr = float(v["price"]); p_init = float(v["compareAtPrice"] or p_curr); raw_c = node["metafield"]["value"] if node["metafield"] else "0"; cost = float(re.sub(r'[^\d.]', '', str(raw_c).replace(',','.'))) if raw_c else 0.0; f = node["fiscal"]["value"] if node["fiscal"] else "PRO"; m_curr = 0.0
+        v = v_edges[0]["node"]
+        
+        try:
+            p_curr = float(v["price"])
+            comp_price = v.get("compareAtPrice")
+            p_init = float(comp_price) if comp_price else p_curr
+        except:
+            p_curr = 0.0; p_init = 0.0
+
+        # FIX ROBUSTO PARA COSTE Y FISCAL
+        raw_c_node = node.get("metafield")
+        raw_c = raw_c_node["value"] if raw_c_node else "0"
+        try:
+            cost = float(re.sub(r'[^\d.]', '', str(raw_c).replace(',','.'))) if raw_c else 0.0
+        except: cost = 0.0
+        
+        fiscal_node = node.get("fiscal")
+        f = fiscal_node["value"] if fiscal_node else "PRO"
+        
+        m_curr = 0.0
         if cost > 0:
             if "REBU" in str(f).upper(): m_curr = ((p_curr - cost) / 1.21)
             elif "INTRA" in str(f).upper(): m_curr = (p_curr - cost)
             else: m_curr = ((p_curr / 1.21) - (cost / 1.21))
+            
         stock_data.append({"sku": v["sku"], "title": node["title"], "img": node["featuredImage"]["url"] if node["featuredImage"] else None, "days": days, "price_curr": p_curr, "price_init": p_init, "cost": cost, "fiscal": f, "margin_curr": m_curr, "updated_at": updated_at})
     return pd.DataFrame(stock_data)
 
@@ -318,38 +401,43 @@ df_period = df_merged[(df_merged["date"] >= start_date) & (df_merged["date"] <= 
 
 # --- PAGE RESULTADOS ---
 if page == t["nav_res"]:
-    # LIGNE 1: HOY (2 CARDS)
+    # LIGNE 1: HOY (SOLO COL 1 y 2, 3 y 4 VACIAS)
     st.subheader(f"📅 {t['opt_today']} ({date_to_spanish(today_dt)})")
     d_ok = df_today[df_today["status"]=="paid"]; d_ko = df_today[df_today["status"]!="paid"]
-    k1, k2 = st.columns(2)
-    # CARD 1: PAGADAS (Avec Ingresos/Margen)
+    k1, k2, k3, k4 = st.columns(4)
+    # CARD 1: HOY PAGADAS (FULL INFO)
     rev_ok = d_ok['total_ttc'].sum(); mar_ok = d_ok['margin_real'].sum()
-    card_kpi_white(k1, t["t_kpi1"], len(d_ok), f"Ingresos: {rev_ok:,.0f}€", f"Margen: {mar_ok:,.0f}€", C_MAIN)
-    # CARD 2: PENDIENTES (Avec Ingresos/Margen)
+    card_kpi_complex(k1, t["t_kpi1"], len(d_ok), f"{rev_ok:,.0f} €", f"{mar_ok:,.0f} €", C_MAIN)
+    # CARD 2: HOY PENDIENTES (FULL INFO)
     rev_ko = d_ko['total_ttc'].sum(); mar_ko = d_ko['margin_real'].sum()
-    card_kpi_white(k2, t["t_kpi2"] + " ⏳", len(d_ko), f"Ingresos: {rev_ko:,.0f}€", f"Margen: {mar_ko:,.0f}€", C_SEC)
+    card_kpi_complex(k2, t["t_kpi2"] + " ⏳", len(d_ko), f"{rev_ko:,.0f} €", f"{mar_ko:,.0f} €", C_SEC)
+    # K3 y K4 vacíos intencionalmente para alinear a la izquierda
 
-    st.markdown("---")
+    # NO SEPARADOR ENTRE HOY Y SELEC
 
     # LIGNE 2 (VERT DOUX) - SELECTION
     header_txt = f"{t['opt_yesterday']} ({date_to_spanish(start_date)})" if date_mode == t['opt_yesterday'] else f"{date_to_spanish(start_date, 'day_num')} - {date_to_spanish(end_date, 'day_num')}"
-    st.subheader(f"📅 {header_txt}")
+    # st.subheader(f"📅 {header_txt}") (Titulo suprimido para pegar las lineas)
+    
     p_ok = df_period[df_period["status"]=="paid"]; p_ko = df_period[df_period["status"]!="paid"]
     kp1, kp2, kp3, kp4 = st.columns(4)
-    # FIX: card_kpi_soft expects 6 arguments (c, t, n, r, m, col)
-    # Passing empty string for col as it's not used in soft card CSS logic here
-    card_kpi_soft(kp1, "Ventas Pagadas", len(p_ok), "", "", "")
-    card_kpi_soft(kp2, "Ventas Pendientes ⏳", len(p_ko), "", "", "")
-    card_kpi_soft(kp3, "Ingresos Selec.", f"{p_ok['total_ttc'].sum():,.0f} €", "", "", "")
-    card_kpi_soft(kp4, "Margen Selec.", f"{p_ok['margin_real'].sum():,.0f} €", "", "", "")
     
-    # LIGNE 3 (VERT DOUX) - MEDIAS
+    # CARD SELEC 1: PAGADAS
+    kp1.markdown(f"""<div class="kpi-card-soft" style="border-left:5px solid {C_MAIN}"><div class="kpi-title">{t["t_kpi3"]}</div><div class="kpi-value">{len(p_ok)}</div><div class="kpi-sub"><span>{p_ok['total_ttc'].sum():,.0f} €</span><span style="color:#0a4650">{p_ok['margin_real'].sum():,.0f} €</span></div></div>""", unsafe_allow_html=True)
+    # CARD SELEC 2: PENDIENTES
+    kp2.markdown(f"""<div class="kpi-card-soft" style="border-left:5px solid {C_SEC}"><div class="kpi-title">{t["t_kpi4"]} ⏳</div><div class="kpi-value">{len(p_ko)}</div><div class="kpi-sub"><span>{p_ko['total_ttc'].sum():,.0f} €</span><span style="color:#0a4650">{p_ko['margin_real'].sum():,.0f} €</span></div></div>""", unsafe_allow_html=True)
+    # CARD SELEC 3: INGRESOS SELEC
+    kp3.markdown(f"""<div class="kpi-card-soft"><div class="kpi-title">Ingresos (Fecha Selec.)</div><div class="kpi-value">{p_ok['total_ttc'].sum():,.0f} €</div><div class="kpi-pending-txt">⏳ {p_ko['total_ttc'].sum():,.0f} €</div></div>""", unsafe_allow_html=True)
+    # CARD SELEC 4: MARGEN SELEC
+    kp4.markdown(f"""<div class="kpi-card-soft"><div class="kpi-title">Margen (Fecha Selec.)</div><div class="kpi-value">{p_ok['margin_real'].sum():,.0f} €</div><div class="kpi-pending-txt">⏳ {p_ko['margin_real'].sum():,.0f} €</div></div>""", unsafe_allow_html=True)
+    
+    # LIGNE 3 (MEDIAS) - PEGADA
     cm1, cm2, cm3, cm4 = st.columns(4)
     avg_price = p_ok['total_ttc'].mean() if not p_ok.empty else 0; avg_margin = p_ok['margin_real'].mean() if not p_ok.empty else 0; total_rev = p_ok['total_ttc'].sum(); total_marg = p_ok['margin_real'].sum(); avg_marg_pct = (total_marg / total_rev * 100) if total_rev > 0 else 0; avg_rot = p_ok['rotation'].mean() if not p_ok.empty else 0
-    card_kpi_soft(cm1, t["avg_price"], f"{avg_price:,.0f}€", "", "", "")
-    card_kpi_soft(cm2, t["avg_margin"], f"{avg_margin:,.0f}€", "", "", "")
-    card_kpi_soft(cm3, t["avg_margin_pct"], f"{avg_marg_pct:,.1f}%", "", "", "")
-    card_kpi_soft(cm4, t["avg_rot"], f"{avg_rot:,.0f} {t['unit_days']}", "", "", "")
+    card_kpi_soft(cm1, t["avg_price"] + " (Fecha Selec.)", f"{avg_price:,.0f}€", "")
+    card_kpi_soft(cm2, t["avg_margin"] + " (Fecha Selec.)", f"{avg_margin:,.0f}€", "")
+    card_kpi_soft(cm3, t["avg_margin_pct"] + " (Fecha Selec.)", f"{avg_marg_pct:,.1f}%", "")
+    card_kpi_soft(cm4, t["avg_rot"] + " (Fecha Selec.)", f"{avg_rot:,.0f} {t['unit_days']}", "")
     
     st.markdown("---")
     
@@ -382,7 +470,8 @@ if page == t["nav_res"]:
             bins = [0, 1000, 1500, 2500, 4000, 100000]; labels = ["<1k", "1k-1.5k", "1.5k-2.5k", "2.5k-4k", ">4k"]
             p_ok['price_range'] = pd.cut(p_ok['total_ttc'], bins=bins, labels=labels)
             df_pr = p_ok.groupby("price_range").size().reset_index(name="c")
-            st.plotly_chart(plot_bar_smart(df_pr, "price_range", "c"), use_container_width=True)
+            # Orden estricto por Valor (<1k a >4k)
+            st.plotly_chart(plot_bar_smart(df_pr, "price_range", "c", strict_order=labels), use_container_width=True)
 
 # --- PAGE EVOLUCION ---
 elif page == t["nav_evol"] and not df_merged.empty:
@@ -396,6 +485,7 @@ elif page == t["nav_evol"] and not df_merged.empty:
     
     with c_head: st.subheader(f"{t['evol_title']} - {date_to_spanish(date(2024, sel_month_idx, 1), 'month')} {sel_year}")
     
+    # 1. GRÁFICO DIARIO (MES SELECCIONADO)
     df_evol = df_merged[(df_merged['date'].dt.month == sel_month_idx) & (df_merged['date'].dt.year == sel_year)].copy()
     if not df_evol.empty or True:
         start_m = date(sel_year, sel_month_idx, 1); next_m = start_m + timedelta(days=32); end_m = next_m.replace(day=1) - timedelta(days=1); full_range = pd.date_range(start=start_m, end=end_m)
@@ -404,17 +494,19 @@ elif page == t["nav_evol"] and not df_merged.empty:
 
     st.markdown("---")
 
-    # 2. SECCIÓN VISTA ANUAL
-    st.header("VISTA ANUAL (Enero - Diciembre)")
+    # 2. VISTA ANUAL (ENERO - DICIEMBRE)
     c_head_yr, c_sel_yr = st.columns([6, 2])
-    with c_sel_yr: sel_year_anual = st.selectbox(f"{t['sel_year']} (Vista Anual)", options=years_list, index=0)
+    with c_sel_yr: sel_year_anual = st.selectbox(f"{t['sel_year']} (Evolución Anual)", options=years_list, index=0)
     
     df_year = df_merged[(df_merged['date'].dt.year == sel_year_anual) & (df_merged["status"]=="paid")].copy()
     
+    # Rango completo Enero (1) a Diciembre (12)
+    full_months = pd.DataFrame({'month': range(1, 13)})
+    month_map = {1: "Ene", 2: "Feb", 3: "Mar", 4: "Abr", 5: "May", 6: "Jun", 7: "Jul", 8: "Ago", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dic"}
+    
+    # 2.1 CATEGORIAS
+    st.subheader("🚲 Categorías (Evolución Anual)")
     if not df_year.empty:
-        month_map = {1: "Ene", 2: "Feb", 3: "Mar", 4: "Abr", 5: "May", 6: "Jun", 7: "Jul", 8: "Ago", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dic"}
-        
-        st.subheader("🚲 Categorías (Evolución Anual)")
         def map_cat(s):
             s = str(s).lower()
             if "carretera" in s: return "Route"
@@ -425,43 +517,62 @@ elif page == t["nav_evol"] and not df_merged.empty:
         df_year["cat_clean"] = df_year["subcat"].apply(map_cat)
         df_cat = df_year[df_year["cat_clean"] != "Autre"].groupby([df_year['date'].dt.month, "cat_clean"]).size().reset_index(name="count")
         df_cat.columns = ["month", "cat_clean", "count"]
+        # Merge con meses completos para asegurar eje X
         fig2 = px.line(df_cat, x="month", y="count", color="cat_clean", markers=True, color_discrete_map={"Route": C_MAIN, "VTT": C_SEC, "Gravel": C_TER, "E-Bike": "#f59e0b"})
-        fig2.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified", xaxis=dict(tickmode='array', tickvals=list(month_map.keys()), ticktext=list(month_map.values())))
+        fig2.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified", xaxis=dict(tickmode='array', tickvals=list(month_map.keys()), ticktext=list(month_map.values()), range=[0.5, 12.5]))
         st.plotly_chart(fig2, use_container_width=True)
-        
-        st.markdown("---")
+    else: st.info(f"No hay datos para {sel_year_anual}")
+    
+    st.markdown("---")
 
-        st.subheader("💰 Rangos de Precio (Evolución Anual)")
+    # 2.2 RANGOS PRECIO
+    st.subheader("💰 Rangos de Precio (Evolución Anual)")
+    if not df_year.empty:
         bins = [0, 1000, 1500, 2500, 4000, 100000]; labels = ["<1k", "1k-1.5k", "1.5k-2.5k", "2.5k-4k", ">4k"]
         df_year['price_range'] = pd.cut(df_year['total_ttc'], bins=bins, labels=labels)
         df_pr = df_year.groupby([df_year['date'].dt.month, "price_range"]).size().reset_index(name="count")
         df_pr.columns = ["month", "price_range", "count"]
         fig3 = px.line(df_pr, x="month", y="count", color="price_range", markers=True, color_discrete_sequence=px.colors.sequential.Teal)
-        fig3.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified", xaxis=dict(tickmode='array', tickvals=list(month_map.keys()), ticktext=list(month_map.values())))
+        fig3.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified", xaxis=dict(tickmode='array', tickvals=list(month_map.keys()), ticktext=list(month_map.values()), range=[0.5, 12.5]))
         st.plotly_chart(fig3, use_container_width=True)
 
-        st.markdown("---")
+    st.markdown("---")
 
-        st.subheader("🌐 Canales (Evolución Anual)")
+    # 2.3 CANALES
+    st.subheader("🌐 Canales (Evolución Anual)")
+    if not df_year.empty:
         df_ch = df_year.groupby([df_year['date'].dt.month, "channel"]).size().reset_index(name="count")
         df_ch.columns = ["month", "channel", "count"]
         fig4 = px.line(df_ch, x="month", y="count", color="channel", markers=True, color_discrete_map={"Online": C_SEC, "Marketplace": C_MAIN, "Tienda": C_TER})
-        fig4.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified", xaxis=dict(tickmode='array', tickvals=list(month_map.keys()), ticktext=list(month_map.values())))
+        fig4.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified", xaxis=dict(tickmode='array', tickvals=list(month_map.keys()), ticktext=list(month_map.values()), range=[0.5, 12.5]))
         st.plotly_chart(fig4, use_container_width=True)
 
-    else:
-        st.info(f"No hay datos para el año {sel_year_anual}.")
-
-# --- PAGE TABLA VENTAS ---
+# --- PAGE TABLA VENTAS (CORREGIDA) ---
 elif page == t["nav_table"] and not df_merged.empty:
     st.header(f"📋 {t['nav_table']}"); 
     df_x = df_period[df_period["status"]=="paid"].copy().sort_values("date", ascending=True); df_x["margin_cum"] = df_x["margin_real"].cumsum(); df_x = df_x.sort_values("date", ascending=False); df_x["#"] = range(len(df_x), 0, -1)
+    
+    # Función de display corregida
     def display_styled_table(df_input, is_mp=False):
         df_show = df_input.copy()
         if is_mp: df_show = df_show.sort_values("date", ascending=True); df_show["margin_cum"] = df_show["margin_real"].cumsum(); df_show = df_show.sort_values("date", ascending=False)
-        df_show["canal_full"] = df_show.apply(lambda x: f"{x['channel']} ({x['mp_name']})" if x['channel']=="Marketplace" else x['channel'], axis=1); df_show["date_str"] = df_show["date"].dt.strftime("%d/%m/%Y"); df_show["date_group"] = (df_show["date_str"] != df_show["date_str"].shift()).cumsum()
-        cols_final = ["#", "order_name", "canal_full", "country", "date_str", "sku", "cost", "total_ttc", "margin_real", "margin_cum", "date_group"]
-        st.dataframe(df_show[cols_final].style.apply(lambda row: [f'background-color: {C_GRAY_LIGHT if row["date_group"]%2==0 else "white"}; color: #333;'] * len(row), axis=1).format({c: "{:,.0f} €".replace(",", " ") for c in ["cost", "total_ttc", "margin_real", "margin_cum"]}), use_container_width=True, height=600, hide_index=True, column_config={"#": st.column_config.TextColumn("#", width="small")}, column_order=["#", t["col_order"], t["col_channel"], t["col_country"], t["col_date"], t["col_sku"], t["col_cost"], t["col_price"], t["col_margin"], t["col_margin_tot"]])
+        
+        # Mapeo de columnas internas a nombres legibles
+        df_show["canal_full"] = df_show.apply(lambda x: f"{x['channel']} ({x['mp_name']})" if x['channel']=="Marketplace" else x['channel'], axis=1)
+        df_show["date_str"] = df_show["date"].dt.strftime("%d/%m/%Y")
+        
+        # Solo columnas necesarias
+        cols = ["#", "order_name", "canal_full", "country", "date_str", "sku", "cost", "total_ttc", "margin_real", "margin_cum"]
+        # Renombrar para display
+        df_display = df_show[cols].copy()
+        df_display.columns = ["#", t["col_order"], t["col_channel"], t["col_country"], t["col_date"], t["col_sku"], t["col_cost"], t["col_price"], t["col_margin"], t["col_margin_tot"]]
+        
+        # Formato moneda
+        for c in [t["col_cost"], t["col_price"], t["col_margin"], t["col_margin_tot"]]:
+            df_display[c] = df_display[c].apply(lambda x: f"{x:,.0f} €")
+
+        st.dataframe(df_display, use_container_width=True, height=600, hide_index=True)
+
     display_styled_table(df_x)
     st.markdown("---"); st.subheader(t["mp_forecast"]); df_mp = df_x[df_x["channel"] == "Marketplace"].copy()
     if not df_mp.empty: display_styled_table(df_mp, is_mp=True)
@@ -491,7 +602,6 @@ elif page == t["nav_calc"]:
         final_margin = (final_P - cost_val)/1.21 if active_regime == "REBU" else ((final_P/(1+vat_rate)) - (cost_val/1.21) if active_regime == "PRO" else ((final_P/(1+vat_rate)) - cost_val if active_regime == "INTRA" else 0))
         if active_regime: st.markdown(f"""<div style="background:{C_SOFT}; border: 3px solid {C_SEC}; transform:scale(1.02); box-shadow:0 10px 20px rgba(0,0,0,0.1); padding:20px; border-radius:15px; text-align:center; margin: 0 auto; width: 100%; margin-bottom:15px;"><div style="font-weight:bold; color:#555; font-size:18px;">{active_regime} -> {sel_country}</div><div style="font-size:42px; font-weight:900; color:{C_MAIN}">{final_margin:,.0f} €</div></div>""", unsafe_allow_html=True)
         
-        # TEXTO DE AYUDA FISCAL
         with st.expander(t["help_fiscal_title"], expanded=False):
             st.markdown("""
             ### 1️⃣ ORIGEN REBU (Comprado a Particular)
