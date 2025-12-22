@@ -30,6 +30,52 @@ hide_st_style = """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 import pandas as pd
 import requests
+# 1. Configuration de la page
+st.set_page_config(
+    page_title="Tuvalum Dashboard",
+    page_icon="🚲",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# 2. INVISIBILITÉ GOOGLE + CSS POUR ESPACE ET MENU
+st.markdown(
+    """
+    <meta name="robots" content="noindex, nofollow">
+    <style>
+        /* Supprimer le vide en haut de page (remonte de 50px environ) */
+        .block-container {
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+        }
+        /* Cacher le menu Hamburger (3 points), le header et le footer */
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {display: none !important;}
+        
+        /* Forcer le fond blanc (au cas où le config.toml ne charge pas assez vite) */
+        [data-testid="stAppViewContainer"] {background-color: white;}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# 3. CRÉATION DE TA BARRE LATÉRALE "AJUSTES"
+with st.sidebar:
+    st.image("logo.png") # Ton logo en haut
+    
+    # --- Ta section personnalisée ---
+    st.markdown("---") # Une ligne de séparation
+    st.header("⚙️ Ajustes")
+    
+    if st.button("🔄 Actualizar datos (Rerun)"):
+        st.rerun()
+        
+    if st.button("🧹 Limpiar memoria (Cache)"):
+        st.cache_data.clear()
+        st.success("Memoria limpia!")
+        
+    st.markdown("---")
 from datetime import datetime, timedelta, date
 import plotly.express as px
 import plotly.graph_objects as go
@@ -935,6 +981,7 @@ elif page == T["nav_price"]:
             else: st.info("0 vélos.")
 
     else: st.info("No data.")
+
 
 
 
