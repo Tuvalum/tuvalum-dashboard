@@ -141,12 +141,10 @@ TRADUCTIONS = {
         "pricing_title": "Control de Precios & Rotación", "col_img": "Foto", "col_p_init": "P. Origen", "col_p_curr": "P. Actual", "col_p_rec": "P. Rec.", "col_action": "Acción (€)", "col_margin_proj": "Margen Proy.",
         "advice_ok": "✅ Mantener Precio", "advice_disc": "📉 Descuento Máximo", "advice_neutral": "⚪ Descuento Recomendado",
         "btn_search": "Comparar Precio (Google)", "vat_select": "🌍 País Destino (IVA)",
-        "help_fiscal_title": "📘 Ayuda Fiscal (La Matriz Definitiva)", "evol_title": "Evolución Mensual", "sel_month": "Mes", "sel_year": "Año",
+        "help_fiscal_title": "📘 Ayuda Fiscal", "evol_title": "Evolución Mensual", "sel_month": "Mes", "sel_year": "Año",
         "settings": "⚙️ Ajustes", "clean_mem": "🗑️ Limpiar Memoria",
         "mp_forecast": "💰 Previsión Cobros Marketplaces"
-    },
-    "English": {"lang_code": "EN", "nav_header": "📊 Dashboard", "nav_res": "Results", "nav_table": "Sales Table", "nav_calc": "Margin & Disc.", "nav_price": "Price Control", "date_header": "📅 Period", "opt_prev_month": "Last Month", "opt_yesterday": "Yesterday", "opt_today": "Today", "opt_month": "This Month", "opt_year": "This Year", "opt_custom": "Custom", "btn_refresh": "Update", "t_kpi1": "Sales Today (Paid)", "t_kpi2": "Sales Today (Pending)", "t_kpi3": "Sales Select. (Paid)", "t_kpi4": "Sales Select. (Pending)", "sub_rev": "Rev.", "sub_mar": "Margin", "chart_channel": "Channels", "chart_mp": "Marketplaces", "chart_subcat": "Category", "chart_brand": "Top 5 Brands", "chart_price": "Price Range", "chart_country": "Countries", "avg_price": "Avg Price", "avg_margin": "Avg Margin", "avg_margin_pct": "Margin %", "avg_rot": "Avg Rotation", "loading": "⏳ Loading...", "calc_title": "Financial Calculator", "calc_info": "SKU Search.", "sku_ph": "ex: 201414", "sku_found": "Found", "sku_not_found": "SKU Not Found", "regime": "Fiscal", "age": "Age", "price_input": "Price (€)", "cost_input": "Cost (€)", "discount_input": "Discount (€)", "sim_title": "Gross Margin", "advice_ok": "✅ Hold Price", "advice_disc": "📉 Rec. Discount", "advice_neutral": "⚪ Recommended Discount", "unit_days": "days", "state_new": "New", "state_recond": "Reconditioned", "col_sku": "SKU", "col_order": "Order", "col_country": "Country", "col_channel": "Channel", "col_price": "Paid Price", "col_cost": "Cost", "col_margin": "Margin", "col_margin_tot": "Total Margin", "col_rot": "Rot.", "col_prod": "Product", "col_date": "Date", "col_cat": "Cat.", "col_subcat": "Sub-Cat.", "col_fiscal": "Regime", "pricing_title": "Pricing & Rotation", "col_img": "Photo", "col_p_init": "Init. Price", "col_p_curr": "Curr. Price", "col_p_rec": "Rec. Price", "col_action": "Action (€)", "col_margin_proj": "Proj. Margin", "btn_search": "Compare Price (Google)", "vat_select": "🌍 Destination (VAT)", "help_fiscal_title": "📘 Fiscal Help", "evol_title": "Monthly Evolution", "sel_month": "Month", "sel_year": "Year", "settings": "⚙️ Settings", "clean_mem": "🗑️ Clear Memory", "mp_forecast": "💰 Marketplace Cash Flow"}
-}
+    }
 
 # HELPER TRADUCTION DATE
 def date_to_spanish(dt, format_type="full"):
@@ -317,7 +315,6 @@ end_date = pd.to_datetime(st.session_state.end_date_state).replace(hour=23, minu
 
 st.sidebar.markdown("---")
 with st.sidebar.expander("⚙️ Ajustes", expanded=False):
-    lang_choice = st.radio("Idioma", ["Español", "English"], label_visibility="collapsed")
     if st.button("🗑️ Limpiar Memoria", use_container_width=True):
         st.cache_data.clear(); st.session_state.clear(); st.rerun()
 T = TRADUCTIONS[lang_choice] 
@@ -981,6 +978,7 @@ elif page == T["nav_price"]:
             else: st.info("0 vélos.")
 
     else: st.info("No data.")
+
 
 
 
