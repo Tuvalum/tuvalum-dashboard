@@ -1,81 +1,6 @@
 import streamlit as st
-st.set_page_config(
-    page_title="Tuvalum Dashboard",  # Tu peux changer le titre ici
-    page_icon="🚲",                  # Tu peux changer l'icône (emoji)
-    layout="wide",                   # Utilise toute la largeur de l'écran
-    # C'est LA partie magique qui cache les menus :
-    menu_items={
-        'Get Help': None,
-        'Report a bug': None,
-        'About': None
-    }
-)
-st.markdown(
-    """
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="googlebot" content="noindex, nofollow">
-    """,
-    unsafe_allow_html=True
-)
-# --- MASQUER LE PIED DE PAGE ET LE MENU ---
-hide_st_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
-            /* On ajoute display: none et !important pour forcer le masquage */
-            footer {display: none !important;}
-            </style>
-            """
-st.markdown(hide_st_style, unsafe_allow_html=True)
 import pandas as pd
 import requests
-# 1. Configuration de la page
-st.set_page_config(
-    page_title="Tuvalum Dashboard",
-    page_icon="🚲",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# 2. INVISIBILITÉ GOOGLE + CSS POUR ESPACE ET MENU
-st.markdown(
-    """
-    <meta name="robots" content="noindex, nofollow">
-    <style>
-        /* Supprimer le vide en haut de page (remonte de 50px environ) */
-        .block-container {
-            padding-top: 1rem !important;
-            padding-bottom: 1rem !important;
-        }
-        /* Cacher le menu Hamburger (3 points), le header et le footer */
-        #MainMenu {visibility: hidden;}
-        header {visibility: hidden;}
-        footer {display: none !important;}
-        
-        /* Forcer le fond blanc (au cas où le config.toml ne charge pas assez vite) */
-        [data-testid="stAppViewContainer"] {background-color: white;}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# 3. CRÉATION DE TA BARRE LATÉRALE "AJUSTES"
-with st.sidebar:
-    st.image("logo.png") # Ton logo en haut
-    
-    # --- Ta section personnalisée ---
-    st.markdown("---") # Une ligne de séparation
-    st.header("⚙️ Ajustes")
-    
-    if st.button("🔄 Actualizar datos (Rerun)"):
-        st.rerun()
-        
-    if st.button("🧹 Limpiar memoria (Cache)"):
-        st.cache_data.clear()
-        st.success("Memoria limpia!")
-        
-    st.markdown("---")
 from datetime import datetime, timedelta, date
 import plotly.express as px
 import plotly.graph_objects as go
@@ -88,18 +13,68 @@ import base64
 # ==============================================================================
 # 1. CONFIGURATION & DESIGN
 # ==============================================================================
-st.set_page_config(page_title="Tuvalum Dashboard", layout="wide", page_icon="🚲")
+st.set_page_config(
+    page_title="Tuvalum Dashboard",
+    page_icon="🚲",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': None,
+        'Report a bug': None,
+        'About': None
+    }
+)
 
 # COULEURS
 C_MAIN = "#0a4650"   # Vert Foncé
 C_SEC = "#08e394"    # Vert Flashy
 C_TER = "#dcff54"    # Vert Clair
 C_SOFT = "#e0fdf4"   # Vert Doux
-C_BG = "#f2f7f8"     # Fond Gris
+C_BG = "#ffffff"     # Fond Blanc (Forcé)
 C_ALERT = "#ff4b4b"  # Rouge
 C_WARN = "#ffa421"   # Orange
 C_GRAY_LIGHT = "#e5e7eb"
 C_GRAY_NEUTRAL = "#9ca3af"
+
+# INVISIBILITÉ GOOGLE + CSS POUR ESPACE ET MENU
+st.markdown(
+    """
+    <meta name="robots" content="noindex, nofollow">
+    <style>
+        /* Supprimer le vide en haut de page */
+        .block-container {
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+        }
+        /* Cacher le menu Hamburger (3 points), le header et le footer */
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {display: none !important;}
+        
+        /* Forcer le fond blanc partout */
+        [data-testid="stAppViewContainer"] {background-color: white;}
+        .stApp {background-color: white !important;}
+        
+        /* Style boutons */
+        .stButton button {background-color: #0a4650 !important; color:white !important; border-radius: 8px; border:none;}
+        
+        /* Cartes KPI */
+        .kpi-card, .kpi-card-soft {
+            background-color: white; padding: 20px; border-radius: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e1e8e8; 
+            margin-bottom: 20px; min-height: 140px; display: flex; flex-direction: column; justify-content: center;
+        }
+        .kpi-card-soft {background-color: #e0fdf4; border: 1px solid #d1fae5; opacity: 0.95;}
+        .kpi-title {font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase;} 
+        .kpi-value {font-size: 32px; color: #0a4650; font-weight: 800; margin: 5px 0;} 
+        .kpi-sub {font-size: 16px; font-weight: 700; color: #64748b; display:flex; justify-content:space-between; margin-top:8px;}
+        
+        /* Images produits */
+        .product-img {border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; width: 100%; object-fit: cover;}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # RÈGLES FINANCIÈRES
 MIN_MARGIN_BUFFER = 50.0
@@ -145,6 +120,7 @@ TRADUCTIONS = {
         "settings": "⚙️ Ajustes", "clean_mem": "🗑️ Limpiar Memoria",
         "mp_forecast": "💰 Previsión Cobros Marketplaces"
     }
+}
 # Force la langue espagnole
 t = TRADUCTIONS["Español"]
 
@@ -172,7 +148,7 @@ def card_kpi_soft(c, t, n, r, m, col):
     c.markdown(f"""<div class="kpi-card-soft" style="border-left:5px solid {col};"><div class="kpi-title">{t}</div><div class="kpi-value">{n}</div><div class="kpi-sub"><span>{r}</span><span style="color:#0a4650">{m}</span></div></div>""", unsafe_allow_html=True)
 
 # ==============================================================================
-# 2. LOGIN SYSTEM & CSS LOADING
+# 2. LOGIN SYSTEM
 # ==============================================================================
 def check_password():
     if "password_correct" not in st.session_state: st.session_state["password_correct"] = False
@@ -222,92 +198,51 @@ def check_password():
 
 if not check_password(): st.stop()
 
-# --- CSS APP (Only loaded IF logged in) ---
-st.markdown(f"""<style>
-    .stApp {{background-color: {C_BG};}} 
-    .stButton button {{background-color: {C_MAIN} !important; color:white !important; border-radius: 8px; border:none;}}
-    .stSpinner {{display: none !important;}} .stProgress {{display: none !important;}}
-    
-    .kpi-card, .kpi-card-soft {{
-        background-color: white; padding: 20px; border-radius: 15px; 
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e1e8e8; 
-        margin-bottom: 20px; min-height: 140px; display: flex; flex-direction: column; justify-content: center;
-    }}
-    .kpi-card-soft {{background-color: {C_SOFT}; border: 1px solid #d1fae5; opacity: 0.95;}}
-    .kpi-title {{font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase;}} 
-    .kpi-value {{font-size: 32px; color: {C_MAIN}; font-weight: 800; margin: 5px 0;}} 
-    .kpi-sub {{font-size: 16px; font-weight: 700; color: #64748b; display:flex; justify-content:space-between; margin-top:8px;}}
-    
-    /* INPUTS GLOBAL STYLING (SAME AS SKU V100) */
-    input:focus, textarea:focus, select:focus, div[data-baseweb="select"] > div:first-child {{border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important;}}
-    div[data-baseweb="input"] {{border-color: transparent; border: 1px solid #e2e8f0;}}
-    div[data-baseweb="input"]:focus-within {{border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important;}}
-    
-    /* SKU INPUT V100 (Identical to Selectbox) */
-    div[data-testid="stTextInput"] input[placeholder*="201414"] {{
-        font-size: 16px !important; font-weight: normal !important; color: #333 !important; 
-        height: 42px !important; background-color: white !important;
-        border: 1px solid #e2e8f0 !important; text-align: left !important;
-        border-radius: 4px !important; padding-left: 10px !important;
-    }}
-    div[data-testid="stTextInput"] input[placeholder*="201414"]:focus {{
-        border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important;
-    }}
-    
-    div[role="radiogroup"] > label > div:first-of-type {{background-color: {C_BG} !important; border-color: {C_SEC} !important;}}
-    div[role="radiogroup"] > label[data-baseweb="radio"] > div:first-child {{background-color: {C_SEC} !important;}}
-    span[data-baseweb="tag"] {{background-color: {C_SEC} !important;}}
-    div[role="grid"] div[aria-selected="true"] {{background-color: {C_SEC} !important; color: white !important;}}
-    .product-img {{border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; width: 100%; object-fit: cover;}}
-    #MainMenu {{visibility: visible;}} footer {{visibility: hidden;}}
-</style>""", unsafe_allow_html=True)
-
 # --- SIDEBAR ---
 if os.path.exists("images/logo rond.png"): 
     st.sidebar.markdown("<br>", unsafe_allow_html=True)
     c_logo, _ = st.sidebar.columns([1, 0.5])
     with c_logo: st.image("images/logo rond.png", width=120)
+elif os.path.exists("logo.png"):
+    st.sidebar.image("logo.png", width=150)
 
 st.sidebar.markdown("---")
-# AJUSTES MOVED TO BOTTOM
-lang_choice = "Español" 
-T = TRADUCTIONS[lang_choice]
-
-st.sidebar.caption(T["nav_header"])
-page = st.sidebar.radio("Nav", [T["nav_res"], T["nav_table"], T["nav_calc"], T["nav_price"]], label_visibility="collapsed")
+# AJUSTES
+st.sidebar.caption(t["nav_header"])
+page = st.sidebar.radio("Nav", [t["nav_res"], t["nav_table"], t["nav_calc"], t["nav_price"]], label_visibility="collapsed")
 
 st.sidebar.markdown("---")
-st.sidebar.caption(T["date_header"])
-mode_options = [T['opt_prev_month'], T['opt_yesterday'], T['opt_today'], T['opt_month'], T['opt_year'], T['opt_custom']]
+st.sidebar.caption(t["date_header"])
+mode_options = [t['opt_prev_month'], t['opt_yesterday'], t['opt_today'], t['opt_month'], t['opt_year'], t['opt_custom']]
 date_mode = st.sidebar.radio("", mode_options, index=3, label_visibility="collapsed")
 
 now = datetime.now(); today_dt = now.date(); jan1 = today_dt.replace(month=1, day=1)
 if 'start_date_state' not in st.session_state: st.session_state.start_date_state = today_dt.replace(day=1)
 if 'end_date_state' not in st.session_state: st.session_state.end_date_state = today_dt
 
-if date_mode == T['opt_today']: 
+if date_mode == t['opt_today']: 
     st.session_state.start_date_state = today_dt
     st.session_state.end_date_state = today_dt
-elif date_mode == T['opt_yesterday']:
+elif date_mode == t['opt_yesterday']:
     yesterday = today_dt - timedelta(days=1)
     st.session_state.start_date_state = yesterday
     st.session_state.end_date_state = yesterday
-elif date_mode == T['opt_month']: 
+elif date_mode == t['opt_month']: 
     st.session_state.start_date_state = today_dt.replace(day=1)
     st.session_state.end_date_state = today_dt
-elif date_mode == T['opt_prev_month']:
+elif date_mode == t['opt_prev_month']:
     first_this = today_dt.replace(day=1)
     last_prev = first_this - timedelta(days=1)
     first_prev = last_prev.replace(day=1)
     st.session_state.start_date_state = first_prev
     st.session_state.end_date_state = last_prev
-elif date_mode == T['opt_year']: 
+elif date_mode == t['opt_year']: 
     st.session_state.start_date_state = today_dt.replace(month=1, day=1)
     st.session_state.end_date_state = today_dt
 else:
     with st.sidebar.form("custom_date"):
-        d_input = st.date_input(T['opt_custom'], value=(st.session_state.start_date_state, st.session_state.end_date_state))
-        if st.form_submit_button(T["btn_refresh"]):
+        d_input = st.date_input(t['opt_custom'], value=(st.session_state.start_date_state, st.session_state.end_date_state))
+        if st.form_submit_button(t["btn_refresh"]):
             if isinstance(d_input, (list, tuple)) and len(d_input) > 0:
                 st.session_state.start_date_state = d_input[0]
                 st.session_state.end_date_state = d_input[1] if len(d_input) > 1 else d_input[0]
@@ -316,10 +251,14 @@ start_date = pd.to_datetime(st.session_state.start_date_state)
 end_date = pd.to_datetime(st.session_state.end_date_state).replace(hour=23, minute=59, second=59)
 
 st.sidebar.markdown("---")
-with st.sidebar.expander("⚙️ Ajustes", expanded=False):
-    if st.button("🗑️ Limpiar Memoria", use_container_width=True):
-        st.cache_data.clear(); st.session_state.clear(); st.rerun()
-T = TRADUCTIONS[lang_choice] 
+# Section Ajustes Perso
+st.sidebar.header("⚙️ Ajustes")
+if st.sidebar.button("🔄 Actualizar datos (Rerun)"):
+    st.rerun()
+if st.sidebar.button("🧹 Limpiar memoria (Cache)"):
+    st.cache_data.clear()
+    st.success("Memoria limpia!")
+st.sidebar.markdown("---")
 
 # --- MOTEUR DATA ---
 def fetch_product_details_batch(prod_id_list):
@@ -590,7 +529,7 @@ def plot_bar_smart(df, x_col, y_col, color_col=None, colors=None, fixed_order=No
 placeholder = st.empty() # V100: LOADING PLACEHOLDER
 
 with placeholder.container():
-    st.markdown(f"<div style='text-align:center; padding-top:100px;'><h3>{T['loading']}</h3></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align:center; padding-top:100px;'><h3>{t['loading']}</h3></div>", unsafe_allow_html=True)
 
 df_merged, df_returns = get_data_v100(start_date)
 
@@ -599,22 +538,22 @@ placeholder.empty() # Clear loading
 df_today = df_merged[(df_merged["date"] >= pd.to_datetime(today_dt)) & (df_merged["date"] < pd.to_datetime(today_dt) + timedelta(days=1))] if not df_merged.empty else pd.DataFrame()
 df_period = df_merged[(df_merged["date"] >= start_date) & (df_merged["date"] <= end_date)] if not df_merged.empty else pd.DataFrame()
 
-if page == T["nav_res"] and not df_merged.empty:
+if page == t["nav_res"] and not df_merged.empty:
     t_range = f"{start_date.strftime('%d/%m')} - {end_date.strftime('%d/%m')}"
-    header_txt = f"### 📅 {T['opt_yesterday']} ({date_to_spanish(start_date)})" if date_mode == T['opt_yesterday'] else f"### 📅 {date_to_spanish(start_date, 'day_num')} - {date_to_spanish(end_date, 'day_num')}"
+    header_txt = f"### 📅 {t['opt_yesterday']} ({date_to_spanish(start_date)})" if date_mode == t['opt_yesterday'] else f"### 📅 {date_to_spanish(start_date, 'day_num')} - {date_to_spanish(end_date, 'day_num')}"
     
     c1, c2 = st.columns(2)
-    c1.markdown(f"### 📅 {T['opt_today']} ({date_to_spanish(today_dt)})")
+    c1.markdown(f"### 📅 {t['opt_today']} ({date_to_spanish(today_dt)})")
     c2.markdown(header_txt)
     
     d_ok = df_today[df_today["status"]=="paid"]; d_ko = df_today[df_today["status"].isin(["pending","partially_paid"])]
     p_ok = df_period[df_period["status"]=="paid"]; p_ko = df_period[df_period["status"].isin(["pending","partially_paid"])]
     
     k1,k2,k3,k4 = st.columns(4)
-    card_kpi_white(k1, T["t_kpi1"], len(d_ok), f"{T['sub_rev']}: {d_ok['total_ttc'].sum():,.0f}€", f"{T['sub_mar']}: {d_ok['margin_real'].sum():,.0f}€", C_MAIN)
-    card_kpi_white(k2, T["t_kpi2"], len(d_ko), f"{T['sub_rev']}: {d_ko['total_ttc'].sum():,.0f}€", f"{T['sub_mar']}: {d_ko['margin_real'].sum():,.0f}€", C_SEC)
-    card_kpi_soft(k3, T["t_kpi3"], len(p_ok), f"{T['sub_rev']}: {p_ok['total_ttc'].sum():,.0f}€", f"{T['sub_mar']}: {p_ok['margin_real'].sum():,.0f}€", C_MAIN)
-    card_kpi_soft(k4, T["t_kpi4"], len(p_ko), f"{T['sub_rev']}: {p_ko['total_ttc'].sum():,.0f}€", f"{T['sub_mar']}: {p_ko['margin_real'].sum():,.0f}€", C_SEC)
+    card_kpi_white(k1, t["t_kpi1"], len(d_ok), f"{t['sub_rev']}: {d_ok['total_ttc'].sum():,.0f}€", f"{t['sub_mar']}: {d_ok['margin_real'].sum():,.0f}€", C_MAIN)
+    card_kpi_white(k2, t["t_kpi2"], len(d_ko), f"{t['sub_rev']}: {d_ko['total_ttc'].sum():,.0f}€", f"{t['sub_mar']}: {d_ko['margin_real'].sum():,.0f}€", C_SEC)
+    card_kpi_soft(k3, t["t_kpi3"], len(p_ok), f"{t['sub_rev']}: {p_ok['total_ttc'].sum():,.0f}€", f"{t['sub_mar']}: {p_ok['margin_real'].sum():,.0f}€", C_MAIN)
+    card_kpi_soft(k4, t["t_kpi4"], len(p_ko), f"{t['sub_rev']}: {p_ko['total_ttc'].sum():,.0f}€", f"{t['sub_mar']}: {p_ko['margin_real'].sum():,.0f}€", C_SEC)
     
     c_new1, c_new2, c_new3, c_new4 = st.columns(4)
     avg_price = p_ok['total_ttc'].mean() if not p_ok.empty else 0
@@ -624,20 +563,20 @@ if page == T["nav_res"] and not df_merged.empty:
     avg_rot = p_ok['rotation'].mean() if not p_ok.empty else 0
     
     def kpi_simple(col, title, val, color): col.markdown(f"""<div class="kpi-card-soft" style="border-left:5px solid {color};"><div class="kpi-title">{title} (fecha selec.)</div><div class="kpi-value" style="font-size:30px;">{val}</div></div>""", unsafe_allow_html=True)
-    kpi_simple(c_new1, T["avg_price"], f"{avg_price:,.0f}€", C_SEC)
-    kpi_simple(c_new2, T["avg_margin"], f"{avg_margin:,.0f}€", C_SEC)
-    kpi_simple(c_new3, T["avg_margin_pct"], f"{avg_marg_pct:,.1f}%", C_SEC)
-    kpi_simple(c_new4, T["avg_rot"], f"{avg_rot:,.0f} {T['unit_days']}", C_SEC)
+    kpi_simple(c_new1, t["avg_price"], f"{avg_price:,.0f}€", C_SEC)
+    kpi_simple(c_new2, t["avg_margin"], f"{avg_margin:,.0f}€", C_SEC)
+    kpi_simple(c_new3, t["avg_margin_pct"], f"{avg_marg_pct:,.1f}%", C_SEC)
+    kpi_simple(c_new4, t["avg_rot"], f"{avg_rot:,.0f} {t['unit_days']}", C_SEC)
     
     st.markdown("---")
     
     c_head, c_f1, c_f2 = st.columns([6, 1.5, 1.5])
     years_list = [2025, 2024, 2023, 2022]
-    sel_year = c_f2.selectbox(T["sel_year"], options=years_list, index=0) 
+    sel_year = c_f2.selectbox(t["sel_year"], options=years_list, index=0) 
     months_in_year = [1,2,3,4,5,6,7,8,9,10,11,12]
     def_month_idx = datetime.now().month - 1
-    sel_month_idx = c_f1.selectbox(T["sel_month"], options=months_in_year, format_func=lambda x: date_to_spanish(date(2024, x, 1), 'month'), index=def_month_idx)
-    with c_head: st.subheader(f"{T['evol_title']} - {date_to_spanish(date(2024, sel_month_idx, 1), 'month')} {sel_year}")
+    sel_month_idx = c_f1.selectbox(t["sel_month"], options=months_in_year, format_func=lambda x: date_to_spanish(date(2024, x, 1), 'month'), index=def_month_idx)
+    with c_head: st.subheader(f"{t['evol_title']} - {date_to_spanish(date(2024, sel_month_idx, 1), 'month')} {sel_year}")
     
     df_evol = df_merged[(df_merged['date'].dt.month == sel_month_idx) & (df_merged['date'].dt.year == sel_year)].copy()
     
@@ -664,36 +603,36 @@ if page == T["nav_res"] and not df_merged.empty:
 
     g1, g2 = st.columns(2)
     with g1:
-        st.subheader(T["chart_channel"])
+        st.subheader(t["chart_channel"])
         df_c = df_period[df_period["status"]=="paid"].groupby("channel").size().reset_index(name="c")
         st.plotly_chart(plot_bar_smart(df_c, "channel", "c", "channel", {"Online":C_SEC,"Marketplace":C_MAIN,"Tienda":C_TER}, fixed_order=["Online", "Marketplace", "Tienda"]), use_container_width=True, key="c1")
     with g2:
-        st.subheader(T["chart_mp"])
+        st.subheader(t["chart_mp"])
         df_mp = df_period[(df_period["status"]=="paid")&(df_period["channel"]=="Marketplace")].groupby("mp_name").size().reset_index(name="c")
         st.plotly_chart(plot_bar_smart(df_mp, "mp_name", "c", fixed_order=["Decathlon", "Alltricks", "Campsider", "Bikeroom", "Autre MP"]), use_container_width=True, key="c2")
     g3, g4 = st.columns(2)
     with g3:
-        st.subheader(T["chart_subcat"])
+        st.subheader(t["chart_subcat"])
         df_s = p_ok.groupby("subcat").size().reset_index(name="c").sort_values("c", ascending=False)
         st.plotly_chart(plot_bar_smart(df_s, "subcat", "c"), use_container_width=True, key="c3")
     with g4:
-        st.subheader(T["chart_brand"])
+        st.subheader(t["chart_brand"])
         df_b = p_ok.groupby("brand").size().reset_index(name="c").sort_values("c", ascending=False).head(5)
         st.plotly_chart(plot_bar_smart(df_b, "brand", "c"), use_container_width=True, key="c4")
     g5, g6 = st.columns(2)
     with g5:
-        st.subheader(T["chart_country"])
+        st.subheader(t["chart_country"])
         df_ctry = p_ok.groupby("country").size().reset_index(name="c")
         st.plotly_chart(plot_bar_smart(df_ctry, "country", "c", orientation='h'), use_container_width=True, key="c5")
     with g6:
-        st.subheader(T["chart_price"])
+        st.subheader(t["chart_price"])
         bins = [0, 1000, 1500, 2500, 4000, 100000]; labels = ["<1k", "1k-1.5k", "1.5k-2.5k", "2.5k-4k", ">4k"]
         p_ok['price_range'] = pd.cut(p_ok['total_ttc'], bins=bins, labels=labels)
         df_pr = p_ok.groupby("price_range").size().reset_index(name="c")
         st.plotly_chart(plot_bar_smart(df_pr, "price_range", "c", fixed_order=labels), use_container_width=True, key="c6")
 
-elif page == T["nav_table"] and not df_merged.empty:
-    st.header(f"📋 {T['nav_table']}")
+elif page == t["nav_table"] and not df_merged.empty:
+    st.header(f"📋 {t['nav_table']}")
     
     # 1. Sort by Date Oldest -> Newest for Cumulative Sum
     df_x = df_period[df_period["status"]=="paid"].copy()
@@ -729,7 +668,7 @@ elif page == T["nav_table"] and not df_merged.empty:
         for c in ["cost", "total_ttc", "margin_real", "margin_cum"]:
             df_final[c] = df_final[c].apply(fmt_currency)
 
-        df_final.columns = ["#", T["col_order"], T["col_channel"], T["col_country"], T["col_date"], T["col_sku"], T["col_cost"], T["col_price"], T["col_margin"], T["col_margin_tot"], "date_group"]
+        df_final.columns = ["#", t["col_order"], t["col_channel"], t["col_country"], t["col_date"], t["col_sku"], t["col_cost"], t["col_price"], t["col_margin"], t["col_margin_tot"], "date_group"]
         
         def highlight_rows(row):
             is_even_group = row["date_group"] % 2 == 0
@@ -746,7 +685,7 @@ elif page == T["nav_table"] and not df_merged.empty:
             height=600, 
             hide_index=True,
             column_config={"#": st.column_config.TextColumn("#", width="small")},
-            column_order=["#", T["col_order"], T["col_channel"], T["col_country"], T["col_date"], T["col_sku"], T["col_cost"], T["col_price"], T["col_margin"], T["col_margin_tot"]]
+            column_order=["#", t["col_order"], t["col_channel"], t["col_country"], t["col_date"], t["col_sku"], t["col_cost"], t["col_price"], t["col_margin"], t["col_margin_tot"]]
         )
 
     # MAIN TABLE
@@ -754,14 +693,14 @@ elif page == T["nav_table"] and not df_merged.empty:
     
     # V100: MARKETPLACE FORECAST TABLE
     st.markdown("---")
-    st.subheader(T["mp_forecast"])
+    st.subheader(t["mp_forecast"])
     df_mp = df_x[df_x["channel"] == "Marketplace"].copy()
     if not df_mp.empty:
         display_styled_table(df_mp)
     else:
         st.info("No hay ventas de Marketplace en este periodo.")
 
-elif page == T["nav_calc"]:
+elif page == t["nav_calc"]:
     # V100: NO HEADER
     
     c_left, c_right = st.columns([1, 1])
@@ -773,7 +712,7 @@ elif page == T["nav_calc"]:
         st.markdown("### ⚙️ Configuración")
         
         # SKU WITH EMOJI LABEL
-        sku_query = st.text_input("🚲 SKU", placeholder=T["sku_ph"])
+        sku_query = st.text_input("🚲 SKU", placeholder=t["sku_ph"])
         
         if sku_query:
             r = search_sku_live(sku_query.strip())
@@ -788,23 +727,23 @@ elif page == T["nav_calc"]:
                 
                 if str(sku_query).startswith("5"): is_deposit = True; st.error("⛔ DEPÓSITO - NO DESCUENTO")
                 if specs["inv"] < 1: is_sold = True
-            else: st.warning(T["sku_not_found"])
+            else: st.warning(t["sku_not_found"])
 
-        sel_country = st.selectbox(T["vat_select"], options=sorted(list(VAT_DB.keys())), index=11)
+        sel_country = st.selectbox(t["vat_select"], options=sorted(list(VAT_DB.keys())), index=11)
         vat_rate = VAT_DB[sel_country]
         
         c_i1, c_i2, c_i3 = st.columns(3)
         def_cost = f_cost if f_cost > 0 else 0.0
         def_price = f_price if f_price > 0 else 0.0
         
-        cost_val = c_i1.number_input(T["cost_input"], value=float(def_cost), step=10.0)
-        price_val = c_i2.number_input(T["price_input"], value=float(def_price), step=10.0)
-        disc_val = c_i3.number_input(T["discount_input"], value=0.0, step=10.0)
+        cost_val = c_i1.number_input(t["cost_input"], value=float(def_cost), step=10.0)
+        price_val = c_i2.number_input(t["price_input"], value=float(def_price), step=10.0)
+        disc_val = c_i3.number_input(t["discount_input"], value=0.0, step=10.0)
         
         final_P = max(0, price_val - disc_val)
         
         # GOOGLE BTN V100: MOVED HERE
-        if f_title: st.link_button(f"🔍 {T['btn_search']}", f"https://www.google.com/search?q={f_title} {specs.get('year','')} precio", type="secondary", use_container_width=True)
+        if f_title: st.link_button(f"🔍 {t['btn_search']}", f"https://www.google.com/search?q={f_title} {specs.get('year','')} precio", type="secondary", use_container_width=True)
         
         st.markdown("---")
         # SUBHEADER REMOVED
@@ -818,11 +757,11 @@ elif page == T["nav_calc"]:
         
         # RECOMENDATION BOX V100 (Grey if no SKU, Colored if SKU)
         if not sku_query:
-             st.markdown(f"<div style='background:#e5e7eb; color:#6b7280; padding:10px; border-radius:5px; text-align:center; font-weight:bold;'>{T['advice_neutral']}</div>", unsafe_allow_html=True)
+             st.markdown(f"<div style='background:#e5e7eb; color:#6b7280; padding:10px; border-radius:5px; text-align:center; font-weight:bold;'>{t['advice_neutral']}</div>", unsafe_allow_html=True)
         else:
             if is_deposit: st.markdown(f"<div style='background:#fee2e2; color:#991b1b; padding:10px; border-radius:5px; text-align:center; font-weight:bold;'>⛔ NO DESCUENTO (DEPÓSITO)</div>", unsafe_allow_html=True)
-            elif rec_disc > 0: st.markdown(f"<div style='background:#ffa421; color:white; padding:10px; border-radius:5px; text-align:center; font-weight:bold;'>{T['advice_disc']}: -{int(rec_disc)} €</div>", unsafe_allow_html=True)
-            else: st.markdown(f"<div style='background:#065f46; color:white; padding:10px; border-radius:5px; text-align:center; font-weight:bold;'>{T['advice_ok']}</div>", unsafe_allow_html=True)
+            elif rec_disc > 0: st.markdown(f"<div style='background:#ffa421; color:white; padding:10px; border-radius:5px; text-align:center; font-weight:bold;'>{t['advice_disc']}: -{int(rec_disc)} €</div>", unsafe_allow_html=True)
+            else: st.markdown(f"<div style='background:#065f46; color:white; padding:10px; border-radius:5px; text-align:center; font-weight:bold;'>{t['advice_ok']}</div>", unsafe_allow_html=True)
         
         st.markdown("<br>", unsafe_allow_html=True)
         
@@ -860,7 +799,7 @@ elif page == T["nav_calc"]:
 
         st.markdown("<br>", unsafe_allow_html=True)
         # GUIA FISCAL (BIBLE VERSION) V100
-        with st.expander(T["help_fiscal_title"], expanded=False):
+        with st.expander(t["help_fiscal_title"], expanded=False):
             st.markdown("""
             ### 1️⃣ ORIGEN REBU (Comprado a Particular)
             Es el caso más común. Compramos la bici a una persona física que no emite factura con IVA.
@@ -904,7 +843,7 @@ elif page == T["nav_calc"]:
             bg_age = "#e5e7eb" # Default Grey
             age_txt = "-"
             if days_stock > 0:
-                age_txt = f"{days_stock} {T['unit_days']}"
+                age_txt = f"{days_stock} {t['unit_days']}"
                 bg_age = "#d1fae5" 
                 if days_stock > 45: bg_age = "#ffedd5" 
                 if days_stock > 90: bg_age = "#fee2e2" 
@@ -913,7 +852,7 @@ elif page == T["nav_calc"]:
             if days_stock == 0: color_age = "#374151"
 
             st.markdown(f"""<div style="background-color:{bg_age}; padding:15px; border-radius:10px; color:{color_age}; text-align:center; border:1px solid {color_age}; margin-bottom:15px;">
-                <div style="font-size:14px; text-transform:uppercase; font-weight:bold;">{T['age']}</div>
+                <div style="font-size:14px; text-transform:uppercase; font-weight:bold;">{t['age']}</div>
                 <div style="font-size:32px; font-weight:800;">{age_txt}</div>
             </div>""", unsafe_allow_html=True)
             
@@ -937,8 +876,8 @@ elif page == T["nav_calc"]:
                 </ul>
             </div>""", unsafe_allow_html=True)
 
-elif page == T["nav_price"]:
-    st.header(f"📉 {T['pricing_title']}")
+elif page == t["nav_price"]:
+    st.header(f"📉 {t['pricing_title']}")
     with st.spinner("Analizando..."):
         df_stock = get_current_stock_and_pricing()
     
@@ -948,13 +887,13 @@ elif page == T["nav_price"]:
         df_stock["rec"] = df_stock["price_curr"] - df_stock["disc"]
         df_stock["m_proj"] = df_stock.apply(lambda x: (((x["rec"]-x["cost"])/1.21)) if "REBU" in str(x["fiscal"]) else (((x["rec"]/1.21)-(x["cost"]/1.21))), axis=1)
         cfg = {
-            "img": st.column_config.ImageColumn(T["col_img"]),
+            "img": st.column_config.ImageColumn(t["col_img"]),
             "sku": st.column_config.TextColumn("SKU"),
             "days": st.column_config.NumberColumn("Días Stock", format="%d"),
-            "price_curr": st.column_config.NumberColumn(T["col_p_curr"], format="%d€"),
-            "rec": st.column_config.NumberColumn(T["col_p_rec"], format="%d€"),
-            "disc": st.column_config.NumberColumn(T["col_action"], format="-%d€"),
-            "m_proj": st.column_config.NumberColumn(T["col_margin_proj"], format="%d€")
+            "price_curr": st.column_config.NumberColumn(t["col_p_curr"], format="%d€"),
+            "rec": st.column_config.NumberColumn(t["col_p_rec"], format="%d€"),
+            "disc": st.column_config.NumberColumn(t["col_action"], format="-%d€"),
+            "m_proj": st.column_config.NumberColumn(t["col_margin_proj"], format="%d€")
         }
         
         # FILTER DATA
@@ -980,10 +919,3 @@ elif page == T["nav_price"]:
             else: st.info("0 vélos.")
 
     else: st.info("No data.")
-
-
-
-
-
-
-
