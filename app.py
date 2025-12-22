@@ -8,6 +8,8 @@ from plotly.subplots import make_subplots
 import os
 import re
 import base64
+# IMPORT DU NOUVEAU MENU MODERNE
+from streamlit_option_menu import option_menu
 
 # ==============================================================================
 # 1. CONFIGURATION & DESIGN
@@ -22,12 +24,12 @@ st.set_page_config(
 
 # COULEURS
 C_MAIN = "#0a4650"   # Vert Foncé
-C_SEC = "#08e394"    # Vert Flashy (Boutons, Focus, Bordures, Selectores)
+C_SEC = "#08e394"    # Vert Flashy (Focus, Sélection)
 C_TER = "#dcff54"    # Vert Clair
-C_SOFT = "#e0fdf4"   # Vert Doux (Fonds)
+C_SOFT = "#e0fdf4"   # Vert Doux
 C_DECATHLON = "#0292e9" # Bleu Decathlon
 C_BG = "#ffffff"     # Fond Blanc
-C_ALERT = "#ff4b4b"  # Rouge (Solo para alertas graves)
+C_ALERT = "#ff4b4b"  # Rouge
 C_GRAY_LIGHT = "#f8f9fa"
 
 # VARIABLES GLOBALES
@@ -52,7 +54,7 @@ SHIPPING_COSTS = {
 }
 RECOND_UNIT_COST = 54.5
 
-# CSS GLOBAL "TOTAL GREEN FLASHY - FIXED HEIGHTS"
+# CSS GLOBAL (VERDE TOTAL + KPI FIXED HEIGHT)
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
@@ -61,46 +63,28 @@ st.markdown(
         #MainMenu, header, footer {{visibility: hidden; display: none !important;}}
         [data-testid="stAppViewContainer"], .stApp {{background-color: white !important;}}
         
-        /* --- 1. INPUTS, SELECTBOXES & DATEPICKERS (FORCE GREEN) --- */
-        /* Cible précise pour Selectbox et Input */
-        div[data-baseweb="select"] > div, div[data-baseweb="base-input"] > div, div[data-testid="stDateInput"] > div {{
-            border-color: #e2e8f0;
-            transition: border-color 0.2s;
+        /* INPUTS & DATEPICKERS */
+        div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"], div[data-testid="stDateInput"] input {{
+            border-color: #e2e8f0 !important; border-width: 1px !important;
         }}
-        
-        /* ETAT FOCUS : VERT FLASHY OBLIGATOIRE */
-        div[data-baseweb="select"]:focus-within > div, 
-        div[data-baseweb="base-input"]:focus-within > div,
+        div[data-baseweb="input"]:focus-within, 
+        div[data-baseweb="select"]:focus-within, 
+        div[data-baseweb="base-input"]:focus-within,
         div[data-testid="stDateInput"] > div:focus-within {{
             border-color: {C_SEC} !important;
             box-shadow: 0 0 0 1px {C_SEC} !important;
         }}
         
-        /* --- 2. RADIO BUTTONS & CHECKBOXES (SIDEBAR & MAIN) --- */
-        /* Le rond/carré coché */
-        div[role="radiogroup"] div[aria-checked="true"] > div:first-child,
-        div[data-baseweb="checkbox"] div[aria-checked="true"] > div:first-child {{
-            background-color: {C_SEC} !important; 
-            border-color: {C_SEC} !important;
-        }}
-        /* Le texte associé */
-        div[role="radiogroup"] div[aria-checked="true"] + div p {{
-             color: {C_MAIN} !important; font-weight: 700 !important;
-        }}
-
-        /* --- 3. CALENDARIO (VERDE TOTAL) --- */
-        div[data-baseweb="calendar"] button[aria-selected="true"] {{
+        /* CALENDARIO */
+        div[data-baseweb="calendar"] button[aria-selected="true"], 
+        div[data-baseweb="calendar"] div[aria-selected="true"] {{
             background-color: {C_SEC} !important; color: {C_MAIN} !important; font-weight: bold;
         }}
-        div[data-baseweb="calendar"] div[aria-selected="true"] {{
-            background-color: {C_SEC} !important; color: {C_MAIN} !important;
-        }}
-        /* Date du jour (soulignée) */
         div[data-baseweb="calendar"] div[text-decoration="underline"] {{
             text-decoration-color: {C_SEC} !important;
         }}
 
-        /* --- 4. BOUTONS (Toujours Verts) --- */
+        /* BOUTONS */
         .stButton > button {{
             background-color: {C_MAIN} !important; color: white !important; 
             border: 2px solid {C_MAIN} !important; border-radius: 8px !important; 
@@ -111,20 +95,17 @@ st.markdown(
         }}
         a[href] {{color: {C_MAIN} !important;}}
 
-        /* --- 5. KPI CARDS (HAUTEUR FIXE POUR ALIGNEMENT PARFAIT) --- */
+        /* KPI CARDS - FIXED HEIGHT */
         .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
             padding: 15px 20px; border-radius: 15px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03);
             margin-bottom: 15px; 
-            height: 160px !important; /* HAUTEUR STRICTE FORCEE */
-            display: flex; flex-direction: column; justify-content: space-between; /* Espacement vertical */
+            height: 160px !important; 
+            display: flex; flex-direction: column; justify-content: space-between;
         }}
-        
-        /* Couleurs de fond */
         .kpi-card {{ background-color: white; border: 1px solid #e1e8e8; }}
         .kpi-card-soft, .kpi-card-soft-v3 {{ background-color: {C_SOFT}; border: 1px solid #d1fae5; opacity: 0.95; }}
         
-        /* Typographie */
         .kpi-title {{font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 5px;}} 
         .kpi-value {{font-size: 28px; color: {C_MAIN}; font-weight: 800; margin: 5px 0;}} 
         .kpi-sub-container {{
@@ -142,11 +123,14 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# TRADUCCIONES
+# TRADUCTIONS
 TRADUCTIONS = {
     "Español": {
-        "nav_header": "📊 Dashboard", "nav_res": "Resultados", "nav_evol": "Evolución", "nav_table": "Tabla Ventas", "nav_calc": "Margen & Dto", "nav_price": "Control Precios",
-        "date_header": "📅 Periodo", "opt_prev_month": "Mes Pasado", "opt_yesterday": "Ayer", "opt_today": "Hoy", "opt_month": "Este Mes", "opt_year": "Este Año", "opt_custom": "Personalizado", "btn_refresh": "Actualizar",
+        "nav_header": "DASHBOARD", 
+        "nav_res": "Resultados", "nav_evol": "Evolución", "nav_table": "Tabla Ventas", "nav_calc": "Margen & Dto", "nav_price": "Control Precios",
+        "date_header": "PERIODO", 
+        "opt_prev_month": "Mes Pasado", "opt_yesterday": "Ayer", "opt_today": "Hoy", "opt_month": "Este Mes", "opt_year": "Este Año", "opt_custom": "Personalizado", 
+        "btn_refresh": "Actualizar",
         "t_kpi1": "Ventas Hoy (Pagadas)", "t_kpi2": "Ventas Hoy (Pendientes)", 
         "t_kpi3": "Ventas (pagadas)", "t_kpi4": "Ventas pendientes (select)",
         "sub_rev": "Ingresos", "sub_mar": "Margen",
@@ -173,35 +157,29 @@ def get_img_as_base64(file_path):
         with open(file_path, "rb") as f: data = f.read(); return base64.b64encode(data).decode()
     except: return None
 
-# KPI HELPERS UNIFORMISÉS (AVEC BORDURE GAUCHE)
+# KPI HELPERS
+def card_kpi_white_complex(c, title, count, label_rev, val_rev, label_mar, val_mar, col):
+    html = f"""<div class="kpi-card" style="border-left:5px solid {col};"><div class="kpi-title">{title}</div><div class="kpi-value">{count} <span style="font-size:16px; color:#666; font-weight:normal;">ventas</span></div><div class="kpi-sub-container"><span class="kpi-sub-left">{label_rev} {val_rev}</span><span class="kpi-sub-right">{label_mar} {val_mar}</span></div></div>"""
+    c.markdown(html, unsafe_allow_html=True)
+
+def card_kpi_soft_v3(c, title, main_val, left_label, left_val, right_label, right_val):
+    html = f"""<div class="kpi-card-soft-v3"><div class="kpi-title">{title}</div><div class="kpi-value">{main_val}</div><div class="kpi-sub-container"><span class="kpi-sub-left">{left_label} {left_val}</span><span class="kpi-sub-right">{right_label} {right_val}</span></div></div>"""
+    c.markdown(html, unsafe_allow_html=True)
+
 def card_kpi_unified(c, title, main_val, label_rev, val_rev, label_mar, val_mar, border_col, is_soft=False):
-    # Determine CSS class based on is_soft
     css_class = "kpi-card-soft-v3" if is_soft else "kpi-card"
-    
-    html = f"""
-    <div class="{css_class}" style="border-left: 5px solid {border_col};">
-        <div class="kpi-title">{title}</div>
-        <div class="kpi-value">{main_val}</div>
-        <div class="kpi-sub-container">
-            <span class="kpi-sub-left">{label_rev} {val_rev}</span>
-            <span class="kpi-sub-right">{label_mar} {val_mar}</span>
-        </div>
-    </div>
-    """
+    html = f"""<div class="{css_class}" style="border-left: 5px solid {border_col};"><div class="kpi-title">{title}</div><div class="kpi-value">{main_val}</div><div class="kpi-sub-container"><span class="kpi-sub-left">{label_rev} {val_rev}</span><span class="kpi-sub-right">{label_mar} {val_mar}</span></div></div>"""
     c.markdown(html, unsafe_allow_html=True)
 
 def plot_bar_smart(df, x_col, y_col, color_col=None, colors=None, orientation='v', strict_order=None, limit=None, show_logos=False):
     if df.empty: return go.Figure()
     if limit: df = df.head(limit)
-    
-    # Custom Color Logic for Decathlon
     final_colors = []
-    if show_logos and x_col == "mp_name": # Check if Marketplace Chart
+    if show_logos and x_col == "mp_name":
         for val in df[x_col]:
             if "Decathlon" in str(val): final_colors.append(C_DECATHLON)
             else: final_colors.append(C_MAIN)
-    else:
-        final_colors = [C_MAIN] * len(df) # Default
+    else: final_colors = [C_MAIN] * len(df)
 
     if strict_order: df = df.set_index(x_col).reindex(strict_order).fillna(0).reset_index()
     else:
@@ -212,7 +190,6 @@ def plot_bar_smart(df, x_col, y_col, color_col=None, colors=None, orientation='v
     df["pct"] = (df[y_col] / total * 100).round(1)
     df["text_inside"] = df.apply(lambda x: f"<b>{x['pct']}%</b>" if x[y_col] > 0 else "", axis=1)
     
-    # Logos Logic
     if orientation == 'h' and show_logos:
         df["y_label"] = df[x_col].apply(lambda name: f"<b>{name}</b>")
         for idx, row in df.iterrows():
@@ -227,7 +204,7 @@ def plot_bar_smart(df, x_col, y_col, color_col=None, colors=None, orientation='v
     fig = go.Figure()
     if orientation == 'v':
         if color_col: fig = px.bar(df, x=x_col, y=y_col, color=color_col, color_discrete_map=colors, text="text_inside")
-        else: fig.add_trace(go.Bar(x=df[x_col], y=df[y_col], text=df["text_inside"], textposition='inside', marker_color=final_colors if show_logos else C_MAIN, textfont=dict(size=14, color='white')))
+        else: fig.add_trace(go.Bar(x=df[x_col], y=df[y_col], text=df["text_inside"], textposition='inside', marker_color=C_MAIN, textfont=dict(size=14, color='white')))
         fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide', margin=dict(t=40,b=20,l=0,r=0), height=400, xaxis_title=None, yaxis_title=None)
         fig.update_yaxes(range=[0, df[y_col].max() * 1.15])
         for i, row in df.iterrows(): 
@@ -263,7 +240,7 @@ def check_password():
     return False
 if not check_password(): st.stop()
 
-# --- SIDEBAR ---
+# --- SIDEBAR (NEW MODERN MENU) ---
 if os.path.exists("logo rond.png"): 
     st.sidebar.markdown("<br>", unsafe_allow_html=True)
     c_logo, _ = st.sidebar.columns([1, 0.5])
@@ -272,26 +249,52 @@ elif os.path.exists("logo.png"):
     st.sidebar.image("logo.png", width=150)
 
 st.sidebar.markdown("---")
-st.sidebar.caption(t["nav_header"])
-page = st.sidebar.radio("Nav", [t["nav_res"], t["nav_evol"], t["nav_table"], t["nav_calc"], t["nav_price"]], label_visibility="collapsed")
+# MODERN MENU REPLACEMENT FOR RADIO BUTTONS
+page = option_menu(
+    menu_title=t["nav_header"], 
+    options=[t["nav_res"], t["nav_evol"], t["nav_table"], t["nav_calc"], t["nav_price"]],
+    icons=["bar-chart-fill", "graph-up", "table", "calculator", "tag"],
+    default_index=0,
+    styles={
+        "container": {"padding": "0!important", "background-color": "transparent"},
+        "icon": {"color": "#64748b", "font-size": "16px"}, 
+        "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px", "--hover-color": "#f0f2f6", "color": "#333"},
+        "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
+    }
+)
+
 st.sidebar.markdown("---")
-st.sidebar.caption(t["date_header"])
-mode_options = [t['opt_prev_month'], t['opt_yesterday'], t['opt_today'], t['opt_month'], t['opt_year'], t['opt_custom']]
-date_mode = st.sidebar.radio("", mode_options, index=3, label_visibility="collapsed")
+# MODERN DATE MENU
+date_mode = option_menu(
+    menu_title=t["date_header"],
+    options=[t['opt_prev_month'], t['opt_yesterday'], t['opt_today'], t['opt_month'], t['opt_year'], t['opt_custom']],
+    icons=["calendar-minus", "calendar-check", "calendar-event", "calendar-month", "calendar-range", "calendar3"],
+    default_index=3,
+    styles={
+        "container": {"padding": "0!important", "background-color": "transparent"},
+        "icon": {"color": "#64748b", "font-size": "14px"}, 
+        "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "--hover-color": "#f0f2f6", "color": "#333"},
+        "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
+    }
+)
+
 now = datetime.now(); today_dt = now.date()
 if 'start_date_state' not in st.session_state: st.session_state.start_date_state = today_dt.replace(day=1)
 if 'end_date_state' not in st.session_state: st.session_state.end_date_state = today_dt
+
 if date_mode == t['opt_today']: st.session_state.start_date_state = today_dt; st.session_state.end_date_state = today_dt
 elif date_mode == t['opt_yesterday']: yesterday = today_dt - timedelta(days=1); st.session_state.start_date_state = yesterday; st.session_state.end_date_state = yesterday
 elif date_mode == t['opt_month']: st.session_state.start_date_state = today_dt.replace(day=1); st.session_state.end_date_state = today_dt
 elif date_mode == t['opt_prev_month']: first_this = today_dt.replace(day=1); last_prev = first_this - timedelta(days=1); first_prev = last_prev.replace(day=1); st.session_state.start_date_state = first_prev; st.session_state.end_date_state = last_prev
 elif date_mode == t['opt_year']: st.session_state.start_date_state = today_dt.replace(month=1, day=1); st.session_state.end_date_state = today_dt
-else:
+elif date_mode == t['opt_custom']:
     with st.sidebar.form("custom_date"):
-        d_input = st.date_input(t['opt_custom'], value=(st.session_state.start_date_state, st.session_state.end_date_state))
+        d_input = st.date_input("Seleccionar rango", value=(st.session_state.start_date_state, st.session_state.end_date_state))
         if st.form_submit_button(t["btn_refresh"]):
             if isinstance(d_input, (list, tuple)) and len(d_input) > 0: st.session_state.start_date_state = d_input[0]; st.session_state.end_date_state = d_input[1] if len(d_input) > 1 else d_input[0]
+
 start_date = pd.to_datetime(st.session_state.start_date_state); end_date = pd.to_datetime(st.session_state.end_date_state).replace(hour=23, minute=59, second=59)
+
 st.sidebar.markdown("---")
 with st.sidebar.expander(t["settings"], expanded=False):
     if st.button("🔄 Actualizar Datos", use_container_width=True): st.rerun()
@@ -327,7 +330,7 @@ def fetch_product_details_batch(prod_id_list):
 @st.cache_data(ttl=600)
 def get_data_v100(start_date_limit):
     COMMISSION_MP = 0.10 # FIXED SCOPE
-    shop_url = st.secrets["shopify"]["shop_url"]; token = st.secrets["shopify"]["access_token"]; h_rest = {"X-Shopify-Access-Token": token}; limit_dt = pd.to_datetime(start_date_limit) - timedelta(days=2); url_o = f"https://{shop_url}/admin/api/2024-01/orders.json?status=any&limit=250&order=created_at+desc"; orders = []; MAX_PAGES = 100 # INCREASED LIMIT FOR EVOLUTION
+    shop_url = st.secrets["shopify"]["shop_url"]; token = st.secrets["shopify"]["access_token"]; h_rest = {"X-Shopify-Access-Token": token}; limit_dt = pd.to_datetime(start_date_limit) - timedelta(days=2); url_o = f"https://{shop_url}/admin/api/2024-01/orders.json?status=any&limit=250&order=created_at+desc"; orders = []; MAX_PAGES = 100 
     for _ in range(MAX_PAGES):
         r = requests.get(url_o, headers=h_rest); 
         if r.status_code!=200: break
@@ -450,9 +453,9 @@ if page == t["nav_res"]:
     d_ok = df_today[df_today["status"]=="paid"]; d_ko = df_today[df_today["status"]!="paid"]
     k1, k2, k3, k4 = st.columns(4)
     rev_ok = d_ok['total_ttc'].sum(); mar_ok = d_ok['margin_real'].sum()
-    card_kpi_unified(k1, t["t_kpi1"], len(d_ok), "Ingresos:", f"{rev_ok:,.0f} €", "Margen:", f"{mar_ok:,.0f} €", C_MAIN, is_soft=False)
+    card_kpi_white_complex(k1, t["t_kpi1"], len(d_ok), "Ingresos:", f"{rev_ok:,.0f} €", "Margen:", f"{mar_ok:,.0f} €", C_MAIN)
     rev_ko = d_ko['total_ttc'].sum(); mar_ko = d_ko['margin_real'].sum()
-    card_kpi_unified(k2, t["t_kpi2"] + " ⏳", len(d_ko), "Ingresos:", f"{rev_ko:,.0f} €", "Margen:", f"{mar_ko:,.0f} €", C_SEC, is_soft=False)
+    card_kpi_white_complex(k2, t["t_kpi2"] + " ⏳", len(d_ko), "Ingresos:", f"{rev_ko:,.0f} €", "Margen:", f"{mar_ko:,.0f} €", C_SEC)
     
     # LIGNE 2 (VERT DOUX) - SELECTION
     header_txt = f"{t['opt_yesterday']} ({date_to_spanish(start_date)})" if date_mode == t['opt_yesterday'] else f"{date_to_spanish(start_date, 'day_num')} - {date_to_spanish(end_date, 'day_num')}"
@@ -466,14 +469,10 @@ if page == t["nav_res"]:
     avg_shipping = shipping_cost / count_ok if count_ok > 0 else 0
 
     kp1, kp2, kp3, kp4 = st.columns(4)
-    # 2.1 PAGADAS (Bordure Vert Foncé)
     card_kpi_unified(kp1, t["t_kpi3"], count_ok, "Ingresos:", f"{p_ok['total_ttc'].sum():,.0f} €", "Margen:", f"{p_ok['margin_real'].sum():,.0f} €", C_MAIN, is_soft=True)
-    # 2.2 PENDIENTES (Bordure Vert Flashy)
     card_kpi_unified(kp2, t["t_kpi4"] + " ⏳", len(p_ko), "Ingresos:", f"{p_ko['total_ttc'].sum():,.0f} €", "Margen:", f"{p_ko['margin_real'].sum():,.0f} €", C_SEC, is_soft=True)
-    # 2.3 PRECIO MEDIO
     avg_price = p_ok['total_ttc'].mean() if not p_ok.empty else 0
     card_kpi_unified(kp3, "Precio Medio", f"{avg_price:,.0f} €", "", "", "", "", C_MAIN, is_soft=True)
-    # 2.4 ROTACION
     avg_rot = p_ok['rotation'].mean() if not p_ok.empty else 0
     card_kpi_unified(kp4, t["avg_rot"], f"{avg_rot:,.0f} {t['unit_days']}", "", "", "", "", C_MAIN, is_soft=True)
     
@@ -497,7 +496,6 @@ if page == t["nav_res"]:
         with g2: 
             st.subheader(t["chart_mp"])
             df_mp = p_ok[p_ok["channel"]=="Marketplace"].groupby("mp_name").size().reset_index(name="c")
-            # Horizontal + Logos + Decathlon Color logic embedded in plot_bar_smart
             st.plotly_chart(plot_bar_smart(df_mp, "mp_name", "c", orientation='h', limit=7, show_logos=True), use_container_width=True)
         g3, g4 = st.columns(2)
         with g3: 
@@ -527,9 +525,8 @@ elif page == t["nav_evol"]:
     years_list = [2025, 2024, 2023, 2022]
     sel_year = c_f2.selectbox(t["sel_year"], options=years_list, index=0)
     
-    # FORCED FULL YEAR FETCH
     start_of_year = datetime(sel_year, 1, 1)
-    df_full_year, _ = get_data_v100(start_of_year) # FETCH INDEPENDANT
+    df_full_year, _ = get_data_v100(start_of_year)
     
     months_in_year = [1,2,3,4,5,6,7,8,9,10,11,12]
     def_month_idx = datetime.now().month
@@ -537,7 +534,7 @@ elif page == t["nav_evol"]:
     
     with c_head: st.subheader(f"{t['evol_title']} - {date_to_spanish(date(2024, sel_month_idx, 1), 'month')} {sel_year}")
     
-    # 1. GRAPH DIARIO (MES SELECCIONADO)
+    # 1. GRAPH DIARIO
     df_evol = df_full_year[(df_full_year['date'].dt.month == sel_month_idx) & (df_full_year['date'].dt.year == sel_year)].copy()
     if True: 
         start_m = date(sel_year, sel_month_idx, 1); next_m = start_m + timedelta(days=32); end_m = next_m.replace(day=1) - timedelta(days=1); full_range = pd.date_range(start=start_m, end=end_m)
@@ -551,7 +548,6 @@ elif page == t["nav_evol"]:
     c_head_yr, c_sel_yr = st.columns([6, 2])
     with c_sel_yr: sel_year_anual = st.selectbox(f"{t['sel_year']} (Evolución Anual)", options=years_list, index=0)
     
-    # Filter by Year from the FULL fetch
     df_year = df_full_year[(df_full_year['date'].dt.year == sel_year_anual) & (df_full_year["status"]=="paid")].copy()
     
     full_months_idx = range(1, 13)
@@ -640,7 +636,6 @@ elif page == t["nav_calc"]:
         st.markdown("<br>", unsafe_allow_html=True)
         final_margin = (final_P - cost_val)/1.21 if active_regime == "REBU" else ((final_P/(1+vat_rate)) - (cost_val/1.21) if active_regime == "PRO" else ((final_P/(1+vat_rate)) - cost_val if active_regime == "INTRA" else 0))
         if active_regime: st.markdown(f"""<div style="background:{C_SOFT}; border: 3px solid {C_SEC}; transform:scale(1.02); box-shadow:0 10px 20px rgba(0,0,0,0.1); padding:20px; border-radius:15px; text-align:center; margin: 0 auto; width: 100%; margin-bottom:15px;"><div style="font-weight:bold; color:#555; font-size:18px;">{active_regime} -> {sel_country}</div><div style="font-size:42px; font-weight:900; color:{C_MAIN}">{final_margin:,.0f} €</div></div>""", unsafe_allow_html=True)
-        
         with st.expander(t["help_fiscal_title"], expanded=False):
             st.markdown("""
             ### 1️⃣ ORIGEN REBU (Comprado a Particular)
