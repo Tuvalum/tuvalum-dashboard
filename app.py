@@ -58,31 +58,46 @@ st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
     <style>
+        /* LAYOUT GENERAL */
         .block-container {{padding-top: 2rem !important; padding-bottom: 2rem !important;}}
         #MainMenu, header, footer {{visibility: hidden; display: none !important;}}
         [data-testid="stAppViewContainer"], .stApp {{background-color: white !important;}}
         
-        /* CACHER "RUNNING..." EN HAUT A DROITE */
-        div[data-testid="stStatusWidget"] {{visibility: hidden;}}
+        /* HACK SIDEBAR 100% LARGEUR (INFALLIBLE) */
+        section[data-testid="stSidebar"] > div > div:nth-child(2) {{
+            padding-top: 1rem !important;
+            padding-left: 0rem !important;
+            padding-right: 0rem !important;
+        }}
+        /* Centrer le logo malgré le padding 0 */
+        [data-testid="stSidebar"] img {{
+            margin-left: 1rem;
+        }}
+        [data-testid="stSidebar"] p {{
+            margin-left: 1rem;
+        }}
 
-        /* --- 1. INPUTS, SELECTBOXES & DATEPICKERS (FORCE GREEN) --- */
+        /* --- INPUTS: TOUS LES CHAMPS (Select, Text, Number, Date) EN VERT FLASHY --- */
         /* Bordure par défaut */
         div[data-baseweb="select"] > div, 
         div[data-baseweb="base-input"] > div, 
-        div[data-testid="stDateInput"] > div {{
+        div[data-baseweb="input"] > div,
+        div[data-testid="stDateInput"] > div,
+        div[data-testid="stNumberInput"] > div {{
             border-color: #e2e8f0 !important;
         }}
         
         /* ETAT FOCUS : VERT FLASHY OBLIGATOIRE */
         div[data-baseweb="select"]:focus-within > div, 
         div[data-baseweb="base-input"]:focus-within > div,
-        div[data-testid="stDateInput"] > div:focus-within {{
+        div[data-baseweb="input"]:focus-within > div,
+        div[data-testid="stDateInput"] > div:focus-within,
+        div[data-testid="stNumberInput"] > div:focus-within {{
             border-color: {C_SEC} !important;
             box-shadow: 0 0 0 1px {C_SEC} !important;
         }}
         
-        /* --- 2. CALENDARIO (CERCLES & SELECTION) --- */
-        /* Header et boutons de navigation */
+        /* --- CALENDRIER (CERCLES & SELECTION) --- */
         div[data-baseweb="calendar"] button:focus {{background-color: {C_SOFT} !important;}}
         
         /* La plage sélectionnée (Rectangle ou Cercle) */
@@ -91,14 +106,14 @@ st.markdown(
         }}
         /* Le jour survolé */
         div[data-baseweb="calendar"] div[aria-label]:hover {{
-            background-color: {C_SOFT} !important;
+            background-color: {C_SOFT} !important; cursor: pointer;
         }}
         /* Date du jour (soulignée) */
         div[data-baseweb="calendar"] div[text-decoration="underline"] {{
             text-decoration-color: {C_SEC} !important;
         }}
 
-        /* --- 3. RADIO BUTTONS & CHECKBOXES --- */
+        /* --- RADIO BUTTONS & CHECKBOXES (SIDEBAR & MAIN) --- */
         div[role="radiogroup"] div[aria-checked="true"] > div:first-child {{
             background-color: {C_SEC} !important; border-color: {C_SEC} !important;
         }}
@@ -106,7 +121,7 @@ st.markdown(
              color: {C_MAIN} !important; font-weight: 700 !important;
         }}
 
-        /* --- 4. BOUTONS --- */
+        /* --- BOUTONS --- */
         .stButton > button {{
             background-color: {C_MAIN} !important; color: white !important; 
             border: 2px solid {C_MAIN} !important; border-radius: 8px !important; 
@@ -117,12 +132,12 @@ st.markdown(
         }}
         a[href] {{color: {C_MAIN} !important;}}
 
-        /* --- 5. KPI CARDS --- */
+        /* --- KPI CARDS - HAUTEUR FIXE --- */
         .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
             padding: 15px 20px; border-radius: 15px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03);
             margin-bottom: 15px; 
-            height: 160px !important; 
+            height: 160px !important; /* HAUTEUR STRICTE */
             display: flex; flex-direction: column; justify-content: space-between;
         }}
         .kpi-card {{ background-color: white; border: 1px solid #e1e8e8; }}
@@ -140,13 +155,6 @@ st.markdown(
         .kpi-sub-right {{color: {C_MAIN};}}
         
         .product-img {{border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; width: 100%; object-fit: cover;}}
-        
-        /* HACK SIDEBAR FULL WIDTH */
-        [data-testid="stSidebar"] .nav-link {{
-            width: 100% !important;
-            border-radius: 0px !important;
-            margin: 0px !important;
-        }}
     </style>
     """,
     unsafe_allow_html=True
@@ -189,7 +197,7 @@ def fmt_price(x):
 
 # KPI HELPERS
 def card_kpi_white_complex(c, title, count, label_rev, val_rev, label_mar, val_mar, col):
-    html = f"""<div class="kpi-card" style="border-left:5px solid {col};"><div class="kpi-title">{title}</div><div class="kpi-value">{count}</div><div class="kpi-sub-container"><span class="kpi-sub-left">{label_rev} {val_rev}</span><span class="kpi-sub-right">{label_mar} {val_mar}</span></div></div>"""
+    html = f"""<div class="kpi-card" style="border-left:5px solid {col};"><div class="kpi-title">{title}</div><div class="kpi-value">{count} <span style="font-size:16px; color:#666; font-weight:normal;"></span></div><div class="kpi-sub-container"><span class="kpi-sub-left">{label_rev} {val_rev}</span><span class="kpi-sub-right">{label_mar} {val_mar}</span></div></div>"""
     c.markdown(html, unsafe_allow_html=True)
 
 def card_kpi_soft_v3(c, title, main_val, left_label, left_val, right_label, right_val):
@@ -284,7 +292,7 @@ with st.sidebar:
         styles={
             "container": {"padding": "0!important", "background-color": "transparent", "margin": "0!important", "width": "100%"},
             "icon": {"color": "#64748b", "font-size": "14px"}, 
-            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#f0f2f6", "color": "#333", "border-radius": "0px", "width": "100%"},
+            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#e2e8f0", "color": "#333", "border-radius": "0px", "width": "100%"},
             "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
         }
     )
@@ -299,7 +307,7 @@ with st.sidebar:
         styles={
             "container": {"padding": "0!important", "background-color": "transparent", "margin": "0!important", "width": "100%"},
             "icon": {"color": "#64748b", "font-size": "14px"}, 
-            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#f0f2f6", "color": "#333", "border-radius": "0px", "width": "100%"},
+            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#e2e8f0", "color": "#333", "border-radius": "0px", "width": "100%"},
             "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
         }
     )
@@ -353,7 +361,7 @@ def fetch_product_details_batch(prod_id_list):
             for pid in chunk: DATA_MAP[pid] = {"cost": 0.0, "fiscal": "PRO", "brand": "Autre", "subcat": "Autre", "created_at": None}
     return DATA_MAP
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=600, show_spinner=False)
 def get_data_v100(start_date_limit):
     COMMISSION_MP = 0.10 # FIXED SCOPE
     shop_url = st.secrets["shopify"]["shop_url"]; token = st.secrets["shopify"]["access_token"]; h_rest = {"X-Shopify-Access-Token": token}; limit_dt = pd.to_datetime(start_date_limit) - timedelta(days=2); url_o = f"https://{shop_url}/admin/api/2024-01/orders.json?status=any&limit=250&order=created_at+desc"; orders = []; MAX_PAGES = 100 
@@ -439,7 +447,7 @@ def get_current_stock_and_pricing():
 
 def search_sku_live(sku):
     shop_url = st.secrets["shopify"]["shop_url"]; token = st.secrets["shopify"]["access_token"]
-    q = f"""{{ products(first: 1, query: "sku:{sku}") {{ edges {{ node {{ title totalInventory updatedAt createdAt featuredImage {{ url }} m_cost: metafield(namespace: "custom", key: "custitem_preciocompra") {{ value }} m_fiscal: metafield(namespace: "custom", key: "cseg_origenfiscal") {{ value }} m_state: metafield(namespace: "custom", key: "custitem_all_estado") {{ value }} m_year: metafield(namespace: "custom", key: "custitem_all_anodelmodelo") {{ value }} m_size: metafield(namespace: "custom", key: "cseg_talla") {{ value }} m_size_rec: metafield(namespace: "custom", key: "cseg_tallaalturacic") {{ value }} m_frame: metafield(namespace: "custom", key: "custitem_all_materialdelcuadro") {{ value }} m_wheels: metafield(namespace: "custom", key: "custitem_all_materialrueda") {{ value }} m_wheel_type: metafield(namespace: "custom", key: "custitem_all_tipodeneumaticos") {{ value }} m_speed: metafield(namespace: "custom", key: "cseg_cambiotrasero") {{ value }} m_speed_cass: metafield(namespace: "custom", key: "custitem_all_veldelcassette") {{ value }} m_plate: metafield(namespace: "custom", key: "cseg_desarrolloplat") {{ value }} m_cassette: metafield(namespace: "custom", key: "cseg_desarrollocass") {{ value }} m_brakes: metafield(namespace: "custom", key: "cseg_tipodefrenos") {{ value }} m_motor: metafield(namespace: "custom", key: "cseg_motor") {{ value }} m_battery: metafield(namespace: "custom", key: "cseg_capacidadbater") {{ value }} m_km: metafield(namespace: "custom", key: "custitem_kilometraje") {{ value }} variants(first: 1) {{ edges {{ node {{ price }} }} }} }} }} }} }}"""
+    q = f"""{{ products(first: 1, query: "sku:{sku}") {{ edges {{ node {{ title totalInventory updatedAt createdAt featuredImage {{ url }} m_cost: metafield(namespace: "custom", key: "custitem_preciocompra") {{ value }} m_fiscal: metafield(namespace: "custom", key: "cseg_origenfiscal") {{ value }} m_state: metafield(namespace: "custom", key: "custitem_all_estado") {{ value }} m_year: metafield(namespace: "custom", key: "custitem_all_anodelmodelo") {{ value }} m_size: metafield(namespace: "custom", key: "cseg_talla") {{ value }} m_size_rec: metafield(namespace: "custom", key: "cseg_tallaalturacic") {{ value }} m_frame: metafield(namespace: "custom", key: "custitem_all_materialdelcuadro") {{ value }} m_wheels: metafield(namespace: "custom", key: "custitem_all_materialrueda") {{ value }} m_speed: metafield(namespace: "custom", key: "cseg_cambiotrasero") {{ value }} m_speed_cass: metafield(namespace: "custom", key: "custitem_all_veldelcassette") {{ value }} m_plate: metafield(namespace: "custom", key: "cseg_desarrolloplat") {{ value }} m_brakes: metafield(namespace: "custom", key: "cseg_tipodefrenos") {{ value }} m_motor: metafield(namespace: "custom", key: "cseg_motor") {{ value }} m_battery: metafield(namespace: "custom", key: "cseg_capacidadbater") {{ value }} m_km: metafield(namespace: "custom", key: "custitem_kilometraje") {{ value }} variants(first: 1) {{ edges {{ node {{ price }} }} }} }} }} }} }}"""
     try:
         r = requests.post(f"https://{shop_url}/admin/api/2024-01/graphql.json", json={"query":q}, headers={"X-Shopify-Access-Token": token}); d = r.json().get("data",{}).get("products",{}).get("edges",[])
         if d:
@@ -467,9 +475,11 @@ def calculate_smart_discount(days, current_margin, current_price, is_deposit=Fal
 # AFFICHAGE PAGES
 # ==============================================================================
 placeholder = st.empty(); 
-# CUSTOM LOADING
-with placeholder.container(): st.markdown(f"<div style='text-align:center; padding-top:100px;'><h3>{t['loading']}</h3></div>", unsafe_allow_html=True)
-df_merged, _ = get_data_v100(start_date); placeholder.empty()
+with placeholder.container(): 
+    with st.spinner("Cargando, un momento por favor..."):
+        df_merged, _ = get_data_v100(start_date)
+placeholder.empty()
+
 df_today = df_merged[(df_merged["date"] >= pd.to_datetime(today_dt)) & (df_merged["date"] < pd.to_datetime(today_dt) + timedelta(days=1))] if not df_merged.empty else pd.DataFrame()
 df_period = df_merged[(df_merged["date"] >= start_date) & (df_merged["date"] <= end_date)] if not df_merged.empty else pd.DataFrame()
 
@@ -523,7 +533,6 @@ if page == t["nav_res"]:
         with g2: 
             st.subheader(t["chart_mp"])
             df_mp = p_ok[p_ok["channel"]=="Marketplace"].groupby("mp_name").size().reset_index(name="c")
-            # Horizontal + Logos + Decathlon Color logic embedded in plot_bar_smart
             st.plotly_chart(plot_bar_smart(df_mp, "mp_name", "c", orientation='h', limit=7, show_logos=True), use_container_width=True)
         g3, g4 = st.columns(2)
         with g3: 
@@ -554,7 +563,9 @@ elif page == t["nav_evol"]:
     sel_year = c_f2.selectbox(t["sel_year"], options=years_list, index=0)
     
     start_of_year = datetime(sel_year, 1, 1)
-    df_full_year, _ = get_data_v100(start_of_year)
+    # FORCE LOADING SPINNER FOR EVOLUTION
+    with st.spinner(f"Cargando datos completos de {sel_year}..."):
+        df_full_year, _ = get_data_v100(start_of_year)
     
     months_in_year = [1,2,3,4,5,6,7,8,9,10,11,12]
     def_month_idx = datetime.now().month
@@ -629,11 +640,13 @@ elif page == t["nav_table"] and not df_merged.empty:
         df_show["canal_full"] = df_show.apply(lambda x: f"{x['channel']} ({x['mp_name']})" if x['channel']=="Marketplace" else x['channel'], axis=1)
         df_show["date_str"] = df_show["date"].dt.strftime("%d/%m/%Y")
         df_show["date_group"] = (df_show["date_str"] != df_show["date_str"].shift()).cumsum()
-        cols = ["#", "date_str", "order_name", "canal_full", "country", "sku", "cost", "total_ttc", "margin_real", "margin_cum"] # FECHA EN 2EME
+        # FECHA EN 2EME COLONNE (APRES #)
+        cols = ["#", "date_str", "order_name", "canal_full", "country", "sku", "cost", "total_ttc", "margin_real", "margin_cum"]
         df_final = df_show[cols].copy(); df_final.columns = ["#", t["col_date"], t["col_order"], t["col_channel"], t["col_country"], t["col_sku"], t["col_cost"], t["col_price"], t["col_margin"], t["col_margin_tot"]]
         styler = df_final.style.format({t["col_cost"]: fmt_price, t["col_price"]: fmt_price, t["col_margin"]: fmt_price, t["col_margin_tot"]: fmt_price})
         styler = styler.set_properties(subset=[t["col_margin"], t["col_margin_tot"]], **{'background-color': '#d1fae5', 'color': '#0a4650', 'font-weight': 'bold'})
         styler = styler.apply(lambda row: [f'background-color: {"#f8f9fa" if df_show.loc[row.name, "date_group"]%2==0 else "white"}' for _ in row], axis=1)
+        # CONFIGURATION COLONNE # (TRES FINE)
         st.dataframe(styler, use_container_width=True, height=600, hide_index=True, column_config={"#": st.column_config.TextColumn("#", width="small")})
 
     display_styled_table(df_x)
@@ -664,6 +677,7 @@ elif page == t["nav_calc"]:
         st.markdown("<br>", unsafe_allow_html=True)
         final_margin = (final_P - cost_val)/1.21 if active_regime == "REBU" else ((final_P/(1+vat_rate)) - (cost_val/1.21) if active_regime == "PRO" else ((final_P/(1+vat_rate)) - cost_val if active_regime == "INTRA" else 0))
         if active_regime: st.markdown(f"""<div style="background:{C_SOFT}; border: 3px solid {C_SEC}; transform:scale(1.02); box-shadow:0 10px 20px rgba(0,0,0,0.1); padding:20px; border-radius:15px; text-align:center; margin: 0 auto; width: 100%; margin-bottom:15px;"><div style="font-weight:bold; color:#555; font-size:18px;">{active_regime} -> {sel_country}</div><div style="font-size:42px; font-weight:900; color:{C_MAIN}">{fmt_price(final_margin)}</div></div>""", unsafe_allow_html=True)
+        
         with st.expander(t["help_fiscal_title"], expanded=False):
             st.markdown("""
             ### 1️⃣ ORIGEN REBU (Comprado a Particular)
@@ -705,7 +719,15 @@ elif page == t["nav_calc"]:
             if days_stock > 0: age_txt = f"{days_stock} {t['unit_days']}"; bg_age = "#d1fae5" if days_stock <= 45 else ("#ffedd5" if days_stock <= 90 else "#fee2e2"); color_age = "#065f46" if days_stock <= 90 else "#991b1b"
             st.markdown(f"""<div style="background-color:{bg_age}; padding:15px; border-radius:10px; color:{color_age}; text-align:center; border:1px solid {color_age}; margin-bottom:15px;"><div style="font-size:14px; text-transform:uppercase; font-weight:bold;">{t['age']}</div><div style="font-size:32px; font-weight:800;">{age_txt}</div></div>""", unsafe_allow_html=True); st.markdown(f'<img src="{f_img}" class="product-img">', unsafe_allow_html=True)
             border_col = C_ALERT if is_sold else C_SEC; bg_col = "#fee2e2" if is_sold else "#d1fae5"; sold_txt = " 🔴 VENDIDO" if is_sold else ""
-            st.markdown(f"""<div style="background-color:{bg_col}; padding:15px; border-radius:10px; color:#0a4650; margin-top:15px; border:2px solid {border_col};"><h3 style="margin:0; padding-bottom:10px;">✅ {f_title}{sold_txt}</h3><ul><li><b>Estado:</b> {specs.get('state','-')}</li><li><b>Año:</b> {specs.get('year','-')}</li><li><b>Talla:</b> {specs.get('size','-')}</li><li><b>Cuadro:</b> {specs.get('frame','-')}</li><li><b>Ruedas:</b> {specs.get('wheels','-')}</li><li><b>Transmisión:</b> {specs.get('group','-')}</li><li><b>Frenos:</b> {specs.get('brakes','-')}</li></ul></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div style="background-color:{bg_col}; padding:15px; border-radius:10px; color:#0a4650; margin-top:15px; border:2px solid {border_col};"><h3 style="margin:0; padding-bottom:10px;">✅ {f_title}{sold_txt}</h3><ul style="margin-left: 20px;">
+            <li><b>Estado:</b> {specs.get('state','-')}</li>
+            <li><b>Año:</b> {specs.get('year','-')}</li>
+            <li><b>Talla:</b> {specs.get('size','-')}</li>
+            <li><b>Cuadro:</b> {specs.get('frame','-')}</li>
+            <li><b>Ruedas:</b> {specs.get('wheels','-')}</li>
+            <li><b>Transmisión:</b> {specs.get('group','-')}</li>
+            <li><b>Frenos:</b> {specs.get('brakes','-')}</li>
+            </ul></div>""", unsafe_allow_html=True)
 
 # --- PAGE CONTROL PRECIOS ---
 elif page == t["nav_price"]:
