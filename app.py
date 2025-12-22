@@ -22,62 +22,80 @@ st.set_page_config(
 
 # COULEURS
 C_MAIN = "#0a4650"   # Vert Foncé
-C_SEC = "#08e394"    # Vert Flashy
+C_SEC = "#08e394"    # Vert Flashy (Boutons, Focus, Bordures)
 C_TER = "#dcff54"    # Vert Clair
-C_SOFT = "#e0fdf4"   # Vert Doux
+C_SOFT = "#e0fdf4"   # Vert Doux (Fonds)
 C_BG = "#ffffff"     # Fond Blanc
-C_ALERT = "#ff4b4b"  # Rouge
+C_ALERT = "#ff4b4b"  # Rouge (Uniquement pour alertes graves, pas pour UI)
 C_GRAY_LIGHT = "#f8f9fa"
 
-# CSS GLOBAL
+# CSS GLOBAL "TOTAL GREEN FLASHY"
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
     <style>
-        .block-container {{padding-top: 3.5rem !important; padding-bottom: 2rem !important;}}
+        .block-container {{padding-top: 2rem !important; padding-bottom: 2rem !important;}}
         #MainMenu, header, footer {{visibility: hidden; display: none !important;}}
         [data-testid="stAppViewContainer"], .stApp {{background-color: white !important;}}
         
-        /* BOUTONS */
+        /* --- ELIMINAR ROJO NATIVO & FORZAR VERDE FLASHY --- */
+        
+        /* 1. INPUTS, SELECTBOXES, DATEPICKERS (Bordes) */
+        div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"] {{
+            border-color: #e2e8f0; /* Gris por defecto */
+        }}
+        div[data-baseweb="input"]:focus-within, 
+        div[data-baseweb="select"]:focus-within, 
+        div[data-baseweb="base-input"]:focus-within,
+        div[data-testid="stDateInput"] > div:focus-within {{
+            border-color: {C_SEC} !important;
+            box-shadow: 0 0 0 1px {C_SEC} !important;
+        }}
+        
+        /* 2. BOUTONS (Verdes siempre) */
         .stButton > button {{
-            background-color: {C_MAIN} !important; color: white !important; 
-            border: 2px solid transparent !important; border-radius: 8px !important; 
+            background-color: {C_MAIN} !important; 
+            color: white !important; 
+            border: 2px solid {C_MAIN} !important; 
+            border-radius: 8px !important; 
             transition: all 0.3s ease !important;
         }}
         .stButton > button:hover {{
-            background-color: {C_SEC} !important; color: {C_MAIN} !important; border-color: {C_SEC} !important;
+            background-color: {C_SEC} !important; 
+            color: {C_MAIN} !important; 
+            border-color: {C_SEC} !important;
         }}
-        div[data-testid="stButton"] {{border: none !important; box-shadow: none !important;}}
+        /* Boton secundario (tipo link) */
+        a[href] {{color: {C_MAIN} !important;}}
 
-        /* INPUTS & CALENDRIER (Vert Flashy) */
-        div[data-baseweb="input"]:focus-within, div[data-baseweb="select"]:focus-within, div[data-testid="stDateInput"] > div:focus-within {{
-            border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important;
-        }}
-        div[data-baseweb="calendar"] button[aria-selected="true"], div[data-baseweb="calendar"] div[aria-selected="true"] {{
+        /* 3. CALENDARIO & CHECKBOXES */
+        div[data-baseweb="calendar"] button[aria-selected="true"], 
+        div[data-baseweb="calendar"] div[aria-selected="true"] {{
             background-color: {C_SEC} !important; color: {C_MAIN} !important; font-weight: bold;
         }}
-        div[data-baseweb="calendar"] div[text-decoration="underline"] {{text-decoration-color: {C_SEC} !important;}}
-        div[role="radiogroup"] div[aria-checked="true"] > div:first-child, div[data-baseweb="checkbox"] div[aria-checked="true"] > div:first-child {{
+        div[role="radiogroup"] div[aria-checked="true"] > div:first-child, 
+        div[data-baseweb="checkbox"] div[aria-checked="true"] > div:first-child {{
             background-color: {C_SEC} !important; border-color: {C_SEC} !important;
         }}
         div[role="radiogroup"] div[aria-checked="true"] + div {{color: {C_MAIN} !important; font-weight: bold !important;}}
 
-        /* CARTES KPI */
+        /* --- KPI CARDS (DISEÑO ORIGINAL RECUPERADO) --- */
         .kpi-card {{
-            background-color: {C_GRAY_LIGHT}; border: 1px solid #e1e8e8;
-            padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            background-color: white; padding: 20px; border-radius: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e1e8e8; 
             margin-bottom: 20px; min-height: 140px; display: flex; flex-direction: column; justify-content: center;
         }}
         .kpi-card-soft {{
-            background-color: {C_SOFT}; border: 1px solid #d1fae5;
-            padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            background-color: {C_SOFT}; border: 1px solid #d1fae5; opacity: 0.95;
+            padding: 20px; border-radius: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             margin-bottom: 20px; min-height: 140px; display: flex; flex-direction: column; justify-content: center;
         }}
         
-        .kpi-title {{font-size: 14px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}} 
-        .kpi-value {{font-size: 32px; color: {C_MAIN}; font-weight: 800; margin: 10px 0 5px 0;}} 
-        .kpi-sub {{font-size: 15px; font-weight: 600; color: #64748b;}}
-        .kpi-pending {{font-size: 13px; color: #f59e0b; font-weight: 600;}}
+        .kpi-title {{font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase;}} 
+        .kpi-value {{font-size: 32px; color: {C_MAIN}; font-weight: 800; margin: 5px 0;}} 
+        .kpi-sub {{font-size: 16px; font-weight: 700; color: #64748b; display:flex; justify-content:space-between; margin-top:8px;}}
+        .kpi-pending-txt {{font-size: 14px; color: #f59e0b; font-weight: 600; margin-left: 5px;}}
 
         .product-img {{border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; width: 100%; object-fit: cover;}}
     </style>
@@ -91,9 +109,10 @@ VAT_DB = {"Alemania (19%)": 0.19, "Austria (20%)": 0.20, "Bélgica (21%)": 0.21,
 
 TRADUCTIONS = {
     "Español": {
-        "nav_header": "📊 Dashboard", "nav_res": "Resultados", "nav_evol": "📈 Evolución", "nav_table": "Tabla Ventas (fecha selec.)", "nav_calc": "Margen & Dto", "nav_price": "Control Precios",
+        "nav_header": "📊 Dashboard", "nav_res": "Resultados", "nav_evol": "Evolución", "nav_table": "Tabla Ventas", "nav_calc": "Margen & Dto", "nav_price": "Control Precios",
         "date_header": "📅 Periodo", "opt_prev_month": "Mes Pasado", "opt_yesterday": "Ayer", "opt_today": "Hoy", "opt_month": "Este Mes", "opt_year": "Este Año", "opt_custom": "Personalizado", "btn_refresh": "Actualizar",
-        "t_kpi_paid": "Ventas Pagadas", "t_kpi_pending": "Ventas Pendientes", "sub_rev": "Ingresos", "sub_mar": "Margen", "sub_pending": "Pendiente",
+        "t_kpi1": "Ventas Hoy (Pagadas)", "t_kpi2": "Ventas Hoy (Pendientes)", "t_kpi3": "Ventas Selecc. (Pagadas)", "t_kpi4": "Ventas Selecc. (Pendientes)",
+        "sub_rev": "Ingresos", "sub_mar": "Margen", "sub_pending": "Pendiente",
         "chart_channel": "Canales", "chart_mp": "Marketplaces", "chart_subcat": "Categoría", "chart_brand": "Top 5 Marcas", "chart_price": "Rango de Precios", "chart_country": "Países",
         "avg_price": "Precio Medio", "avg_margin": "Margen Medio", "avg_margin_pct": "% Margen", "avg_rot": "Rotación Media", "loading": "⏳ Cargando...", 
         "calc_title": "Calculadora Financiera", "sku_ph": "ej: 201414", "sku_not_found": "SKU no encontrado", "age": "Antigüedad", "price_input": "Precio Venta (€)", "cost_input": "Coste Compra (€)", "discount_input": "Descuento (€)", "unit_days": "días", 
@@ -117,23 +136,37 @@ def get_img_as_base64(file_path):
         with open(file_path, "rb") as f: data = f.read(); return base64.b64encode(data).decode()
     except: return None
 
-# KPI HELPERS
-def card_kpi_white_simple(c, title, value, footer_text, border_col):
-    c.markdown(f"""<div class="kpi-card" style="border-left: 5px solid {border_col};"><div class="kpi-title">{title}</div><div class="kpi-value">{value}</div><div class="kpi-sub">{footer_text}</div></div>""", unsafe_allow_html=True)
+# KPI HELPERS (ORIGINAL DESIGN RESTORED)
+def card_kpi_white(c, t, n, r, m, col): 
+    c.markdown(f"""<div class="kpi-card" style="border-left:5px solid {col};"><div class="kpi-title">{t}</div><div class="kpi-value">{n}</div><div class="kpi-sub"><span>{r}</span><span style="color:#0a4650">{m}</span></div></div>""", unsafe_allow_html=True)
 
-def card_kpi_finance(c, title, paid_val, pending_val, border_col):
-    total_val = paid_val + pending_val
-    c.markdown(f"""<div class="kpi-card" style="border-left: 5px solid {border_col};"><div class="kpi-title">{title}</div><div class="kpi-value">{total_val:,.0f} €</div><div class="kpi-pending">⏳ {pending_val:,.0f} € {t['sub_pending'].lower()}</div></div>""", unsafe_allow_html=True)
+def card_kpi_soft(c, t, n, r, m, col): 
+    c.markdown(f"""<div class="kpi-card-soft" style="border-left:5px solid {col};"><div class="kpi-title">{t}</div><div class="kpi-value">{n}</div><div class="kpi-sub"><span>{r}</span><span style="color:#0a4650">{m}</span></div></div>""", unsafe_allow_html=True)
 
-def card_kpi_soft(c, title, value, footer_text): # Pour Ligne 3 (Medias)
-    c.markdown(f"""<div class="kpi-card-soft"><div class="kpi-title">{title}</div><div class="kpi-value" style="font-size: 28px;">{value}</div><div class="kpi-sub">{footer_text}</div></div>""", unsafe_allow_html=True)
-
-def card_kpi_soft_finance(c, title, paid_val, pending_val): # Pour Ligne 2 (Vert Doux + Finance)
-    total_val = paid_val + pending_val
-    c.markdown(f"""<div class="kpi-card-soft"><div class="kpi-title">{title}</div><div class="kpi-value">{total_val:,.0f} €</div><div class="kpi-pending">⏳ {pending_val:,.0f} € {t['sub_pending'].lower()}</div></div>""", unsafe_allow_html=True)
-
-def card_kpi_soft_simple(c, title, value, footer_text): # Pour Ligne 2 (Vert Doux + Simple)
-    c.markdown(f"""<div class="kpi-card-soft"><div class="kpi-title">{title}</div><div class="kpi-value">{value}</div><div class="kpi-sub">{footer_text}</div></div>""", unsafe_allow_html=True)
+def plot_bar_smart(df, x_col, y_col, color_col=None, colors=None, orientation='v'):
+    if df.empty: return go.Figure()
+    # Sort Descending (Strongest Left/Top)
+    df = df.sort_values(by=y_col, ascending=False)
+    
+    total = df[y_col].sum(); total = 1 if total == 0 else total
+    df["pct"] = (df[y_col] / total * 100).round(1)
+    df["text_inside"] = df.apply(lambda x: f"<b>{x['pct']}%</b>" if x[y_col] > 0 else "", axis=1)
+    
+    fig = go.Figure()
+    if orientation == 'v':
+        if color_col: fig = px.bar(df, x=x_col, y=y_col, color=color_col, color_discrete_map=colors, text="text_inside")
+        else: fig.add_trace(go.Bar(x=df[x_col], y=df[y_col], text=df["text_inside"], textposition='inside', marker_color=C_MAIN, textfont=dict(size=14, color='white')))
+        fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide', margin=dict(t=40,b=20,l=0,r=0), height=400, xaxis_title=None, yaxis_title=None)
+        fig.update_yaxes(range=[0, df[y_col].max() * 1.15])
+        for i, row in df.iterrows(): fig.add_annotation(x=row[x_col], y=row[y_col], text=f"<b>{int(row[y_col])}</b>", yshift=15, showarrow=False, font=dict(size=16, color="black"))
+    else:
+        df = df.sort_values(by=y_col, ascending=True) # For horizontal, sort asc makes top bar largest
+        fig.add_trace(go.Bar(y=df[x_col], x=df[y_col], text=df["text_inside"], textposition='inside', orientation='h', marker_color=C_MAIN, textfont=dict(size=12, color='white')))
+        fig.update_layout(margin=dict(t=20,b=20,l=0,r=20), height=400, xaxis_title=None, yaxis_title=None)
+        max_x = df[y_col].max() * 1.15
+        fig.update_xaxes(range=[0, max_x])
+        for i, row in df.iterrows(): fig.add_annotation(y=row[x_col], x=row[y_col], text=f"<b>{int(row[y_col])}</b>", xshift=20, showarrow=False, font=dict(size=14, color="black"))
+    return fig
 
 # ==============================================================================
 # 2. LOGIN SYSTEM
@@ -166,6 +199,7 @@ elif os.path.exists("logo.png"):
 
 st.sidebar.markdown("---")
 st.sidebar.caption(t["nav_header"])
+# REORDEN Y LIMPIEZA NOMBRES
 page = st.sidebar.radio("Nav", [t["nav_res"], t["nav_evol"], t["nav_table"], t["nav_calc"], t["nav_price"]], label_visibility="collapsed")
 st.sidebar.markdown("---")
 st.sidebar.caption(t["date_header"])
@@ -311,17 +345,6 @@ def calculate_smart_discount(days, current_margin, current_price, is_deposit=Fal
     if days >= 150: target = 200.0
     buffer = 0.0 if days > 365 else MIN_MARGIN_BUFFER; capacity = current_margin - buffer; return round(min(target, max(0, capacity)) / 10) * 10
 
-def plot_bar_smart(df, x_col, y_col, orientation='v'):
-    if df.empty: return go.Figure()
-    total = df[y_col].sum(); total = 1 if total == 0 else total; df["pct"] = (df[y_col] / total * 100).round(1); df["text_inside"] = df.apply(lambda x: f"<b>{x['pct']}%</b>" if x[y_col] > 0 else "", axis=1); fig = go.Figure()
-    if orientation == 'v':
-        fig.add_trace(go.Bar(x=df[x_col], y=df[y_col], text=df["text_inside"], textposition='inside', marker_color=C_MAIN, textfont=dict(size=14, color='white'))); fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide', margin=dict(t=40,b=20,l=0,r=0), height=400, xaxis_title=None, yaxis_title=None); fig.update_yaxes(range=[0, df[y_col].max() * 1.15])
-        for i, row in df.iterrows(): fig.add_annotation(x=row[x_col], y=row[y_col], text=f"<b>{int(row[y_col])}</b>", yshift=15, showarrow=False, font=dict(size=16, color="black"))
-    else:
-        df = df.sort_values(by=y_col, ascending=True); fig.add_trace(go.Bar(y=df[x_col], x=df[y_col], text=df["text_inside"], textposition='inside', orientation='h', marker_color=C_MAIN, textfont=dict(size=12, color='white'))); fig.update_layout(margin=dict(t=20,b=20,l=0,r=20), height=400, xaxis_title=None, yaxis_title=None); fig.update_xaxes(range=[0, df[y_col].max() * 1.15])
-        for i, row in df.iterrows(): fig.add_annotation(y=row[x_col], x=row[y_col], text=f"<b>{int(row[y_col])}</b>", xshift=20, showarrow=False, font=dict(size=14, color="black"))
-    return fig
-
 # ==============================================================================
 # AFFICHAGE PAGES
 # ==============================================================================
@@ -333,78 +356,108 @@ df_period = df_merged[(df_merged["date"] >= start_date) & (df_merged["date"] <= 
 
 # --- PAGE RESULTADOS ---
 if page == t["nav_res"]:
+    # LIGNE 1: HOY (DISEÑO ORIGINAL RECUPERADO - BLANCO)
     st.subheader(f"📅 {t['opt_today']} ({date_to_spanish(today_dt)})")
     d_ok = df_today[df_today["status"]=="paid"]; d_ko = df_today[df_today["status"]!="paid"]
     k1, k2, k3, k4 = st.columns(4)
-    card_kpi_white_simple(k1, t["t_kpi_paid"], len(d_ok), f"{d_ok['total_ttc'].sum():,.0f} €", C_MAIN)
-    card_kpi_white_simple(k2, t["t_kpi_pending"], len(d_ko), f"{d_ko['total_ttc'].sum():,.0f} €", C_SEC)
-    card_kpi_finance(k3, f"{t['sub_rev']} Hoy", d_ok['total_ttc'].sum(), d_ko['total_ttc'].sum(), C_MAIN)
-    card_kpi_finance(k4, f"{t['sub_mar']} Hoy", d_ok['margin_real'].sum(), d_ko['margin_real'].sum(), C_MAIN)
+    # Bloque 1: Ventas Pagadas
+    card_kpi_white(k1, t["t_kpi1"], len(d_ok), f"{d_ok['total_ttc'].sum():,.0f}€", "", C_MAIN)
+    # Bloque 2: Ventas Pendientes (Con emoji)
+    card_kpi_white(k2, t["t_kpi2"] + " ⏳", len(d_ko), f"{d_ko['total_ttc'].sum():,.0f}€", "", C_SEC)
+    # Bloque 3: Ingresos Hoy (Nuevo)
+    card_kpi_white(k3, "INGRESOS HOY", f"{d_ok['total_ttc'].sum():,.0f} €", "Pendiente:", f"{d_ko['total_ttc'].sum():,.0f} €", C_MAIN)
+    # Bloque 4: Margen Hoy (Nuevo)
+    card_kpi_white(k4, "MARGEN HOY", f"{d_ok['margin_real'].sum():,.0f} €", "Pendiente:", f"{d_ko['margin_real'].sum():,.0f} €", C_MAIN)
+
     st.markdown("---")
 
-    # LIGNE 2 (VERT DOUX)
+    # LIGNE 2 (VERT DOUX) - PEGA CON LA 3
     header_txt = f"{t['opt_yesterday']} ({date_to_spanish(start_date)})" if date_mode == t['opt_yesterday'] else f"{date_to_spanish(start_date, 'day_num')} - {date_to_spanish(end_date, 'day_num')}"
     st.subheader(f"📅 {header_txt}")
     p_ok = df_period[df_period["status"]=="paid"]; p_ko = df_period[df_period["status"]!="paid"]
     kp1, kp2, kp3, kp4 = st.columns(4)
-    card_kpi_soft_simple(kp1, t["t_kpi_paid"], len(p_ok), f"{p_ok['total_ttc'].sum():,.0f} €")
-    card_kpi_soft_simple(kp2, t["t_kpi_pending"], len(p_ko), f"{p_ko['total_ttc'].sum():,.0f} €")
-    card_kpi_soft_finance(kp3, f"{t['sub_rev']} Selec.", p_ok['total_ttc'].sum(), p_ko['total_ttc'].sum())
-    card_kpi_soft_finance(kp4, f"{t['sub_mar']} Selec.", p_ok['margin_real'].sum(), p_ko['margin_real'].sum())
-    st.markdown("---")
-
-    st.subheader("📊 Medias (Ventas Pagadas Selec.)")
+    card_kpi_soft(kp1, "Ventas Pagadas", len(p_ok), "")
+    card_kpi_soft(kp2, "Ventas Pendientes ⏳", len(p_ko), "")
+    card_kpi_soft(kp3, "Ingresos Selec.", f"{p_ok['total_ttc'].sum():,.0f} €", "")
+    card_kpi_soft(kp4, "Margen Selec.", f"{p_ok['margin_real'].sum():,.0f} €", "")
+    
+    # LIGNE 3 (VERT DOUX) - PEGADA
     cm1, cm2, cm3, cm4 = st.columns(4)
     avg_price = p_ok['total_ttc'].mean() if not p_ok.empty else 0; avg_margin = p_ok['margin_real'].mean() if not p_ok.empty else 0; total_rev = p_ok['total_ttc'].sum(); total_marg = p_ok['margin_real'].sum(); avg_marg_pct = (total_marg / total_rev * 100) if total_rev > 0 else 0; avg_rot = p_ok['rotation'].mean() if not p_ok.empty else 0
     card_kpi_soft(cm1, t["avg_price"], f"{avg_price:,.0f}€", "")
     card_kpi_soft(cm2, t["avg_margin"], f"{avg_margin:,.0f}€", "")
     card_kpi_soft(cm3, t["avg_margin_pct"], f"{avg_marg_pct:,.1f}%", "")
     card_kpi_soft(cm4, t["avg_rot"], f"{avg_rot:,.0f} {t['unit_days']}", "")
+    
     st.markdown("---")
     
+    # GRAPHIQUES (Ordenados Mayor a Menor + Colores Canales Originales)
     if not p_ok.empty:
         g1, g2 = st.columns(2)
-        with g1: st.subheader(t["chart_channel"]); df_c = p_ok.groupby("channel").size().reset_index(name="c"); st.plotly_chart(plot_bar_smart(df_c, "channel", "c"), use_container_width=True)
-        with g2: st.subheader(t["chart_mp"]); df_mp = p_ok[p_ok["channel"]=="Marketplace"].groupby("mp_name").size().reset_index(name="c"); st.plotly_chart(plot_bar_smart(df_mp, "mp_name", "c"), use_container_width=True)
+        with g1: 
+            st.subheader(t["chart_channel"])
+            df_c = p_ok.groupby("channel").size().reset_index(name="c")
+            st.plotly_chart(plot_bar_smart(df_c, "channel", "c", "channel", {"Online": C_SEC, "Marketplace": C_MAIN, "Tienda": C_TER}), use_container_width=True)
+        with g2: 
+            st.subheader(t["chart_mp"])
+            df_mp = p_ok[p_ok["channel"]=="Marketplace"].groupby("mp_name").size().reset_index(name="c")
+            st.plotly_chart(plot_bar_smart(df_mp, "mp_name", "c"), use_container_width=True)
         g3, g4 = st.columns(2)
-        with g3: st.subheader(t["chart_subcat"]); df_s = p_ok.groupby("subcat").size().reset_index(name="c").sort_values("c", ascending=False); st.plotly_chart(plot_bar_smart(df_s, "subcat", "c"), use_container_width=True)
-        with g4: st.subheader(t["chart_brand"]); df_b = p_ok.groupby("brand").size().reset_index(name="c").sort_values("c", ascending=False).head(5); st.plotly_chart(plot_bar_smart(df_b, "brand", "c"), use_container_width=True)
+        with g3: 
+            st.subheader(t["chart_subcat"])
+            df_s = p_ok.groupby("subcat").size().reset_index(name="c")
+            st.plotly_chart(plot_bar_smart(df_s, "subcat", "c"), use_container_width=True)
+        with g4: 
+            st.subheader(t["chart_brand"])
+            df_b = p_ok.groupby("brand").size().reset_index(name="c").sort_values("c", ascending=False).head(5)
+            st.plotly_chart(plot_bar_smart(df_b, "brand", "c"), use_container_width=True)
         g5, g6 = st.columns(2)
-        with g5: st.subheader(t["chart_country"]); df_ctry = p_ok.groupby("country").size().reset_index(name="c"); st.plotly_chart(plot_bar_smart(df_ctry, "country", "c", orientation='h'), use_container_width=True)
-        with g6: st.subheader(t["chart_price"]); bins = [0, 1000, 1500, 2500, 4000, 100000]; labels = ["<1k", "1k-1.5k", "1.5k-2.5k", "2.5k-4k", ">4k"]; p_ok['price_range'] = pd.cut(p_ok['total_ttc'], bins=bins, labels=labels); df_pr = p_ok.groupby("price_range").size().reset_index(name="c"); st.plotly_chart(plot_bar_smart(df_pr, "price_range", "c"), use_container_width=True)
+        with g5: 
+            st.subheader(t["chart_country"])
+            df_ctry = p_ok.groupby("country").size().reset_index(name="c")
+            st.plotly_chart(plot_bar_smart(df_ctry, "country", "c", orientation='h'), use_container_width=True)
+        with g6: 
+            st.subheader(t["chart_price"])
+            bins = [0, 1000, 1500, 2500, 4000, 100000]; labels = ["<1k", "1k-1.5k", "1.5k-2.5k", "2.5k-4k", ">4k"]
+            p_ok['price_range'] = pd.cut(p_ok['total_ttc'], bins=bins, labels=labels)
+            df_pr = p_ok.groupby("price_range").size().reset_index(name="c")
+            st.plotly_chart(plot_bar_smart(df_pr, "price_range", "c"), use_container_width=True)
 
 # --- PAGE EVOLUCION ---
 elif page == t["nav_evol"] and not df_merged.empty:
-    # FILTRE ANNEE UNIQUE
-    c_head, c_sel = st.columns([6, 3])
+    
+    # 1. GRÁFICO PRINCIPAL (VENTAS/INGRESOS/MARGEN) - MES A MES
+    c_head, c_f1, c_f2 = st.columns([6, 1.5, 1.5])
     years_list = [2025, 2024, 2023, 2022]
-    with c_sel: sel_year_evol = st.selectbox(t["sel_year"], options=years_list, index=0)
-    with c_head: st.subheader(f"{t['evol_title']} ({sel_year_evol})")
+    sel_year = c_f2.selectbox(t["sel_year"], options=years_list, index=0)
+    months_in_year = [1,2,3,4,5,6,7,8,9,10,11,12]
+    def_month_idx = datetime.now().month - 1
+    sel_month_idx = c_f1.selectbox(t["sel_month"], options=months_in_year, format_func=lambda x: date_to_spanish(date(2024, x, 1), 'month'), index=def_month_idx)
+    
+    with c_head: st.subheader(f"{t['evol_title']} - {date_to_spanish(date(2024, sel_month_idx, 1), 'month')} {sel_year}")
+    
+    df_evol = df_merged[(df_merged['date'].dt.month == sel_month_idx) & (df_merged['date'].dt.year == sel_year)].copy()
+    if not df_evol.empty or True:
+        start_m = date(sel_year, sel_month_idx, 1); next_m = start_m + timedelta(days=32); end_m = next_m.replace(day=1) - timedelta(days=1); full_range = pd.date_range(start=start_m, end=end_m)
+        daily = df_evol[df_evol["status"]=="paid"].groupby(df_evol['date'].dt.date).agg(ingresos=("total_ttc", "sum"), margen=("margin_real", "sum"), ventas=("total_ttc", "count")).reindex(full_range.date, fill_value=0).reset_index(); daily.columns = ["date", "ingresos", "margen", "ventas"]; daily["label"] = daily["date"].apply(lambda x: date_to_spanish(x, 'day_num'))
+        fig_ev = make_subplots(specs=[[{"secondary_y": True}]]); fig_ev.add_trace(go.Scatter(x=daily["label"], y=daily["ingresos"], name="Ingresos (€)", line=dict(color=C_TER, shape='linear'), mode='lines+markers'), secondary_y=False); fig_ev.add_trace(go.Scatter(x=daily["label"], y=daily["margen"], name="Margen (€)", line=dict(color=C_SEC, shape='linear'), mode='lines+markers'), secondary_y=False); fig_ev.add_trace(go.Scatter(x=daily["label"], y=daily["ventas"], name="Ventas (#)", line=dict(color=C_MAIN, shape='linear', dash='dot'), mode='lines+markers'), secondary_y=True); fig_ev.update_layout(height=450, margin=dict(l=0, r=0, t=10, b=0), hovermode="x unified", legend=dict(orientation="h", y=1.1)); fig_ev.update_yaxes(title_text="€", secondary_y=False, showgrid=True, gridcolor='#eee'); fig_ev.update_yaxes(title_text="#", secondary_y=True, showgrid=False); st.plotly_chart(fig_ev, use_container_width=True)
 
-    # GRAPH 1: VENTAS/INGRESOS/MARGEN (Sur l'année sélectionnée, mois par mois)
-    # Note: On garde le filtre "Mois" uniquement pour le titre de la section si besoin, mais ici le client a demandé "Evol par année directement".
-    # Donc on montre l'évolution Jan->Dec de l'année choisie.
-    df_year = df_merged[(df_merged['date'].dt.year == sel_year_evol) & (df_merged["status"]=="paid")].copy()
+    st.markdown("---")
+
+    # 2. SECCIÓN VISTA ANUAL (SOLO AÑO)
+    st.header("VISTA ANUAL (Enero - Diciembre)")
+    c_head_yr, c_sel_yr = st.columns([6, 2])
+    with c_sel_yr: sel_year_anual = st.selectbox(f"{t['sel_year']} (Vista Anual)", options=years_list, index=0)
+    
+    # Filtrar datos por AÑO seleccionado
+    df_year = df_merged[(df_merged['date'].dt.year == sel_year_anual) & (df_merged["status"]=="paid")].copy()
     
     if not df_year.empty:
-        # DATA PREP GLOBALE
-        start_y = date(sel_year_evol, 1, 1); end_y = date(sel_year_evol, 12, 31); full_range = pd.date_range(start=start_y, end=end_y, freq='MS')
+        # Preparamos rango Enero-Diciembre
+        months_order = list(range(1, 13))
         
-        # 1. GRAPH GLOBAL
-        daily = df_year.groupby(df_year['date'].dt.to_period("M")).agg(ingresos=("total_ttc", "sum"), margen=("margin_real", "sum"), ventas=("total_ttc", "count")).reindex(full_range.to_period("M"), fill_value=0).reset_index()
-        daily["label"] = daily["index"].dt.strftime("%b")
-        fig1 = make_subplots(specs=[[{"secondary_y": True}]])
-        fig1.add_trace(go.Scatter(x=daily["label"], y=daily["ingresos"], name="Ingresos (€)", line=dict(color=C_TER, width=3), mode='lines+markers'), secondary_y=False)
-        fig1.add_trace(go.Scatter(x=daily["label"], y=daily["margen"], name="Margen (€)", line=dict(color=C_SEC, width=3), mode='lines+markers'), secondary_y=False)
-        fig1.add_trace(go.Scatter(x=daily["label"], y=daily["ventas"], name="Ventas (#)", line=dict(color=C_MAIN, dash='dot'), mode='lines+markers'), secondary_y=True)
-        fig1.update_layout(height=400, margin=dict(l=0,r=0,t=10,b=0), hovermode="x unified", legend=dict(orientation="h", y=1.1))
-        st.plotly_chart(fig1, use_container_width=True)
-        
-        st.markdown("---")
-        
-        # 2. CATEGORIAS (Route, VTT, Ebike, Gravel)
-        st.subheader("🚲 Categorías")
-        # Mapping catégories
+        # --- 2.1 CATEGORIAS ---
+        st.subheader("🚲 Categorías (Evolución Anual)")
         def map_cat(s):
             s = str(s).lower()
             if "carretera" in s: return "Route"
@@ -413,36 +466,45 @@ elif page == t["nav_evol"] and not df_merged.empty:
             if "rigid" in s or "doble" in s or "mtb" in s: return "VTT"
             return "Autre"
         df_year["cat_clean"] = df_year["subcat"].apply(map_cat)
-        df_cat = df_year[df_year["cat_clean"] != "Autre"].groupby([df_year['date'].dt.to_period("M"), "cat_clean"]).size().reset_index(name="count")
-        df_cat["date"] = df_cat["date"].dt.to_timestamp()
-        fig2 = px.line(df_cat, x="date", y="count", color="cat_clean", markers=True, color_discrete_map={"Route": C_MAIN, "VTT": C_SEC, "Gravel": C_TER, "E-Bike": "#f59e0b"})
-        fig2.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified")
+        # Agrupar por Mes y Categoría
+        df_cat = df_year[df_year["cat_clean"] != "Autre"].groupby([df_year['date'].dt.month, "cat_clean"]).size().reset_index(name="count")
+        df_cat.columns = ["month", "cat_clean", "count"]
+        # Mapear números de mes a nombres
+        month_map = {1: "Ene", 2: "Feb", 3: "Mar", 4: "Abr", 5: "May", 6: "Jun", 7: "Jul", 8: "Ago", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dic"}
+        df_cat["month_name"] = df_cat["month"].map(month_map)
+        
+        fig2 = px.line(df_cat, x="month", y="count", color="cat_clean", markers=True, 
+                       color_discrete_map={"Route": C_MAIN, "VTT": C_SEC, "Gravel": C_TER, "E-Bike": "#f59e0b"})
+        # Forzar eje X para mostrar todos los meses
+        fig2.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified", xaxis=dict(tickmode='array', tickvals=list(month_map.keys()), ticktext=list(month_map.values())))
         st.plotly_chart(fig2, use_container_width=True)
         
         st.markdown("---")
 
-        # 3. RANGOS PRECIO
-        st.subheader("💰 Rangos de Precio")
+        # --- 2.2 RANGOS PRECIO ---
+        st.subheader("💰 Rangos de Precio (Evolución Anual)")
         bins = [0, 1000, 1500, 2500, 4000, 100000]; labels = ["<1k", "1k-1.5k", "1.5k-2.5k", "2.5k-4k", ">4k"]
         df_year['price_range'] = pd.cut(df_year['total_ttc'], bins=bins, labels=labels)
-        df_pr = df_year.groupby([df_year['date'].dt.to_period("M"), "price_range"]).size().reset_index(name="count")
-        df_pr["date"] = df_pr["date"].dt.to_timestamp()
-        fig3 = px.line(df_pr, x="date", y="count", color="price_range", markers=True, color_discrete_sequence=px.colors.sequential.Teal)
-        fig3.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified")
+        df_pr = df_year.groupby([df_year['date'].dt.month, "price_range"]).size().reset_index(name="count")
+        df_pr.columns = ["month", "price_range", "count"]
+        
+        fig3 = px.line(df_pr, x="month", y="count", color="price_range", markers=True, color_discrete_sequence=px.colors.sequential.Teal)
+        fig3.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified", xaxis=dict(tickmode='array', tickvals=list(month_map.keys()), ticktext=list(month_map.values())))
         st.plotly_chart(fig3, use_container_width=True)
 
         st.markdown("---")
 
-        # 4. CANALES
-        st.subheader("🌐 Canales")
-        df_ch = df_year.groupby([df_year['date'].dt.to_period("M"), "channel"]).size().reset_index(name="count")
-        df_ch["date"] = df_ch["date"].dt.to_timestamp()
-        fig4 = px.line(df_ch, x="date", y="count", color="channel", markers=True, color_discrete_map={"Online": C_SEC, "Marketplace": C_MAIN, "Tienda": C_TER})
-        fig4.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified")
+        # --- 2.3 CANALES ---
+        st.subheader("🌐 Canales (Evolución Anual)")
+        df_ch = df_year.groupby([df_year['date'].dt.month, "channel"]).size().reset_index(name="count")
+        df_ch.columns = ["month", "channel", "count"]
+        
+        fig4 = px.line(df_ch, x="month", y="count", color="channel", markers=True, color_discrete_map={"Online": C_SEC, "Marketplace": C_MAIN, "Tienda": C_TER})
+        fig4.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified", xaxis=dict(tickmode='array', tickvals=list(month_map.keys()), ticktext=list(month_map.values())))
         st.plotly_chart(fig4, use_container_width=True)
 
     else:
-        st.info(f"No hay datos para el año {sel_year_evol}.")
+        st.info(f"No hay datos para el año {sel_year_anual}.")
 
 # --- PAGE TABLA VENTAS ---
 elif page == t["nav_table"] and not df_merged.empty:
@@ -482,7 +544,42 @@ elif page == t["nav_calc"]:
         st.markdown("<br>", unsafe_allow_html=True)
         final_margin = (final_P - cost_val)/1.21 if active_regime == "REBU" else ((final_P/(1+vat_rate)) - (cost_val/1.21) if active_regime == "PRO" else ((final_P/(1+vat_rate)) - cost_val if active_regime == "INTRA" else 0))
         if active_regime: st.markdown(f"""<div style="background:{C_SOFT}; border: 3px solid {C_SEC}; transform:scale(1.02); box-shadow:0 10px 20px rgba(0,0,0,0.1); padding:20px; border-radius:15px; text-align:center; margin: 0 auto; width: 100%; margin-bottom:15px;"><div style="font-weight:bold; color:#555; font-size:18px;">{active_regime} -> {sel_country}</div><div style="font-size:42px; font-weight:900; color:{C_MAIN}">{final_margin:,.0f} €</div></div>""", unsafe_allow_html=True)
-        with st.expander(t["help_fiscal_title"], expanded=False): st.markdown("### Guía Fiscal...")
+        
+        # TEXTO DE AYUDA FISCAL RESTAURADO
+        with st.expander(t["help_fiscal_title"], expanded=False):
+            st.markdown("""
+            ### 1️⃣ ORIGEN REBU (Comprado a Particular)
+            Es el caso más común. Compramos la bici a una persona física que no emite factura con IVA.
+            * **La Fórmula:** `((PVP - Coste) / 1.21)`
+            * **Explicación:** Hacienda solo nos cobra el 21% de IVA sobre nuestro **BENEFICIO** (la diferencia entre compra y venta), no sobre el total.
+            * **Ejemplo:**
+                * Compras por 1.200 €, Vendes por 2.000 €.
+                * Beneficio Bruto = 800 €.
+                * Hacienda se lleva el IVA de esos 800 € (aprox 139 €).
+                * Te quedan limpios **661 €** de margen neto (antes de gastos).
+
+            ### 2️⃣ ORIGEN PRO (Comprado a Tienda/Empresa)
+            Compramos la bici con una factura oficial española con IVA desglosado.
+            * **La Fórmula:** `(PVP / 1.21) - (Coste / 1.21)`
+            * **Explicación:** Al vender, debemos devolver a Hacienda el 21% del **PRECIO TOTAL** de venta.
+            * **Ejemplo:**
+                * Compras por 1.000 € (+210 IVA), Vendes por 2.000 € (IVA incl).
+                * Hacienda se lleva el 21% de 2.000 € (aprox 347 €).
+                * Pero te deduces los 210 € que pagaste al comprar.
+                * Resultado: Pagas la diferencia a Hacienda.
+
+            ### 3️⃣ ORIGEN INTRA (Comprado a Profesional UE sin IVA)
+            Compramos a una tienda en Francia/Italia/etc. sin pagar IVA (inversión sujeto pasivo).
+            * **Venta España (21%):** `(PVP / 1.21) - Coste`
+            * **Explicación:** El coste es neto (no pagaste IVA). Pero al vender en España, debes ingresar el 21% del PVP total.
+
+            ### 🌍 CASOS ESPECIALES (Exportación y B2B)
+            **Suiza 🇨🇭, Noruega 🇳🇴, Canarias 🇮🇨, Ceuta/Melilla y B2B UE**
+            * **Regla:** La venta está **EXENTA DE IVA (0%)**.
+            * **Fórmula:** `PVP - Coste`
+            * **Explicación:** Cobras el precio íntegro. El cliente pagará sus impuestos locales en aduana (Suiza/Canarias) o en su contabilidad (B2B).
+            * **¡OJO!** Asegúrate de tener DUA de exportación o NIF-IVA válido (VIES) para B2B.
+            """)
 
     with c_right:
         if f_img: 
