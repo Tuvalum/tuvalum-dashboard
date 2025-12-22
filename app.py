@@ -241,64 +241,65 @@ def check_password():
 if not check_password(): st.stop()
 
 # --- SIDEBAR (NEW MODERN MENU) ---
-if os.path.exists("logo rond.png"): 
-    st.sidebar.markdown("<br>", unsafe_allow_html=True)
-    c_logo, _ = st.sidebar.columns([1, 0.5])
-    with c_logo: st.image("logo rond.png", width=120)
-elif os.path.exists("logo.png"):
-    st.sidebar.image("logo.png", width=150)
+with st.sidebar:
+    if os.path.exists("logo rond.png"): 
+        st.markdown("<br>", unsafe_allow_html=True)
+        c_logo, _ = st.columns([1, 0.5])
+        with c_logo: st.image("logo rond.png", width=120)
+    elif os.path.exists("logo.png"):
+        st.image("logo.png", width=150)
 
-st.sidebar.markdown("---")
-# MODERN MENU REPLACEMENT FOR RADIO BUTTONS
-page = option_menu(
-    menu_title=t["nav_header"], 
-    options=[t["nav_res"], t["nav_evol"], t["nav_table"], t["nav_calc"], t["nav_price"]],
-    icons=["bar-chart-fill", "graph-up", "table", "calculator", "tag"],
-    default_index=0,
-    styles={
-        "container": {"padding": "0!important", "background-color": "transparent"},
-        "icon": {"color": "#64748b", "font-size": "16px"}, 
-        "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px", "--hover-color": "#f0f2f6", "color": "#333"},
-        "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
-    }
-)
+    st.markdown("---")
+    # MODERN MENU REPLACEMENT FOR RADIO BUTTONS
+    page = option_menu(
+        menu_title=t["nav_header"], 
+        options=[t["nav_res"], t["nav_evol"], t["nav_table"], t["nav_calc"], t["nav_price"]],
+        icons=["bar-chart-fill", "graph-up", "table", "calculator", "tag"],
+        default_index=0,
+        styles={
+            "container": {"padding": "0!important", "background-color": "transparent"},
+            "icon": {"color": "#64748b", "font-size": "16px"}, 
+            "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px", "--hover-color": "#f0f2f6", "color": "#333"},
+            "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
+        }
+    )
 
-st.sidebar.markdown("---")
-# MODERN DATE MENU
-date_mode = option_menu(
-    menu_title=t["date_header"],
-    options=[t['opt_prev_month'], t['opt_yesterday'], t['opt_today'], t['opt_month'], t['opt_year'], t['opt_custom']],
-    icons=["calendar-minus", "calendar-check", "calendar-event", "calendar-month", "calendar-range", "calendar3"],
-    default_index=3,
-    styles={
-        "container": {"padding": "0!important", "background-color": "transparent"},
-        "icon": {"color": "#64748b", "font-size": "14px"}, 
-        "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "--hover-color": "#f0f2f6", "color": "#333"},
-        "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
-    }
-)
+    st.markdown("---")
+    # MODERN DATE MENU
+    date_mode = option_menu(
+        menu_title=t["date_header"],
+        options=[t['opt_prev_month'], t['opt_yesterday'], t['opt_today'], t['opt_month'], t['opt_year'], t['opt_custom']],
+        icons=["calendar-minus", "calendar-check", "calendar-event", "calendar-month", "calendar-range", "calendar3"],
+        default_index=3,
+        styles={
+            "container": {"padding": "0!important", "background-color": "transparent"},
+            "icon": {"color": "#64748b", "font-size": "14px"}, 
+            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "--hover-color": "#f0f2f6", "color": "#333"},
+            "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
+        }
+    )
 
-now = datetime.now(); today_dt = now.date()
-if 'start_date_state' not in st.session_state: st.session_state.start_date_state = today_dt.replace(day=1)
-if 'end_date_state' not in st.session_state: st.session_state.end_date_state = today_dt
+    now = datetime.now(); today_dt = now.date()
+    if 'start_date_state' not in st.session_state: st.session_state.start_date_state = today_dt.replace(day=1)
+    if 'end_date_state' not in st.session_state: st.session_state.end_date_state = today_dt
 
-if date_mode == t['opt_today']: st.session_state.start_date_state = today_dt; st.session_state.end_date_state = today_dt
-elif date_mode == t['opt_yesterday']: yesterday = today_dt - timedelta(days=1); st.session_state.start_date_state = yesterday; st.session_state.end_date_state = yesterday
-elif date_mode == t['opt_month']: st.session_state.start_date_state = today_dt.replace(day=1); st.session_state.end_date_state = today_dt
-elif date_mode == t['opt_prev_month']: first_this = today_dt.replace(day=1); last_prev = first_this - timedelta(days=1); first_prev = last_prev.replace(day=1); st.session_state.start_date_state = first_prev; st.session_state.end_date_state = last_prev
-elif date_mode == t['opt_year']: st.session_state.start_date_state = today_dt.replace(month=1, day=1); st.session_state.end_date_state = today_dt
-elif date_mode == t['opt_custom']:
-    with st.sidebar.form("custom_date"):
-        d_input = st.date_input("Seleccionar rango", value=(st.session_state.start_date_state, st.session_state.end_date_state))
-        if st.form_submit_button(t["btn_refresh"]):
-            if isinstance(d_input, (list, tuple)) and len(d_input) > 0: st.session_state.start_date_state = d_input[0]; st.session_state.end_date_state = d_input[1] if len(d_input) > 1 else d_input[0]
+    if date_mode == t['opt_today']: st.session_state.start_date_state = today_dt; st.session_state.end_date_state = today_dt
+    elif date_mode == t['opt_yesterday']: yesterday = today_dt - timedelta(days=1); st.session_state.start_date_state = yesterday; st.session_state.end_date_state = yesterday
+    elif date_mode == t['opt_month']: st.session_state.start_date_state = today_dt.replace(day=1); st.session_state.end_date_state = today_dt
+    elif date_mode == t['opt_prev_month']: first_this = today_dt.replace(day=1); last_prev = first_this - timedelta(days=1); first_prev = last_prev.replace(day=1); st.session_state.start_date_state = first_prev; st.session_state.end_date_state = last_prev
+    elif date_mode == t['opt_year']: st.session_state.start_date_state = today_dt.replace(month=1, day=1); st.session_state.end_date_state = today_dt
+    elif date_mode == t['opt_custom']:
+        with st.form("custom_date"):
+            d_input = st.date_input("Seleccionar rango", value=(st.session_state.start_date_state, st.session_state.end_date_state))
+            if st.form_submit_button(t["btn_refresh"]):
+                if isinstance(d_input, (list, tuple)) and len(d_input) > 0: st.session_state.start_date_state = d_input[0]; st.session_state.end_date_state = d_input[1] if len(d_input) > 1 else d_input[0]
 
-start_date = pd.to_datetime(st.session_state.start_date_state); end_date = pd.to_datetime(st.session_state.end_date_state).replace(hour=23, minute=59, second=59)
+    start_date = pd.to_datetime(st.session_state.start_date_state); end_date = pd.to_datetime(st.session_state.end_date_state).replace(hour=23, minute=59, second=59)
 
-st.sidebar.markdown("---")
-with st.sidebar.expander(t["settings"], expanded=False):
-    if st.button("🔄 Actualizar Datos", use_container_width=True): st.rerun()
-    if st.button("🧹 Limpiar Memoria", use_container_width=True): st.cache_data.clear(); st.success("OK!")
+    st.markdown("---")
+    with st.expander(t["settings"], expanded=False):
+        if st.button("🔄 Actualizar Datos", use_container_width=True): st.rerun()
+        if st.button("🧹 Limpiar Memoria", use_container_width=True): st.cache_data.clear(); st.success("OK!")
 
 # --- MOTEUR DATA ---
 def fetch_product_details_batch(prod_id_list):
