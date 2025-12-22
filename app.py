@@ -23,6 +23,8 @@ hide_st_style = """
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
             header {visibility: hidden;}
+            /* On ajoute display: none et !important pour forcer le masquage */
+            footer {display: none !important;}
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
@@ -933,6 +935,7 @@ elif page == T["nav_price"]:
             else: st.info("0 vélos.")
 
     else: st.info("No data.")
+
 
 
 
