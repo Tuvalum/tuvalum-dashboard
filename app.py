@@ -145,6 +145,8 @@ TRADUCTIONS = {
         "settings": "⚙️ Ajustes", "clean_mem": "🗑️ Limpiar Memoria",
         "mp_forecast": "💰 Previsión Cobros Marketplaces"
     }
+# Force la langue espagnole
+t = TRADUCTIONS["Español"]
 
 # HELPER TRADUCTION DATE
 def date_to_spanish(dt, format_type="full"):
@@ -978,6 +980,7 @@ elif page == T["nav_price"]:
             else: st.info("0 vélos.")
 
     else: st.info("No data.")
+
 
 
 
