@@ -30,7 +30,7 @@ C_BG = "#ffffff"     # Fond Blanc
 C_ALERT = "#ff4b4b"  # Rouge (Solo para alertas graves)
 C_GRAY_LIGHT = "#f8f9fa"
 
-# VARIABLES GLOBALES (DEFINIES AU DEBUT POUR EVITER NameError)
+# VARIABLES GLOBALES
 VAT_DB = {
     "Alemania (19%)": 0.19, "Austria (20%)": 0.20, "Bélgica (21%)": 0.21,
     "Bulgaria (20%)": 0.20, "Canarias - IGIC (13.5%)": 0.135, "Ceuta/Melilla (0%)": 0.00,
@@ -52,7 +52,7 @@ SHIPPING_COSTS = {
 }
 RECOND_UNIT_COST = 54.5
 
-# CSS GLOBAL "TOTAL GREEN FLASHY"
+# CSS GLOBAL "TOTAL GREEN FLASHY - FIXED HEIGHTS"
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
@@ -61,39 +61,46 @@ st.markdown(
         #MainMenu, header, footer {{visibility: hidden; display: none !important;}}
         [data-testid="stAppViewContainer"], .stApp {{background-color: white !important;}}
         
-        /* INPUTS & DATEPICKERS */
-        div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"], div[data-testid="stDateInput"] input {{
-            border-color: #e2e8f0 !important; border-width: 1px !important;
+        /* --- 1. INPUTS, SELECTBOXES & DATEPICKERS (FORCE GREEN) --- */
+        /* Cible précise pour Selectbox et Input */
+        div[data-baseweb="select"] > div, div[data-baseweb="base-input"] > div, div[data-testid="stDateInput"] > div {{
+            border-color: #e2e8f0;
+            transition: border-color 0.2s;
         }}
-        div[data-baseweb="input"]:focus-within, 
-        div[data-baseweb="select"]:focus-within, 
-        div[data-baseweb="base-input"]:focus-within,
+        
+        /* ETAT FOCUS : VERT FLASHY OBLIGATOIRE */
+        div[data-baseweb="select"]:focus-within > div, 
+        div[data-baseweb="base-input"]:focus-within > div,
         div[data-testid="stDateInput"] > div:focus-within {{
             border-color: {C_SEC} !important;
             box-shadow: 0 0 0 1px {C_SEC} !important;
         }}
         
-        /* SIDEBAR RADIO & CHECKBOX */
-        div[role="radiogroup"] div[aria-checked="true"] > div:first-child {{
-            background-color: {C_SEC} !important; border-color: {C_SEC} !important;
+        /* --- 2. RADIO BUTTONS & CHECKBOXES (SIDEBAR & MAIN) --- */
+        /* Le rond/carré coché */
+        div[role="radiogroup"] div[aria-checked="true"] > div:first-child,
+        div[data-baseweb="checkbox"] div[aria-checked="true"] > div:first-child {{
+            background-color: {C_SEC} !important; 
+            border-color: {C_SEC} !important;
         }}
-        div[role="radiogroup"] div[aria-checked="true"] + div[data-testid="stMarkdownContainer"] > p {{
+        /* Le texte associé */
+        div[role="radiogroup"] div[aria-checked="true"] + div p {{
              color: {C_MAIN} !important; font-weight: 700 !important;
         }}
-        div[data-baseweb="checkbox"] div[aria-checked="true"] > div:first-child {{
-            background-color: {C_SEC} !important; border-color: {C_SEC} !important;
-        }}
 
-        /* CALENDARIO */
-        div[data-baseweb="calendar"] button[aria-selected="true"], 
-        div[data-baseweb="calendar"] div[aria-selected="true"] {{
+        /* --- 3. CALENDARIO (VERDE TOTAL) --- */
+        div[data-baseweb="calendar"] button[aria-selected="true"] {{
             background-color: {C_SEC} !important; color: {C_MAIN} !important; font-weight: bold;
         }}
+        div[data-baseweb="calendar"] div[aria-selected="true"] {{
+            background-color: {C_SEC} !important; color: {C_MAIN} !important;
+        }}
+        /* Date du jour (soulignée) */
         div[data-baseweb="calendar"] div[text-decoration="underline"] {{
             text-decoration-color: {C_SEC} !important;
         }}
 
-        /* BOUTONS */
+        /* --- 4. BOUTONS (Toujours Verts) --- */
         .stButton > button {{
             background-color: {C_MAIN} !important; color: white !important; 
             border: 2px solid {C_MAIN} !important; border-radius: 8px !important; 
@@ -104,21 +111,28 @@ st.markdown(
         }}
         a[href] {{color: {C_MAIN} !important;}}
 
-        /* KPI CARDS - UNIFIED HEIGHT & STYLE */
-        .kpi-card, .kpi-card-soft {{
+        /* --- 5. KPI CARDS (HAUTEUR FIXE POUR ALIGNEMENT PARFAIT) --- */
+        .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
             padding: 15px 20px; border-radius: 15px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-            margin-bottom: 15px; min-height: 130px; /* Hauteur fixe pour alignement */
-            display: flex; flex-direction: column; justify-content: center;
+            margin-bottom: 15px; 
+            height: 160px !important; /* HAUTEUR STRICTE FORCEE */
+            display: flex; flex-direction: column; justify-content: space-between; /* Espacement vertical */
         }}
-        /* Fond Blanc (Ligne 1) */
-        .kpi-card {{ background-color: white; border: 1px solid #e1e8e8; }}
-        /* Fond Vert Doux (Lignes 2 & 3) */
-        .kpi-card-soft {{ background-color: {C_SOFT}; border: 1px solid #d1fae5; opacity: 0.95; }}
         
-        .kpi-title {{font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 5px;}} 
-        .kpi-value {{font-size: 28px; color: {C_MAIN}; font-weight: 800; margin: 0px 0 10px 0;}} 
-        .kpi-sub-container {{display:flex; justify-content:space-between; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px; font-size: 13px; font-weight: 600;}}
+        /* Couleurs de fond */
+        .kpi-card {{ background-color: white; border: 1px solid #e1e8e8; }}
+        .kpi-card-soft, .kpi-card-soft-v3 {{ background-color: {C_SOFT}; border: 1px solid #d1fae5; opacity: 0.95; }}
+        
+        /* Typographie */
+        .kpi-title {{font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 5px;}} 
+        .kpi-value {{font-size: 28px; color: {C_MAIN}; font-weight: 800; margin: 5px 0;}} 
+        .kpi-sub-container {{
+            display:flex; justify-content:space-between; 
+            border-top: 1px solid rgba(0,0,0,0.05); 
+            padding-top: 10px; font-size: 13px; font-weight: 600;
+            margin-bottom: 5px;
+        }}
         .kpi-sub-left {{color: #64748b;}}
         .kpi-sub-right {{color: {C_MAIN};}}
         
@@ -159,14 +173,13 @@ def get_img_as_base64(file_path):
         with open(file_path, "rb") as f: data = f.read(); return base64.b64encode(data).decode()
     except: return None
 
-# KPI HELPERS UNIFORMISÉS
+# KPI HELPERS UNIFORMISÉS (AVEC BORDURE GAUCHE)
 def card_kpi_unified(c, title, main_val, label_rev, val_rev, label_mar, val_mar, border_col, is_soft=False):
-    css_class = "kpi-card-soft" if is_soft else "kpi-card"
-    # Border Logic: Always apply border-left
-    style = f'border-left: 5px solid {border_col};'
+    # Determine CSS class based on is_soft
+    css_class = "kpi-card-soft-v3" if is_soft else "kpi-card"
     
     html = f"""
-    <div class="{css_class}" style="{style}">
+    <div class="{css_class}" style="border-left: 5px solid {border_col};">
         <div class="kpi-title">{title}</div>
         <div class="kpi-value">{main_val}</div>
         <div class="kpi-sub-container">
@@ -411,6 +424,7 @@ def search_sku_live(sku):
     return {"found": False}
 
 def calculate_smart_discount(days, current_margin, current_price, is_deposit=False):
+    MIN_MARGIN_BUFFER = 50.0 # FIXED SCOPE
     if is_deposit: return 0.0
     target = 0.0; 
     if days >= 45: target = 50.0
@@ -431,7 +445,7 @@ df_period = df_merged[(df_merged["date"] >= start_date) & (df_merged["date"] <= 
 
 # --- PAGE RESULTADOS ---
 if page == t["nav_res"]:
-    # LIGNE 1: HOY (Solo Col 1 y 2)
+    # LIGNE 1: HOY
     st.subheader(f"📅 {t['opt_today']} ({date_to_spanish(today_dt)})")
     d_ok = df_today[df_today["status"]=="paid"]; d_ko = df_today[df_today["status"]!="paid"]
     k1, k2, k3, k4 = st.columns(4)
@@ -439,11 +453,8 @@ if page == t["nav_res"]:
     card_kpi_unified(k1, t["t_kpi1"], len(d_ok), "Ingresos:", f"{rev_ok:,.0f} €", "Margen:", f"{mar_ok:,.0f} €", C_MAIN, is_soft=False)
     rev_ko = d_ko['total_ttc'].sum(); mar_ko = d_ko['margin_real'].sum()
     card_kpi_unified(k2, t["t_kpi2"] + " ⏳", len(d_ko), "Ingresos:", f"{rev_ko:,.0f} €", "Margen:", f"{mar_ko:,.0f} €", C_SEC, is_soft=False)
-    # K3 y K4 vacíos
-
-    st.markdown("---")
-
-    # LIGNE 2 (VERT DOUX)
+    
+    # LIGNE 2 (VERT DOUX) - SELECTION
     header_txt = f"{t['opt_yesterday']} ({date_to_spanish(start_date)})" if date_mode == t['opt_yesterday'] else f"{date_to_spanish(start_date, 'day_num')} - {date_to_spanish(end_date, 'day_num')}"
     st.subheader(f"📅 {header_txt}")
     p_ok = df_period[df_period["status"]=="paid"]; p_ko = df_period[df_period["status"]!="paid"]
@@ -455,9 +466,9 @@ if page == t["nav_res"]:
     avg_shipping = shipping_cost / count_ok if count_ok > 0 else 0
 
     kp1, kp2, kp3, kp4 = st.columns(4)
-    # 2.1 PAGADAS
+    # 2.1 PAGADAS (Bordure Vert Foncé)
     card_kpi_unified(kp1, t["t_kpi3"], count_ok, "Ingresos:", f"{p_ok['total_ttc'].sum():,.0f} €", "Margen:", f"{p_ok['margin_real'].sum():,.0f} €", C_MAIN, is_soft=True)
-    # 2.2 PENDIENTES
+    # 2.2 PENDIENTES (Bordure Vert Flashy)
     card_kpi_unified(kp2, t["t_kpi4"] + " ⏳", len(p_ko), "Ingresos:", f"{p_ko['total_ttc'].sum():,.0f} €", "Margen:", f"{p_ko['margin_real'].sum():,.0f} €", C_SEC, is_soft=True)
     # 2.3 PRECIO MEDIO
     avg_price = p_ok['total_ttc'].mean() if not p_ok.empty else 0
@@ -629,6 +640,7 @@ elif page == t["nav_calc"]:
         st.markdown("<br>", unsafe_allow_html=True)
         final_margin = (final_P - cost_val)/1.21 if active_regime == "REBU" else ((final_P/(1+vat_rate)) - (cost_val/1.21) if active_regime == "PRO" else ((final_P/(1+vat_rate)) - cost_val if active_regime == "INTRA" else 0))
         if active_regime: st.markdown(f"""<div style="background:{C_SOFT}; border: 3px solid {C_SEC}; transform:scale(1.02); box-shadow:0 10px 20px rgba(0,0,0,0.1); padding:20px; border-radius:15px; text-align:center; margin: 0 auto; width: 100%; margin-bottom:15px;"><div style="font-weight:bold; color:#555; font-size:18px;">{active_regime} -> {sel_country}</div><div style="font-size:42px; font-weight:900; color:{C_MAIN}">{final_margin:,.0f} €</div></div>""", unsafe_allow_html=True)
+        
         with st.expander(t["help_fiscal_title"], expanded=False):
             st.markdown("""
             ### 1️⃣ ORIGEN REBU (Comprado a Particular)
