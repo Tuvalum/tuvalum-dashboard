@@ -17,7 +17,7 @@ st.set_page_config(
     page_title="Tuvalum Dashboard",
     page_icon="🚲",
     layout="wide",
-    initial_sidebar_state="expanded", # Force l'ouverture
+    initial_sidebar_state="expanded",
     menu_items={'Get Help': None, 'Report a bug': None, 'About': None}
 )
 
@@ -50,7 +50,7 @@ SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "B
 RECOND_UNIT_COST = 54.5
 
 # ==============================================================================
-# 2. CSS "NUCLEAR" (OVERRIDE TOTAL)
+# 2. CSS "NUCLEAR" (OVERRIDE TOTAL + LOGO FIXE + SIDEBAR SANS FLECHE)
 # ==============================================================================
 st.markdown(
     f"""
@@ -65,28 +65,37 @@ st.markdown(
             --font: sans-serif !important;
         }}
         
-        /* 2. SIDEBAR VERROUILLEE (PAS DE FLECHE, TOUJOURS OUVERTE) */
+        /* 2. SIDEBAR VERROUILLEE (PAS DE FLECHE) */
         [data-testid="stSidebarCollapsedControl"] {{
             display: none !important; /* On tue le bouton de fermeture */
         }}
         section[data-testid="stSidebar"] {{
-            width: 300px !important; /* Largeur fixe */
+            width: 300px !important;
             min-width: 300px !important;
         }}
         
-        /* 3. NETTOYAGE HEADER & RUNNING */
+        /* 3. LOGO SIDEBAR NON CLIQUABLE (FIGÉ) */
+        [data-testid="stSidebar"] img {{
+            pointer-events: none !important;
+            user-select: none !important;
+            margin-left: 20px;
+        }}
+        /* Cacher le bouton agrandir sur le logo */
+        [data-testid="stSidebar"] [data-testid="StyledFullScreenButton"] {{
+            display: none !important;
+        }}
+        
+        /* 4. NETTOYAGE HEADER & RUNNING */
         header {{visibility: hidden !important;}}
         [data-testid="stToolbar"] {{visibility: hidden !important; display: none !important;}}
         [data-testid="stDecoration"] {{display: none !important;}}
         [data-testid="stStatusWidget"] {{display: none !important; visibility: hidden !important;}}
         #MainMenu, footer {{display: none !important;}}
 
-        /* 4. INPUTS & SELECTBOXES (VERT OBLIGATOIRE) */
-        /* Cible précise pour tuer le rouge de base */
+        /* 5. INPUTS & SELECTBOXES (VERT OBLIGATOIRE) */
         .stTextInput input, .stNumberInput input, .stSelectbox div, .stDateInput div {{
             border-color: #e2e8f0 !important;
         }}
-        /* ETAT FOCUS/ACTIVE : VERT FLASHY */
         .stTextInput input:focus, 
         .stNumberInput input:focus,
         div[data-baseweb="select"] > div:focus-within,
@@ -99,7 +108,7 @@ st.markdown(
             outline: none !important;
         }}
 
-        /* 5. CALENDRIER & RADIOS */
+        /* 6. CALENDRIER & RADIOS */
         div[data-baseweb="calendar"] button[aria-selected="true"] {{
             background-color: {C_SEC} !important; color: {C_MAIN} !important;
         }}
@@ -109,12 +118,11 @@ st.markdown(
         div[data-baseweb="calendar"] div[text-decoration="underline"] {{
             text-decoration-color: {C_SEC} !important;
         }}
-        /* Radio Buttons */
         div[role="radiogroup"] div[aria-checked="true"] > div:first-child {{
             background-color: {C_SEC} !important; border-color: {C_SEC} !important;
         }}
         
-        /* 6. BOUTONS */
+        /* 7. BOUTONS */
         .stButton > button {{
             background-color: {C_MAIN} !important; color: white !important; border: none;
             transition: all 0.3s ease;
@@ -123,10 +131,10 @@ st.markdown(
             background-color: {C_SEC} !important; color: {C_MAIN} !important;
         }}
 
-        /* 7. LAYOUT */
+        /* 8. LAYOUT */
         .block-container {{padding-top: 2rem !important; padding-bottom: 2rem !important;}}
         
-        /* 8. KPI CARDS */
+        /* 9. KPI CARDS */
         .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
             padding: 15px 20px; border-radius: 15px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 15px; 
