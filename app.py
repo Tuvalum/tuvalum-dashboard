@@ -13,7 +13,6 @@ from streamlit_option_menu import option_menu
 # ==============================================================================
 # 1. CONFIGURATION
 # ==============================================================================
-# Favicon personnalisé si présent
 fav_icon = "favicon.png" if os.path.exists("favicon.png") else "🚲"
 
 st.set_page_config(
@@ -24,20 +23,12 @@ st.set_page_config(
     menu_items={'Get Help': None, 'Report a bug': None, 'About': None}
 )
 
-# --- BASE DE DONNÉES DEVISES (Taux approximatifs moyens) ---
-# Si la devise n'est pas ici, le montant sera 0 pour éviter les erreurs.
+# --- TAUX DE CHANGE (Monnaie -> EUR) ---
 EXCHANGE_RATES = {
     "EUR": 1.0,
-    # Europe (Hors Euro)
-    "GBP": 1.17, "CHF": 1.06, "PLN": 0.232, "HUF": 0.0025, "CZK": 0.039,
-    "SEK": 0.088, "DKK": 0.134, "NOK": 0.087, "RON": 0.201, "BGN": 0.511,
-    "ISK": 0.006, "RSD": 0.0085, "TRY": 0.029, "UAH": 0.024,
-    # Amériques
-    "USD": 0.92, "CAD": 0.68, "MXN": 0.054, "BRL": 0.18, "ARS": 0.001, "CLP": 0.00095, "COP": 0.00023,
-    # Asie / Pacifique
-    "AUD": 0.60, "NZD": 0.56, "JPY": 0.0061, "CNY": 0.13, "HKD": 0.12, "SGD": 0.68, "KRW": 0.00069, "INR": 0.011,
-    # Autres
-    "ZAR": 0.049, "AED": 0.25, "SAR": 0.24, "ILS": 0.25
+    "PLN": 0.232, "HUF": 0.0025, "SEK": 0.088, "DKK": 0.134,
+    "GBP": 1.17, "CZK": 0.039, "USD": 0.92, "CHF": 1.06,
+    "RON": 0.201, "BGN": 0.511, "HRK": 0.132, "NOK": 0.087
 }
 
 # COULEURS
@@ -69,13 +60,13 @@ SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "B
 RECOND_UNIT_COST = 54.5
 
 # ==============================================================================
-# 2. CSS HARDCORE (LE VERT PARTOUT, LA FLECHE NULLE PART)
+# 2. CSS HARDCORE
 # ==============================================================================
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
     <style>
-        /* 1. VARIABLE SYSTEME FORCEE AU VERT */
+        /* 1. SUPPRESSION TOTALE DU ROUGE STREAMLIT */
         :root {{
             --primary-color: {C_SEC} !important;
             --background-color: #ffffff !important;
@@ -84,15 +75,17 @@ st.markdown(
             --font: sans-serif !important;
         }}
         
-        /* 2. SIDEBAR FIXE ET FIGÉE */
+        /* 2. SIDEBAR : SUPPRESSION FLECHE & LOGO FIGÉ */
         [data-testid="stSidebarCollapsedControl"] {{
-            display: none !important; /* Pas de flèche */
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            width: 0 !important;
         }}
         section[data-testid="stSidebar"] {{
             width: 300px !important;
             min-width: 300px !important;
         }}
-        /* LOGO FIGÉ */
         [data-testid="stSidebar"] img {{
             pointer-events: none !important;
             user-select: none !important;
@@ -100,7 +93,7 @@ st.markdown(
         }}
         [data-testid="stSidebar"] [data-testid="StyledFullScreenButton"] {{ display: none !important; }}
         
-        /* 3. NETTOYAGE HEADER / FOOTER */
+        /* 3. NETTOYAGE HEADER/FOOTER */
         header {{visibility: hidden !important;}}
         [data-testid="stToolbar"] {{display: none !important;}}
         [data-testid="stDecoration"] {{display: none !important;}}
@@ -109,29 +102,28 @@ st.markdown(
         #MainMenu {{display: none !important;}}
         .viewerBadge_container__1QSob {{display: none !important;}}
 
-        /* 4. GUERRE AU ROUGE : INPUTS & CALCULATRICE */
-        /* Bordures par défaut */
-        input, textarea, .stSelectbox div[data-baseweb="select"] > div, .stNumberInput input, .stDateInput div {{
+        /* 4. INPUTS, SELECTBOX, DATE : BORDURE VERTE AU FOCUS */
+        .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"] > div, .stDateInput div {{
             border-color: #e2e8f0 !important;
             box-shadow: none !important;
         }}
         
-        /* ETAT FOCUS/ACTIVE : VERT FLASHY OBLIGATOIRE */
-        input:focus, input:active,
-        textarea:focus,
-        .stSelectbox div[data-baseweb="select"] > div:focus-within,
-        .stNumberInput div[data-baseweb="input"]:focus-within,
-        .stDateInput div[data-baseweb="input"]:focus-within {{
+        /* Cible ultra-précise pour écraser le rouge */
+        .stTextInput input:focus, 
+        .stNumberInput input:focus,
+        div[data-baseweb="select"] > div:focus-within,
+        div[data-baseweb="base-input"]:focus-within,
+        div[data-testid="stDateInput"] > div:focus-within {{
             border-color: {C_SEC} !important;
             box-shadow: 0 0 0 1px {C_SEC} !important;
             caret-color: {C_SEC} !important;
             outline: none !important;
         }}
         
-        /* Boutons +/- Calculatrice */
-        button[kind="secondaryFormSubmit"] {{ border-color: transparent !important; }}
+        /* Boutons +/- de la calculatrice */
         [data-testid="stNumberInputStepDown"], [data-testid="stNumberInputStepUp"] {{
              color: {C_MAIN} !important;
+             border-color: transparent !important;
         }}
         [data-testid="stNumberInputStepDown"]:hover, [data-testid="stNumberInputStepUp"]:hover {{
              color: {C_SEC} !important;
@@ -139,32 +131,16 @@ st.markdown(
         }}
 
         /* 5. CALENDRIER & RADIOS */
-        div[data-baseweb="calendar"] button[aria-selected="true"] {{
-            background-color: {C_SEC} !important; color: {C_MAIN} !important;
-        }}
-        div[data-baseweb="calendar"] div[aria-selected="true"] {{
-            background-color: {C_SEC} !important;
-        }}
-        div[data-baseweb="calendar"] div[text-decoration="underline"] {{
-            text-decoration-color: {C_SEC} !important;
-        }}
-        div[role="radiogroup"] div[aria-checked="true"] > div:first-child {{
-            background-color: {C_SEC} !important; border-color: {C_SEC} !important;
-        }}
+        div[data-baseweb="calendar"] button[aria-selected="true"] {{background-color: {C_SEC} !important; color: {C_MAIN} !important;}}
+        div[data-baseweb="calendar"] div[aria-selected="true"] {{background-color: {C_SEC} !important;}}
+        div[data-baseweb="calendar"] div[text-decoration="underline"] {{text-decoration-color: {C_SEC} !important;}}
+        div[role="radiogroup"] div[aria-checked="true"] > div:first-child {{background-color: {C_SEC} !important; border-color: {C_SEC} !important;}}
         
         /* 6. BOUTONS */
-        .stButton > button {{
-            background-color: {C_MAIN} !important; color: white !important; border: none;
-            transition: all 0.3s ease;
-        }}
-        .stButton > button:hover {{
-            background-color: {C_SEC} !important; color: {C_MAIN} !important;
-        }}
+        .stButton > button {{background-color: {C_MAIN} !important; color: white !important; border: none; transition: all 0.3s ease;}}
+        .stButton > button:hover {{background-color: {C_SEC} !important; color: {C_MAIN} !important;}}
 
-        /* 7. LAYOUT */
-        .block-container {{padding-top: 2rem !important; padding-bottom: 2rem !important;}}
-        
-        /* 8. KPI CARDS */
+        /* 7. KPI CARDS */
         .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
             padding: 15px 20px; border-radius: 15px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 15px; 
@@ -193,10 +169,10 @@ TRADUCTIONS = {
         "t_kpi1": "Ventas Hoy (Pagadas)", "t_kpi2": "Ventas Hoy (Pendientes)", 
         "t_kpi3": "Ventas (pagadas)", "t_kpi4": "Ventas pendientes (select)",
         "sub_rev": "Ingresos", "sub_mar": "Margen",
-        "chart_channel": "Canales", "chart_mp": "Marketplaces (Top 7)", "chart_subcat": "Categoría", "chart_brand": "Top 5 Marcas", "chart_price": "Rango de Precios", "chart_country": "Países",
+        "chart_channel": "Canales", "chart_mp": "Marketplaces (Top 5)", "chart_subcat": "Categoría", "chart_brand": "Top 5 Marcas", "chart_price": "Rango de Precios", "chart_country": "Países",
         "avg_price": "Precio Medio", "avg_margin": "Margen Medio", "avg_margin_pct": "% Margen", "avg_rot": "Rotación Media", "loading": "⏳ Cargando...", 
         "calc_title": "Calculadora Financiera", "sku_ph": "ej: 201414", "sku_not_found": "SKU no encontrado", "age": "Antigüedad", "price_input": "Precio Venta (€)", "cost_input": "Coste Compra (€)", "discount_input": "Descuento (€)", "unit_days": "días", 
-        "col_sku": "SKU", "col_order": "Pedido", "col_country": "País", "col_channel": "Canal", "col_price": "Precio Pagado", "col_cost": "Coste Compra", "col_margin": "Margen", "col_margin_tot": "Margen Total", "col_date": "Fecha Compra", 
+        "col_sku": "SKU", "col_order": "Pedido", "col_country": "País", "col_channel": "Canal", "col_price": "Precio Pagado", "col_cost": "Coste Compra", "col_margin": "Margen", "col_margin_tot": "Margen Total", "col_date": "Fecha Compra", "col_cambio": "Precio Cambio",
         "pricing_title": "Control de Precios & Rotación", "col_img": "Foto", "col_p_curr": "P. Actual", "col_p_rec": "P. Rec.", "col_action": "Acción (€)", "col_margin_proj": "Margen Proy.",
         "advice_ok": "✅ Mantener Precio", "advice_disc": "📉 Descuento Máximo", "advice_neutral": "⚪ Descuento Recomendado", "btn_search": "Comparar Precio (Google)", "vat_select": "🌍 País Destino (IVA)",
         "help_fiscal_title": "📘 Ayuda Fiscal", "evol_title": "Ventas - Ingresos - Margenes", "sel_month": "Mes", "sel_year": "Año", "settings": "⚙️ Ajustes", "mp_forecast": "Ventas Marketplace (fecha selec.)"
@@ -254,13 +230,13 @@ def plot_bar_smart(df, x_col, y_col, color_col=None, colors=None, orientation='v
     else: x_col_plot = x_col
     fig = go.Figure()
     if orientation == 'v':
-        fig.add_trace(go.Bar(x=df[x_col], y=df[y_col], text=df["text_inside"], textposition='inside', marker_color=C_MAIN, textfont=dict(size=14, color='white')))
+        fig.add_trace(go.Bar(x=df[x_col], y=df[y_col], text=df["text_inside"], textposition='inside', marker_color=final_colors, textfont=dict(size=14, color='white')))
         fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide', margin=dict(t=40,b=20,l=0,r=0), height=400, xaxis_title=None, yaxis_title=None)
         fig.update_yaxes(range=[0, df[y_col].max() * 1.15])
         for i, row in df.iterrows(): 
             if row[y_col]>0: fig.add_annotation(x=row[x_col], y=row[y_col], text=f"<b>{int(row[y_col])}</b>", yshift=15, showarrow=False, font=dict(size=16, color="black"))
     else:
-        fig.add_trace(go.Bar(y=df[x_col_plot], x=df[y_col], text=df["text_inside"], textposition='inside', orientation='h', marker_color=final_colors if show_logos else C_MAIN, textfont=dict(size=12, color='white')))
+        fig.add_trace(go.Bar(y=df[x_col_plot], x=df[y_col], text=df["text_inside"], textposition='inside', orientation='h', marker_color=final_colors, textfont=dict(size=12, color='white')))
         fig.update_layout(margin=dict(t=20,b=20,l=0,r=20), height=400 + (len(df)*10), xaxis_title=None, yaxis_title=None)
         max_x = df[y_col].max() * 1.15
         fig.update_xaxes(range=[0, max_x]); fig.update_yaxes(tickmode='array', tickvals=df[x_col_plot], ticktext=df[x_col_plot])
@@ -287,10 +263,8 @@ def check_password():
         .login-left {{position: fixed; top: 0; left: 0; width: 50%; height: 100vh; {bg_css} background-size: cover; background-position: center;}}
         .login-overlay {{position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: {C_MAIN}; opacity: 0.85; display: flex; align-items: center; justify-content: center;}}
         div[data-testid="stForm"] {{position: fixed; top: 65%; right: 25%; transform: translate(50%, -50%); width: 380px; padding: 40px; border: none; box-shadow: none; background-color: white; z-index: 999;}}
-        
         div[data-testid="stForm"] input {{background-color: white !important; border: 1px solid #e0e0e0 !important; color: #333;}}
         div[data-testid="stForm"] input:focus {{border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important; caret-color: {C_SEC} !important; outline: none !important;}}
-        
         div[data-testid="stForm"] button {{background-color: transparent !important; color: #333 !important; border: none;}}
         div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{background-color: {C_SEC} !important; color: white !important; font-weight: bold; border-radius: 6px; height: 50px; margin-top: 20px;}}
     </style>""", unsafe_allow_html=True)
@@ -407,17 +381,17 @@ def get_data_v100(start_date_limit):
         if mp not in ["Decathlon", "Alltricks", "Campsider", "Bikeroom"] and c=="Marketplace": mp = "Autre MP"
         country = (o.get("shipping_address") or {}).get("country_code", "Autre"); 
         
-        # LOGIC DEVISE (AUTOMATIQUE ET SURE)
+        # LOGIC DEVISE
         raw_price = float(o["total_price"])
         currency = o.get("currency", "EUR")
         if currency == "EUR":
             total_eur = raw_price
         else:
             rate = EXCHANGE_RATES.get(currency)
-            if rate:
-                total_eur = raw_price * rate
-            else:
-                total_eur = 0.0 # SECURITE: SI DEVISE INCONNUE, 0 POUR NE PAS FAUSSER LE CA
+            if rate: total_eur = raw_price * rate
+            else: total_eur = 0.0 # SECURITE
+        
+        raw_price_str = f"{raw_price:,.0f} {currency}" # STOCKAGE STRING ORIGINAL
         
         pid = None; sku = ""
         if o.get("line_items"):
@@ -430,10 +404,12 @@ def get_data_v100(start_date_limit):
         if fin_status == "refunded" and fulfill != "unfulfilled": continue
         if o.get("cancelled_at") or total_eur < 200.0: continue
         
-        # AJUSTE DATE (LIMIT DATE -2 JOURS POUR ETRE SUR)
-        created_at_dt = pd.to_datetime(o["created_at"]).tz_convert(None)
+        ts = pd.to_datetime(o["created_at"])
+        if ts.tzinfo is None: ts = ts.tz_localize("UTC")
+        ts_local = ts.tz_convert("Europe/Madrid")
+        created_at_dt = ts_local.tz_localize(None)
         
-        clean_o.append({"date":created_at_dt, "total_ttc": total_eur, "status": fin_status, "channel":c, "mp_name":mp, "order_name":o["name"], "parent_id": pid, "country": country, "sku": sku})
+        clean_o.append({"date":created_at_dt, "total_ttc": total_eur, "raw_price_str": raw_price_str, "status": fin_status, "channel":c, "mp_name":mp, "order_name":o["name"], "parent_id": pid, "country": country, "sku": sku})
     df_ord = pd.DataFrame(clean_o)
     if not df_ord.empty and product_ids_to_fetch:
         COST_MAP = fetch_product_details_batch(product_ids_to_fetch)
@@ -576,7 +552,17 @@ if page == t["nav_res"]:
         with g2: 
             st.subheader(t["chart_mp"])
             df_mp = p_ok[p_ok["channel"]=="Marketplace"].groupby("mp_name").size().reset_index(name="c")
-            st.plotly_chart(plot_bar_smart(df_mp, "mp_name", "c", orientation='h', limit=7, show_logos=True), use_container_width=True)
+            
+            # LOGIQUE BAR CHART VERTICAL TOP 5 + AUTRE
+            mp_counts = df_mp.groupby("mp_name").size().sort_values(ascending=False)
+            top_4 = mp_counts.head(4)
+            others = mp_counts.iloc[4:].sum()
+            final_mp_data = top_4.to_dict()
+            if others > 0: final_mp_data["Autre MP"] = others
+            df_mp_final = pd.DataFrame(list(final_mp_data.items()), columns=["mp_name", "c"])
+            
+            st.plotly_chart(plot_bar_smart(df_mp_final, "mp_name", "c", orientation='v', show_logos=True), use_container_width=True)
+
         g3, g4 = st.columns(2)
         with g3: 
             st.subheader(t["chart_subcat"])
@@ -671,14 +657,30 @@ elif page == t["nav_table"] and not df_merged.empty:
     
     def display_styled_table(df_input, is_mp=False):
         df_show = df_input.copy()
-        if is_mp: df_show = df_show.sort_values("date", ascending=True); df_show["margin_cum"] = df_show["margin_real"].cumsum(); df_show = df_show.sort_values("date", ascending=False)
+        
+        # LOGIQUE COMPTEUR SPECIFIQUE POUR MARKETPLACE
+        if is_mp:
+            df_show = df_show.sort_values("date", ascending=True)
+            df_show["margin_cum"] = df_show["margin_real"].cumsum()
+            df_show = df_show.sort_values("date", ascending=False)
+            # COMPTEUR 1, 2, 3... spécifique
+            df_show["#"] = range(len(df_show), 0, -1)
+        
         df_show["canal_full"] = df_show.apply(lambda x: f"{x['channel']} ({x['mp_name']})" if x['channel']=="Marketplace" else x['channel'], axis=1)
         df_show["date_str"] = df_show["date"].dt.strftime("%d/%m/%Y")
         df_show["date_group"] = (df_show["date_str"] != df_show["date_str"].shift()).cumsum()
-        cols = ["#", "date_str", "order_name", "canal_full", "country", "sku", "cost", "total_ttc", "margin_real", "margin_cum"]
-        df_final = df_show[cols].copy(); df_final.columns = ["#", t["col_date"], t["col_order"], t["col_channel"], t["col_country"], t["col_sku"], t["col_cost"], t["col_price"], t["col_margin"], t["col_margin_tot"]]
         
-        # NETTOYAGE DECIMALES POUR AFFICHAGE PROPRE
+        # COLONNES SELON TYPE
+        if is_mp:
+             cols = ["#", "date_str", "order_name", "canal_full", "country", "sku", "cost", "raw_price_str", "total_ttc", "margin_real", "margin_cum"]
+             col_names = ["#", t["col_date"], t["col_order"], t["col_channel"], t["col_country"], t["col_sku"], t["col_cost"], t["col_cambio"], t["col_price"], t["col_margin"], t["col_margin_tot"]]
+        else:
+             cols = ["#", "date_str", "order_name", "canal_full", "country", "sku", "cost", "total_ttc", "margin_real", "margin_cum"]
+             col_names = ["#", t["col_date"], t["col_order"], t["col_channel"], t["col_country"], t["col_sku"], t["col_cost"], t["col_price"], t["col_margin"], t["col_margin_tot"]]
+
+        df_final = df_show[cols].copy(); df_final.columns = col_names
+        
+        # NETTOYAGE DECIMALES
         styler = df_final.style.format({
             t["col_cost"]: "{:,.0f} €", 
             t["col_price"]: "{:,.0f} €", 
@@ -756,8 +758,6 @@ elif page == t["nav_calc"]:
         if f_img: 
             st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True); bg_age = "#e5e7eb"; age_txt = "-"; color_age = "#374151"
             if days_stock > 0: age_txt = f"{days_stock} {t['unit_days']}"; bg_age = "#d1fae5" if days_stock <= 45 else ("#ffedd5" if days_stock <= 90 else "#fee2e2"); color_age = "#065f46" if days_stock <= 90 else "#991b1b"
-            st.markdown(f"""<div style="background-color:{bg_age}; padding:15px; border-radius:10px; color:{color_age}; text-align:center; border:1px solid {color_age}; margin-bottom:15px;"><div style="font-size:14px; text-transform:uppercase; font-weight:bold;">{t['age']}</div><div style="font-size:32px; font-weight:800;">{age_txt}</div></div>""", unsafe_allow_html=True); st.markdown(f'<img src="{f_img}" class="product-img">', unsafe_allow_html=True)
-            border_col = C_ALERT if is_sold else C_SEC; bg_col = "#fee2e2" if is_sold else "#d1fae5"; sold_txt = " 🔴 VENDIDO" if is_sold else ""
             st.markdown(f"""<div style="background-color:{bg_col}; padding:15px; border-radius:10px; color:#0a4650; margin-top:15px; border:2px solid {border_col};"><h3 style="margin:0; padding-bottom:10px;">✅ {f_title}{sold_txt}</h3><ul style="margin-left: 20px;">
             <li><b>Estado:</b> {specs.get('state','-')}</li>
             <li><b>Año:</b> {specs.get('year','-')}</li>
