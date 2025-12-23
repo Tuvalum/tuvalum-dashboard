@@ -17,7 +17,7 @@ st.set_page_config(
     page_title="Tuvalum Dashboard",
     page_icon="🚲",
     layout="wide",
-    initial_sidebar_state="expanded", # Force l'ouverture au démarrage
+    initial_sidebar_state="expanded",
     menu_items={'Get Help': None, 'Report a bug': None, 'About': None}
 )
 
@@ -50,54 +50,63 @@ SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "B
 RECOND_UNIT_COST = 54.5
 
 # ==============================================================================
-# 2. CSS "NUCLEAR" (OVERRIDE THEME)
+# 2. CSS "NUCLEAR" (NETTOYAGE COMPLET + VERT TOTAL)
 # ==============================================================================
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
     <style>
-        /* 1. VARIABLE OVERRIDE: CECI REMPLACE LE ROUGE PARTOUT */
-        :root {{
-            --primary-color: {C_SEC};
-            --background-color: #ffffff;
-            --secondary-background-color: #f0f2f6;
-            --text-color: #31333F;
-            --font: sans-serif;
-        }}
+        /* 1. NETTOYAGE INTERFACE (SUPPRESSION HEADER/TOOLBAR/BONHOMME) */
+        .block-container {{padding-top: 1rem !important; padding-bottom: 2rem !important;}}
         
-        /* 2. LAYOUT */
-        .block-container {{padding-top: 2rem !important; padding-bottom: 2rem !important;}}
-        #MainMenu, footer {{visibility: hidden; display: none !important;}}
-        [data-testid="stAppViewContainer"], .stApp {{background-color: white !important;}}
-        
-        /* 3. SIDEBAR ARROW FIX (LA FLECHE REVIENT !) */
+        /* Cacher tout le header sauf la flèche */
+        header {{visibility: hidden !important;}}
+        [data-testid="stToolbar"] {{visibility: hidden !important; display: none !important;}}
+        [data-testid="stDecoration"] {{visibility: hidden !important; display: none !important;}}
+        [data-testid="stStatusWidget"] {{visibility: hidden !important; display: none !important;}}
+        #MainMenu {{visibility: hidden !important; display: none !important;}}
+        footer {{visibility: hidden !important; display: none !important;}}
+
+        /* RE-AFFICHER LA FLECHE DE SIDEBAR (Indispensable) */
         [data-testid="stSidebarCollapsedControl"] {{
+            visibility: visible !important;
             display: block !important;
             color: {C_MAIN} !important;
             background-color: white !important;
-            border-radius: 50%;
-            border: 1px solid #eee;
-            z-index: 100000;
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 50% !important;
+            top: 15px !important;
+            left: 15px !important;
+            z-index: 1000000 !important; /* Au-dessus de tout */
         }}
-        /* Cacher la ligne rouge du haut uniquement */
-        [data-testid="stDecoration"] {{display: none !important;}}
+
+        [data-testid="stAppViewContainer"], .stApp {{background-color: white !important;}}
         
-        /* 4. FORCAGE BORDURES VERTES (INPUTS, SELECTS) */
-        /* Cible tous les inputs au focus */
-        .stTextInput input:focus, 
-        .stNumberInput input:focus, 
-        div[data-baseweb="select"] > div:focus-within,
-        div[data-baseweb="base-input"]:focus-within {{
+        /* 2. FORCER LE VERT SUR TOUS LES INPUTS (TEXT, NUMBER, SELECT, DATE) */
+        /* Etat normal */
+        div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"], 
+        div[data-testid="stDateInput"] div, div[data-testid="stNumberInput"] div {{
+            border-color: #e2e8f0 !important;
+        }}
+        
+        /* Etat Focus (Clic) -> VERT FLASHY */
+        div[data-baseweb="input"]:focus-within, 
+        div[data-baseweb="select"]:focus-within, 
+        div[data-baseweb="base-input"]:focus-within,
+        div[data-testid="stDateInput"] > div:focus-within,
+        div[data-testid="stNumberInput"] > div:focus-within,
+        div[data-testid="stTextInput"] > div:focus-within {{
             border-color: {C_SEC} !important;
             box-shadow: 0 0 0 1px {C_SEC} !important;
         }}
 
-        /* 5. CALENDRIER & RADIOS (ZERO ROUGE) */
+        /* 3. CALENDRIER & RADIOS (ZERO ROUGE) */
         div[data-baseweb="calendar"] button[aria-selected="true"] {{background-color: {C_SEC} !important; color: {C_MAIN} !important;}}
         div[data-baseweb="calendar"] div[aria-selected="true"] {{background-color: {C_SEC} !important;}}
+        div[data-baseweb="calendar"] div[text-decoration="underline"] {{text-decoration-color: {C_SEC} !important;}}
         span[data-baseweb="tag"] {{background-color: {C_SEC} !important;}}
         
-        /* 6. BOUTONS */
+        /* 4. BOUTONS */
         .stButton > button {{
             background-color: {C_MAIN} !important; color: white !important; border: none;
             transition: all 0.3s ease;
@@ -106,7 +115,7 @@ st.markdown(
             background-color: {C_SEC} !important; color: {C_MAIN} !important;
         }}
 
-        /* 7. KPI CARDS (FIXED HEIGHT) */
+        /* 5. KPI CARDS (FIXED HEIGHT) */
         .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
             padding: 15px 20px; border-radius: 15px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 15px; 
@@ -122,11 +131,12 @@ st.markdown(
         
         .product-img {{border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; width: 100%; object-fit: cover;}}
         
-        /* HACK SIDEBAR PADDING */
-        section[data-testid="stSidebar"] > div > div:nth-child(2) {{
-            padding-top: 20px !important; padding-left: 0 !important; padding-right: 0 !important;
+        /* 6. SIDEBAR FULL WIDTH HACK */
+        [data-testid="stSidebar"] .nav-link {{
+            width: 100% !important;
+            border-radius: 0px !important;
+            margin: 0px !important;
         }}
-        [data-testid="stSidebar"] img {{margin-left: 20px;}}
     </style>
     """,
     unsafe_allow_html=True
@@ -190,21 +200,31 @@ def plot_bar_smart(df, x_col, y_col, color_col=None, colors=None, orientation='v
             if "Decathlon" in str(val): final_colors.append(C_DECATHLON)
             else: final_colors.append(C_MAIN)
     else: final_colors = [C_MAIN] * len(df)
+
     if strict_order: df = df.set_index(x_col).reindex(strict_order).fillna(0).reset_index()
-    else: df = df.sort_values(by=y_col, ascending=(True if orientation == 'h' else False))
-    total = df[y_col].sum(); total = 1 if total == 0 else total; df["pct"] = (df[y_col] / total * 100).round(1); df["text_inside"] = df.apply(lambda x: f"<b>{x['pct']}%</b>" if x[y_col] > 0 else "", axis=1)
+    else:
+        ascending = True if orientation == 'h' else False
+        df = df.sort_values(by=y_col, ascending=ascending)
+    
+    total = df[y_col].sum(); total = 1 if total == 0 else total
+    df["pct"] = (df[y_col] / total * 100).round(1)
+    df["text_inside"] = df.apply(lambda x: f"<b>{x['pct']}%</b>" if x[y_col] > 0 else "", axis=1)
+    
     if orientation == 'h' and show_logos:
         df["y_label"] = df[x_col].apply(lambda name: f"<b>{name}</b>")
         for idx, row in df.iterrows():
-            img_path = f"images/brands/{str(row[x_col]).lower().replace(' ', '')}.png" 
+            brand_key = str(row[x_col]).lower().replace(" ", "")
+            img_path = f"images/brands/{brand_key}.png" 
             if os.path.exists(img_path):
                 img_b64 = get_img_as_base64(img_path)
                 if img_b64: df.loc[idx, "y_label"] = f"<img src='data:image/png;base64,{img_b64}' width='30' height='30' style='vertical-align:middle; margin-right:5px;'> <b>{row[x_col]}</b>"
         x_col_plot = "y_label"
     else: x_col_plot = x_col
+
     fig = go.Figure()
     if orientation == 'v':
-        fig.add_trace(go.Bar(x=df[x_col], y=df[y_col], text=df["text_inside"], textposition='inside', marker_color=C_MAIN, textfont=dict(size=14, color='white')))
+        if color_col: fig = px.bar(df, x=x_col, y=y_col, color=color_col, color_discrete_map=colors, text="text_inside")
+        else: fig.add_trace(go.Bar(x=df[x_col], y=df[y_col], text=df["text_inside"], textposition='inside', marker_color=C_MAIN, textfont=dict(size=14, color='white')))
         fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide', margin=dict(t=40,b=20,l=0,r=0), height=400, xaxis_title=None, yaxis_title=None)
         fig.update_yaxes(range=[0, df[y_col].max() * 1.15])
         for i, row in df.iterrows(): 
@@ -213,13 +233,14 @@ def plot_bar_smart(df, x_col, y_col, color_col=None, colors=None, orientation='v
         fig.add_trace(go.Bar(y=df[x_col_plot], x=df[y_col], text=df["text_inside"], textposition='inside', orientation='h', marker_color=final_colors if show_logos else C_MAIN, textfont=dict(size=12, color='white')))
         fig.update_layout(margin=dict(t=20,b=20,l=0,r=20), height=400 + (len(df)*10), xaxis_title=None, yaxis_title=None)
         max_x = df[y_col].max() * 1.15
-        fig.update_xaxes(range=[0, max_x]); fig.update_yaxes(tickmode='array', tickvals=df[x_col_plot], ticktext=df[x_col_plot])
+        fig.update_xaxes(range=[0, max_x])
+        fig.update_yaxes(tickmode='array', tickvals=df[x_col_plot], ticktext=df[x_col_plot])
         for i, row in df.iterrows(): 
             if row[y_col]>0: fig.add_annotation(y=row[x_col_plot], x=row[y_col], text=f"<b>{int(row[y_col])}</b>", xshift=25, showarrow=False, font=dict(size=14, color="black"))
     return fig
 
 # ==============================================================================
-# 3. LOGIN & TRANSITION FIX
+# 2. LOGIN SYSTEM
 # ==============================================================================
 def check_password():
     if "password_correct" not in st.session_state: st.session_state["password_correct"] = False
@@ -230,7 +251,7 @@ def check_password():
     bg_css = f"background-image: url('data:image/jpeg;base64,{bg_b64}');" if bg_b64 else "background-color: #0a4650;"
     logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="max-width: 300px;">' if logo_b64 else '<h1 style="color:white; font-size:60px;">Tuvalum</h1>'
     
-    # CSS LOGIN AVEC FORCE VERTE
+    # CSS LOGIN FORCE GREEN
     st.markdown(f"""
     <style>
         [data-testid="stHeader"], [data-testid="stToolbar"] {{display: none !important;}}
@@ -239,7 +260,6 @@ def check_password():
         .login-overlay {{position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: {C_MAIN}; opacity: 0.85; display: flex; align-items: center; justify-content: center;}}
         div[data-testid="stForm"] {{position: fixed; top: 65%; right: 25%; transform: translate(50%, -50%); width: 380px; padding: 40px; border: none; box-shadow: none; background-color: white; z-index: 999;}}
         div[data-testid="stForm"] input {{background-color: white !important; border: 1px solid #e0e0e0 !important; color: #333;}}
-        /* FORCE GREEN BORDER FOCUS */
         div[data-testid="stForm"] input:focus {{border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important;}}
         div[data-testid="stForm"] button {{background-color: transparent !important; color: #333 !important; border: none;}}
         div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{background-color: {C_SEC} !important; color: white !important; font-weight: bold; border-radius: 6px; height: 50px; margin-top: 20px;}}
@@ -256,15 +276,14 @@ def check_password():
         if st.form_submit_button("INICIAR SESIÓN", type="primary", use_container_width=True):
             if password == st.secrets["security"]["password"]:
                 st.session_state["password_correct"] = True
-                # TRANSITION PROPRE : On vide le placeholder AVANT de recharger
-                login_placeholder.empty()
+                login_placeholder.empty() # CLEAN UP
                 st.rerun()
             else: st.error("Contraseña incorrecta")
     return False
 
 if not check_password(): st.stop()
 
-# --- SIDEBAR ---
+# --- SIDEBAR (MODERN MENU) ---
 with st.sidebar:
     if os.path.exists("logo.png"): st.image("logo.png", width=180)
     st.markdown("---")
@@ -272,14 +291,24 @@ with st.sidebar:
     page = option_menu(
         menu_title=None, options=[t["nav_res"], t["nav_evol"], t["nav_table"], t["nav_calc"], t["nav_price"]],
         icons=["bar-chart-fill", "graph-up", "table", "calculator", "tag"], default_index=0,
-        styles={"container": {"padding": "0!important", "background-color": "transparent", "margin": "0!important", "width": "100%"}, "icon": {"color": "#64748b", "font-size": "14px"}, "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#f0f2f6", "color": "#333", "border-radius": "0px", "width": "100%"}, "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"}}
+        styles={
+            "container": {"padding": "0!important", "background-color": "transparent", "margin": "0!important", "width": "100%"},
+            "icon": {"color": "#64748b", "font-size": "14px"}, 
+            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#f0f2f6", "color": "#333", "border-radius": "0px", "width": "100%"},
+            "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"}
+        }
     )
     st.markdown("---")
     st.markdown("<p style='font-size: 12px; color: #888; font-weight: bold; margin-bottom: 5px; padding-left: 10px;'>PERIODO</p>", unsafe_allow_html=True)
     date_mode = option_menu(
         menu_title=None, options=[t['opt_prev_month'], t['opt_yesterday'], t['opt_today'], t['opt_month'], t['opt_year'], t['opt_custom']],
         icons=["calendar-minus", "calendar-check", "calendar-event", "calendar-month", "calendar-range", "calendar3"], default_index=3,
-        styles={"container": {"padding": "0!important", "background-color": "transparent", "margin": "0!important", "width": "100%"}, "icon": {"color": "#64748b", "font-size": "14px"}, "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#f0f2f6", "color": "#333", "border-radius": "0px", "width": "100%"}, "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"}}
+        styles={
+            "container": {"padding": "0!important", "background-color": "transparent", "margin": "0!important", "width": "100%"},
+            "icon": {"color": "#64748b", "font-size": "14px"}, 
+            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#f0f2f6", "color": "#333", "border-radius": "0px", "width": "100%"},
+            "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"}
+        }
     )
     now = datetime.now(); today_dt = now.date()
     if 'start_date_state' not in st.session_state: st.session_state.start_date_state = today_dt.replace(day=1)
@@ -329,7 +358,8 @@ def fetch_product_details_batch(prod_id_list):
 
 @st.cache_data(ttl=600, show_spinner=False)
 def get_data_v100(start_date_limit):
-    COMMISSION_MP = 0.10; shop_url = st.secrets["shopify"]["shop_url"]; token = st.secrets["shopify"]["access_token"]; h_rest = {"X-Shopify-Access-Token": token}; limit_dt = pd.to_datetime(start_date_limit) - timedelta(days=2); url_o = f"https://{shop_url}/admin/api/2024-01/orders.json?status=any&limit=250&order=created_at+desc"; orders = []; MAX_PAGES = 100 
+    COMMISSION_MP = 0.10 # FIXED SCOPE
+    shop_url = st.secrets["shopify"]["shop_url"]; token = st.secrets["shopify"]["access_token"]; h_rest = {"X-Shopify-Access-Token": token}; limit_dt = pd.to_datetime(start_date_limit) - timedelta(days=2); url_o = f"https://{shop_url}/admin/api/2024-01/orders.json?status=any&limit=250&order=created_at+desc"; orders = []; MAX_PAGES = 100 
     for _ in range(MAX_PAGES):
         r = requests.get(url_o, headers=h_rest); 
         if r.status_code!=200: break
@@ -359,31 +389,9 @@ def get_data_v100(start_date_limit):
         clean_o.append({"date":pd.to_datetime(o["created_at"]).tz_convert(None), "total_ttc": total_eur, "status": fin_status, "channel":c, "mp_name":mp, "order_name":o["name"], "parent_id": pid, "country": country, "sku": sku})
     df_ord = pd.DataFrame(clean_o)
     if not df_ord.empty and product_ids_to_fetch:
-        unique_ids = list(set(product_ids_to_fetch)); DATA_MAP = {}; chunk_size = 50; chunks = [unique_ids[i:i + chunk_size] for i in range(0, len(unique_ids), chunk_size)]
-        for chunk in chunks:
-            query_parts = []; 
-            for idx, pid in enumerate(chunk): query_parts.append(f"""p{idx}: product(id: "gid://shopify/Product/{pid}") {{ title vendor createdAt metafield(namespace: "custom", key: "custitem_preciocompra") {{ value }} fiscal: metafield(namespace: "custom", key: "cseg_origenfiscal") {{ value }} category: metafield(namespace: "custom", key: "cseg_subcategoria") {{ value }} }}""")
-            full_query = "{" + " ".join(query_parts) + "}"; 
-            try:
-                r = requests.post(f"https://{shop_url}/admin/api/2024-01/graphql.json", json={"query":full_query}, headers={"X-Shopify-Access-Token": token}); data = r.json().get("data", {})
-                if data:
-                    for idx, pid in enumerate(chunk):
-                        key = f"p{idx}"; 
-                        if key in data and data[key]:
-                            n = data[key]; raw_cost = n["metafield"]["value"] if n["metafield"] else "0"; cost_val = float(re.sub(r'[^\d.]', '', str(raw_cost).replace(',','.'))) if raw_cost else 0.0; fiscal_val = n["fiscal"]["value"] if n["fiscal"] else "PRO"; brand_val = n["vendor"] if n["vendor"] else "Autre"; subcat_raw = n["category"]["value"] if (n["category"] and n["category"]["value"]) else "Autre"; s_low = str(subcat_raw).lower(); subcat_clean = "Autre"
-                            if "carretera" in s_low or "aero" in s_low: subcat_clean = "Carretera"
-                            elif "gravel" in s_low: subcat_clean = "Gravel"
-                            elif "mtb" in s_low or "rigid" in s_low: subcat_clean = "Rigidas"
-                            elif "doble" in s_low: subcat_clean = "Dobles"
-                            elif "electri" in s_low or "e-bike" in s_low or "ebike" in s_low: subcat_clean = "E-Bike"
-                            elif "urbana" in s_low: subcat_clean = "Urbana"
-                            created_at = pd.to_datetime(n["createdAt"]).tz_convert(None); DATA_MAP[pid] = {"cost": cost_val, "fiscal": fiscal_val, "brand": brand_val, "subcat": subcat_clean, "created_at": created_at}
-                        else: DATA_MAP[pid] = {"cost": 0.0, "fiscal": "PRO", "brand": "Autre", "subcat": "Autre", "created_at": None}
-            except: 
-                for pid in chunk: DATA_MAP[pid] = {"cost": 0.0, "fiscal": "PRO", "brand": "Autre", "subcat": "Autre", "created_at": None}
-        
+        COST_MAP = fetch_product_details_batch(product_ids_to_fetch)
         def apply_data(row):
-            pid = row["parent_id"]; price = row["total_ttc"]; d = DATA_MAP.get(pid, {"cost": 0.0, "fiscal": "PRO", "brand": "Autre", "subcat": "Autre", "created_at": None}); cost = d["cost"]; fiscal = str(d["fiscal"]).upper(); margin = 0.0; comm_mp = price * COMMISSION_MP if row["channel"] == "Marketplace" else 0.0
+            pid = row["parent_id"]; price = row["total_ttc"]; d = COST_MAP.get(pid, {"cost": 0.0, "fiscal": "PRO", "brand": "Autre", "subcat": "Autre", "created_at": None}); cost = d["cost"]; fiscal = str(d["fiscal"]).upper(); margin = 0.0; comm_mp = price * COMMISSION_MP if row["channel"] == "Marketplace" else 0.0
             if cost > 0:
                 if "REBU" in fiscal: margin = ((price - cost) / 1.21) - comm_mp
                 elif "INTRA" in fiscal: margin = (price - cost) - comm_mp
@@ -393,7 +401,7 @@ def get_data_v100(start_date_limit):
         df_ord[["cost", "fiscal", "margin_real", "brand", "subcat", "rotation"]] = df_ord.apply(apply_data, axis=1)
     return df_ord, pd.DataFrame()
 
-# FUNCION CONTROL PRECIOS
+# FUNCION CONTROL PRECIOS ROBUSTA
 def get_current_stock_and_pricing():
     shop_url = st.secrets["shopify"]["shop_url"]; token = st.secrets["shopify"]["access_token"]; all_nodes = []; has_next = True; cursor = None
     for _ in range(15):
@@ -412,12 +420,19 @@ def get_current_stock_and_pricing():
         v_edges = node.get("variants", {}).get("edges", [])
         if not v_edges: continue
         v = v_edges[0]["node"]
-        try: p_curr = float(v.get("price", 0.0)); comp_price = v.get("compareAtPrice"); p_init = float(comp_price) if comp_price else p_curr; sku = v.get("sku", "")
+        try:
+            p_curr = float(v.get("price", 0.0))
+            comp_price = v.get("compareAtPrice")
+            p_init = float(comp_price) if comp_price else p_curr
+            sku = v.get("sku", "")
         except: p_curr = 0.0; p_init = 0.0; sku = ""
-        raw_c_node = node.get("metafield"); raw_c = raw_c_node["value"] if raw_c_node else "0"
+        raw_c_node = node.get("metafield")
+        raw_c = raw_c_node["value"] if raw_c_node else "0"
         try: cost = float(re.sub(r'[^\d.]', '', str(raw_c).replace(',','.'))) if raw_c else 0.0
         except: cost = 0.0
-        fiscal_node = node.get("fiscal"); f = fiscal_node["value"] if fiscal_node else "PRO"; m_curr = 0.0
+        fiscal_node = node.get("fiscal")
+        f = fiscal_node["value"] if fiscal_node else "PRO"
+        m_curr = 0.0
         if cost > 0 and p_curr > 0:
             if "REBU" in str(f).upper(): m_curr = ((p_curr - cost) / 1.21)
             elif "INTRA" in str(f).upper(): m_curr = (p_curr - cost)
@@ -455,11 +470,8 @@ def calculate_smart_discount(days, current_margin, current_price, is_deposit=Fal
 # AFFICHAGE PAGES
 # ==============================================================================
 placeholder = st.empty(); 
-with placeholder.container(): 
-    with st.spinner("Cargando, un momento por favor..."):
-        df_merged, _ = get_data_v100(start_date)
-placeholder.empty()
-
+with placeholder.container(): st.markdown(f"<div style='text-align:center; padding-top:100px;'><h3>Cargando, un momento por favor...</h3></div>", unsafe_allow_html=True)
+df_merged, _ = get_data_v100(start_date); placeholder.empty()
 df_today = df_merged[(df_merged["date"] >= pd.to_datetime(today_dt)) & (df_merged["date"] < pd.to_datetime(today_dt) + timedelta(days=1))] if not df_merged.empty else pd.DataFrame()
 df_period = df_merged[(df_merged["date"] >= start_date) & (df_merged["date"] <= end_date)] if not df_merged.empty else pd.DataFrame()
 
@@ -479,7 +491,6 @@ if page == t["nav_res"]:
     st.subheader(f"📅 {header_txt}")
     p_ok = df_period[df_period["status"]=="paid"]; p_ko = df_period[df_period["status"]!="paid"]
     
-    # Calculos KPIs
     count_ok = len(p_ok)
     recond_cost = count_ok * RECOND_UNIT_COST
     shipping_cost = p_ok["country"].map(SHIPPING_COSTS).fillna(SHIPPING_COSTS["default"]).sum()
@@ -537,7 +548,6 @@ if page == t["nav_res"]:
 
 # --- PAGE EVOLUCION ---
 elif page == t["nav_evol"]:
-    
     c_head, c_f1, c_f2 = st.columns([6, 1.5, 1.5])
     years_list = [2025, 2024, 2023, 2022]
     sel_year = c_f2.selectbox(t["sel_year"], options=years_list, index=0)
@@ -552,7 +562,6 @@ elif page == t["nav_evol"]:
     
     with c_head: st.subheader(f"{t['evol_title']} - {date_to_spanish(date(2024, sel_month_idx, 1), 'month')} {sel_year}")
     
-    # 1. GRAPH DIARIO
     df_evol = df_full_year[(df_full_year['date'].dt.month == sel_month_idx) & (df_full_year['date'].dt.year == sel_year)].copy()
     if True: 
         start_m = date(sel_year, sel_month_idx, 1); next_m = start_m + timedelta(days=32); end_m = next_m.replace(day=1) - timedelta(days=1); full_range = pd.date_range(start=start_m, end=end_m)
