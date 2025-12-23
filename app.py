@@ -11,7 +11,7 @@ import base64
 from streamlit_option_menu import option_menu
 
 # ==============================================================================
-# 1. CONFIGURATION INITIALE
+# 1. CONFIGURATION
 # ==============================================================================
 st.set_page_config(
     page_title="Tuvalum Dashboard",
@@ -30,7 +30,7 @@ C_DECATHLON = "#0292e9"
 C_BG = "#ffffff"
 C_GRAY_LIGHT = "#f8f9fa"
 
-# VARIABLES
+# VARIABLES GLOBALES
 VAT_DB = {
     "Alemania (19%)": 0.19, "Austria (20%)": 0.20, "Bélgica (21%)": 0.21,
     "Bulgaria (20%)": 0.20, "Canarias (0%)": 0.00, "Ceuta/Melilla (0%)": 0.00,
@@ -45,164 +45,105 @@ VAT_DB = {
     "Rep. Checa (21%)": 0.21, "Rumanía (19%)": 0.19, "Suecia (25%)": 0.25,
     "Suiza (0% - Export)": 0.00, "UE B2B Intracomunitario (0%)": 0.00
 }
+
 SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "BE": 49.0, "default": 105.0}
 RECOND_UNIT_COST = 54.5
 
-# TEXTES
-TRADUCTIONS = {
-    "Español": {
-        "nav_res": "Resultados", "nav_evol": "Evolución", "nav_table": "Tabla Ventas", "nav_calc": "Margen & Dto", "nav_price": "Control Precios",
-        "opt_prev_month": "Mes Pasado", "opt_yesterday": "Ayer", "opt_today": "Hoy", "opt_month": "Este Mes", "opt_year": "Este Año", "opt_custom": "Personalizado", 
-        "btn_refresh": "Actualizar",
-        "t_kpi1": "Ventas Hoy (Pagadas)", "t_kpi2": "Ventas Hoy (Pendientes)", 
-        "t_kpi3": "Ventas (pagadas)", "t_kpi4": "Ventas pendientes (select)",
-        "sub_rev": "Ingresos", "sub_mar": "Margen",
-        "chart_channel": "Canales", "chart_mp": "Marketplaces (Top 7)", "chart_subcat": "Categoría", "chart_brand": "Top 5 Marcas", "chart_price": "Rango de Precios", "chart_country": "Países",
-        "avg_price": "Precio Medio", "avg_margin": "Margen Medio", "avg_margin_pct": "% Margen", "avg_rot": "Rotación Media", "loading": "⏳ Cargando...", 
-        "calc_title": "Calculadora Financiera", "sku_ph": "ej: 201414", "sku_not_found": "SKU no encontrado", "age": "Antigüedad", "price_input": "Precio Venta (€)", "cost_input": "Coste Compra (€)", "discount_input": "Descuento (€)", "unit_days": "días", 
-        "col_sku": "SKU", "col_order": "Pedido", "col_country": "País", "col_channel": "Canal", "col_price": "Precio Pagado", "col_cost": "Coste Compra", "col_margin": "Margen", "col_margin_tot": "Margen Total", "col_date": "Fecha Compra", 
-        "pricing_title": "Control de Precios & Rotación", "col_img": "Foto", "col_p_curr": "P. Actual", "col_p_rec": "P. Rec.", "col_action": "Acción (€)", "col_margin_proj": "Margen Proy.",
-        "advice_ok": "✅ Mantener Precio", "advice_disc": "📉 Descuento Máximo", "advice_neutral": "⚪ Descuento Recomendado", "btn_search": "Comparar Precio (Google)", "vat_select": "🌍 País Destino (IVA)",
-        "help_fiscal_title": "📘 Ayuda Fiscal", "evol_title": "Ventas - Ingresos - Margenes", "sel_month": "Mes", "sel_year": "Año", "settings": "⚙️ Ajustes", "mp_forecast": "Ventas Marketplace (fecha selec.)"
-    }
-}
-t = TRADUCTIONS["Español"]
-
-# HELPERS
-def get_img_as_base64(file_path):
-    try:
-        with open(file_path, "rb") as f: data = f.read(); return base64.b64encode(data).decode()
-    except: return None
-
-def fmt_price(x): return f"{x:,.0f}".replace(",", " ") + " €"
-
-def date_to_spanish(dt, format_type="full"):
-    months_es = {1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril", 5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto", 9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"}
-    if format_type == "month": return months_es[dt.month]
-    if format_type == "day_num": return dt.strftime("%d/%m")
-    return dt.strftime("%d/%m")
-
 # ==============================================================================
-# 2. LOGIN (ISOLÉ AVEC SON PROPRE CSS ET NETTOYAGE)
-# ==============================================================================
-def check_password():
-    if "password_correct" not in st.session_state: st.session_state["password_correct"] = False
-    if st.session_state["password_correct"]: return True
-    
-    bg_path = "fondo.png"; logo_path = "logo_blanc.png"
-    bg_b64 = get_img_as_base64(bg_path); logo_b64 = get_img_as_base64(logo_path)
-    bg_css = f"background-image: url('data:image/jpeg;base64,{bg_b64}');" if bg_b64 else "background-color: #0a4650;"
-    logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="max-width: 300px;">' if logo_b64 else '<h1 style="color:white; font-size:60px;">Tuvalum</h1>'
-    
-    # CSS SPECIFIQUE LOGIN
-    st.markdown(f"""
-    <style>
-        [data-testid="stHeader"], [data-testid="stToolbar"] {{display: none !important;}}
-        .stApp {{background-color: white;}}
-        .login-left {{position: fixed; top: 0; left: 0; width: 50%; height: 100vh; {bg_css} background-size: cover; background-position: center;}}
-        .login-overlay {{position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: {C_MAIN}; opacity: 0.85; display: flex; align-items: center; justify-content: center;}}
-        div[data-testid="stForm"] {{position: fixed; top: 65%; right: 25%; transform: translate(50%, -50%); width: 380px; padding: 40px; border: none; box-shadow: none; background-color: white; z-index: 999;}}
-        
-        /* FORCER LE VERT SUR LES INPUTS LOGIN */
-        input {{ border-color: #e0e0e0 !important; }}
-        input:focus {{border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important; caret-color: {C_SEC} !important;}}
-        
-        div[data-testid="stForm"] button {{background-color: transparent !important; color: #333 !important; border: none;}}
-        div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{background-color: {C_SEC} !important; color: white !important; font-weight: bold; border-radius: 6px; height: 50px; margin-top: 20px;}}
-    </style>""", unsafe_allow_html=True)
-    
-    st.markdown(f"""<div class="login-left"><div class="login-overlay">{logo_html}</div></div>""", unsafe_allow_html=True)
-    
-    # Placeholder pour pouvoir le vider proprement
-    login_container = st.empty()
-    with login_container.form("login_form"):
-        st.markdown("<h2 style='text-align:center; color:#333; margin-bottom: 30px;'>Iniciar Sesión</h2>", unsafe_allow_html=True)
-        st.text_input("Email", placeholder="admin@tuvalum.com")
-        password = st.text_input("Password", type="password", placeholder="••••••••")
-        
-        if st.form_submit_button("INICIAR SESIÓN", type="primary", use_container_width=True):
-            if password == st.secrets["security"]["password"]:
-                st.session_state["password_correct"] = True
-                login_container.empty() # ICI : ON VIDE TOUT AVANT DE CONTINUER
-                st.rerun()
-            else: st.error("Contraseña incorrecta")
-    return False
-
-if not check_password(): st.stop()
-
-# ==============================================================================
-# 3. CSS APP PRINCIPALE (HEADER TRANSPARENT + FLECHE FORCEE)
+# 2. CSS "HARDCORE" (OVERRIDE TOTAL)
 # ==============================================================================
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
     <style>
-        /* 1. NETTOYAGE HEADER (SANS TUER LA FLECHE) */
-        header[data-testid="stHeader"] {{
-            background-color: transparent !important;
-            border: none !important;
+        /* 1. ECRASER LES VARIABLES NATIVES (ADIEU LE ROUGE) */
+        :root {{
+            --primary-color: {C_SEC} !important;
+            --background-color: #ffffff !important;
+            --secondary-background-color: #f0f2f6 !important;
+            --text-color: #31333F !important;
+            --font: sans-serif !important;
         }}
-        /* Cacher la ligne de déco rouge */
-        div[data-testid="stDecoration"] {{display: none !important;}}
-        /* Cacher le menu hamburger et les options à droite */
-        div[data-testid="stToolbar"] {{display: none !important;}}
-        /* Cacher le "Running..." */
-        div[data-testid="stStatusWidget"] {{display: none !important;}}
-        #MainMenu, footer {{display: none !important;}}
-
-        /* 2. FORCER LA FLECHE DE LA SIDEBAR (METHODE BRUTE) */
+        
+        /* 2. NETTOYAGE HEADER SANS TUER LA FLECHE */
+        /* On cache tout le container du header */
+        header {{
+            background-color: transparent !important;
+        }}
+        /* On cache les éléments internes sauf la flèche */
+        [data-testid="stToolbar"] {{
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }}
+        [data-testid="stDecoration"] {{
+            display: none !important;
+        }}
+        [data-testid="stStatusWidget"] {{
+            visibility: hidden !important;
+        }}
+        
+        /* 3. FORCER LA FLECHE SIDEBAR */
+        section[data-testid="stSidebar"] > div:first-child {{
+            z-index: 9999999 !important;
+        }}
         button[data-testid="stSidebarCollapsedControl"] {{
-            display: block !important;
             visibility: visible !important;
+            display: block !important;
+            pointer-events: auto !important; /* Rendre cliquable */
             color: {C_MAIN} !important;
             background-color: white !important;
             border: 1px solid #e0e0e0 !important;
             border-radius: 50% !important;
-            position: fixed !important; /* Sort du flux */
-            top: 15px !important;
-            left: 15px !important;
-            z-index: 9999999 !important; /* Au-dessus de tout */
-            width: 40px !important;
-            height: 40px !important;
+            position: fixed !important;
+            top: 20px !important;
+            left: 20px !important;
+            z-index: 10000000 !important;
         }}
 
-        /* 3. INPUTS & SELECTBOXES (VERT TOTAL) */
-        /* On cible TOUT ce qui ressemble à un input */
-        .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"] div {{
-            border-color: #e2e8f0 !important;
-        }}
-        /* Focus Vert */
-        .stTextInput input:focus, .stNumberInput input:focus, 
-        div[data-baseweb="select"] > div:focus-within {{
-            border-color: {C_SEC} !important;
-            box-shadow: 0 0 0 1px {C_SEC} !important;
+        /* 4. LAYOUT GENERAL */
+        .block-container {{padding-top: 3rem !important; padding-bottom: 2rem !important;}}
+        #MainMenu, footer {{display: none !important;}}
+
+        /* 5. FORCER LE VERT SUR TOUS LES INPUTS (Calculatrice, Login, Dates) */
+        /* Tous les champs texte et nombre */
+        input {{
             caret-color: {C_SEC} !important;
         }}
-        
-        /* 4. CALENDRIER & RADIOS (ZERO ROUGE) */
-        div[data-baseweb="calendar"] button[aria-selected="true"] {{background-color: {C_SEC} !important; color: {C_MAIN} !important;}}
-        div[data-baseweb="calendar"] div[aria-selected="true"] {{background-color: {C_SEC} !important;}}
-        div[data-baseweb="calendar"] div[text-decoration="underline"] {{text-decoration-color: {C_SEC} !important;}}
-        
-        /* 5. SIDEBAR */
-        section[data-testid="stSidebar"] {{
-            width: 300px !important; /* Largeur fixe */
+        /* Focus state */
+        .stTextInput div[data-baseweb="base-input"]:focus-within,
+        .stNumberInput div[data-baseweb="base-input"]:focus-within,
+        div[data-baseweb="select"]:focus-within > div,
+        div[data-testid="stDateInput"] > div:focus-within {{
+            border-color: {C_SEC} !important;
+            box-shadow: 0 0 0 1px {C_SEC} !important;
         }}
-        section[data-testid="stSidebar"] > div > div:nth-child(2) {{
-            padding-top: 3rem !important; /* Espace pour la flèche */
-            padding-left: 0rem !important;
-            padding-right: 0rem !important;
+        /* Bordures par défaut */
+        div[data-baseweb="base-input"], div[data-baseweb="select"] > div {{
+            border-color: #e2e8f0 !important;
         }}
 
-        /* 6. BOUTONS */
-        .stButton > button {{
-            background-color: {C_MAIN} !important; color: white !important; border: none;
-        }}
-        .stButton > button:hover {{
+        /* 6. CALENDRIER (CERCLES & SELECTION) */
+        div[data-baseweb="calendar"] button[aria-selected="true"] {{
             background-color: {C_SEC} !important; color: {C_MAIN} !important;
         }}
+        div[data-baseweb="calendar"] div[aria-selected="true"] {{
+            background-color: {C_SEC} !important;
+        }}
+        /* Date du jour (soulignée) */
+        div[data-baseweb="calendar"] div[text-decoration="underline"] {{
+            text-decoration-color: {C_SEC} !important;
+        }}
+        
+        /* 7. BOUTONS */
+        .stButton > button {{
+            background-color: {C_MAIN} !important; color: white !important; 
+            border: 2px solid {C_MAIN} !important;
+        }}
+        .stButton > button:hover {{
+            background-color: {C_SEC} !important; color: {C_MAIN} !important; border-color: {C_SEC} !important;
+        }}
 
-        /* 7. KPI CARDS (FIXED HEIGHT) */
+        /* 8. KPI CARDS (FIXED HEIGHT & ALIGNMENT) */
         .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
             padding: 15px 20px; border-radius: 15px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 15px; 
@@ -237,35 +178,23 @@ def plot_bar_smart(df, x_col, y_col, color_col=None, colors=None, orientation='v
     if limit: df = df.head(limit)
     final_colors = []
     if show_logos and x_col == "mp_name":
-        for val in df[x_col]:
-            if "Decathlon" in str(val): final_colors.append(C_DECATHLON)
-            else: final_colors.append(C_MAIN)
+        for val in df[x_col]: final_colors.append(C_DECATHLON if "Decathlon" in str(val) else C_MAIN)
     else: final_colors = [C_MAIN] * len(df)
-
     if strict_order: df = df.set_index(x_col).reindex(strict_order).fillna(0).reset_index()
-    else:
-        ascending = True if orientation == 'h' else False
-        df = df.sort_values(by=y_col, ascending=ascending)
-    
-    total = df[y_col].sum(); total = 1 if total == 0 else total
-    df["pct"] = (df[y_col] / total * 100).round(1)
-    df["text_inside"] = df.apply(lambda x: f"<b>{x['pct']}%</b>" if x[y_col] > 0 else "", axis=1)
-    
+    else: df = df.sort_values(by=y_col, ascending=(True if orientation == 'h' else False))
+    total = df[y_col].sum(); total = 1 if total == 0 else total; df["pct"] = (df[y_col] / total * 100).round(1); df["text_inside"] = df.apply(lambda x: f"<b>{x['pct']}%</b>" if x[y_col] > 0 else "", axis=1)
     if orientation == 'h' and show_logos:
         df["y_label"] = df[x_col].apply(lambda name: f"<b>{name}</b>")
         for idx, row in df.iterrows():
-            brand_key = str(row[x_col]).lower().replace(" ", "")
-            img_path = f"images/brands/{brand_key}.png" 
+            img_path = f"images/brands/{str(row[x_col]).lower().replace(' ', '')}.png" 
             if os.path.exists(img_path):
                 img_b64 = get_img_as_base64(img_path)
                 if img_b64: df.loc[idx, "y_label"] = f"<img src='data:image/png;base64,{img_b64}' width='30' height='30' style='vertical-align:middle; margin-right:5px;'> <b>{row[x_col]}</b>"
         x_col_plot = "y_label"
     else: x_col_plot = x_col
-
     fig = go.Figure()
     if orientation == 'v':
-        if color_col: fig = px.bar(df, x=x_col, y=y_col, color=color_col, color_discrete_map=colors, text="text_inside")
-        else: fig.add_trace(go.Bar(x=df[x_col], y=df[y_col], text=df["text_inside"], textposition='inside', marker_color=C_MAIN, textfont=dict(size=14, color='white')))
+        fig.add_trace(go.Bar(x=df[x_col], y=df[y_col], text=df["text_inside"], textposition='inside', marker_color=C_MAIN, textfont=dict(size=14, color='white')))
         fig.update_layout(uniformtext_minsize=12, uniformtext_mode='hide', margin=dict(t=40,b=20,l=0,r=0), height=400, xaxis_title=None, yaxis_title=None)
         fig.update_yaxes(range=[0, df[y_col].max() * 1.15])
         for i, row in df.iterrows(): 
@@ -274,39 +203,103 @@ def plot_bar_smart(df, x_col, y_col, color_col=None, colors=None, orientation='v
         fig.add_trace(go.Bar(y=df[x_col_plot], x=df[y_col], text=df["text_inside"], textposition='inside', orientation='h', marker_color=final_colors if show_logos else C_MAIN, textfont=dict(size=12, color='white')))
         fig.update_layout(margin=dict(t=20,b=20,l=0,r=20), height=400 + (len(df)*10), xaxis_title=None, yaxis_title=None)
         max_x = df[y_col].max() * 1.15
-        fig.update_xaxes(range=[0, max_x])
-        fig.update_yaxes(tickmode='array', tickvals=df[x_col_plot], ticktext=df[x_col_plot])
+        fig.update_xaxes(range=[0, max_x]); fig.update_yaxes(tickmode='array', tickvals=df[x_col_plot], ticktext=df[x_col_plot])
         for i, row in df.iterrows(): 
             if row[y_col]>0: fig.add_annotation(y=row[x_col_plot], x=row[y_col], text=f"<b>{int(row[y_col])}</b>", xshift=25, showarrow=False, font=dict(size=14, color="black"))
     return fig
 
-# --- SIDEBAR (MODERN MENU) ---
+# ==============================================================================
+# 2. LOGIN SYSTEM
+# ==============================================================================
+def check_password():
+    if "password_correct" not in st.session_state: st.session_state["password_correct"] = False
+    if st.session_state["password_correct"]: return True
+    
+    bg_path = "fondo.png"; logo_path = "logo_blanc.png"
+    bg_b64 = get_img_as_base64(bg_path); logo_b64 = get_img_as_base64(logo_path)
+    bg_css = f"background-image: url('data:image/jpeg;base64,{bg_b64}');" if bg_b64 else "background-color: #0a4650;"
+    logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="max-width: 300px;">' if logo_b64 else '<h1 style="color:white; font-size:60px;">Tuvalum</h1>'
+    
+    st.markdown(f"""
+    <style>
+        [data-testid="stHeader"], [data-testid="stToolbar"] {{display: none !important;}}
+        .stApp {{background-color: white;}}
+        .login-left {{position: fixed; top: 0; left: 0; width: 50%; height: 100vh; {bg_css} background-size: cover; background-position: center;}}
+        .login-overlay {{position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: {C_MAIN}; opacity: 0.85; display: flex; align-items: center; justify-content: center;}}
+        div[data-testid="stForm"] {{position: fixed; top: 65%; right: 25%; transform: translate(50%, -50%); width: 380px; padding: 40px; border: none; box-shadow: none; background-color: white; z-index: 999;}}
+        
+        div[data-testid="stForm"] input {{background-color: white !important; border: 1px solid #e0e0e0 !important; color: #333;}}
+        div[data-testid="stForm"] input:focus {{border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important; caret-color: {C_SEC} !important;}}
+        
+        div[data-testid="stForm"] button {{background-color: transparent !important; color: #333 !important; border: none;}}
+        div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{background-color: {C_SEC} !important; color: white !important; font-weight: bold; border-radius: 6px; height: 50px; margin-top: 20px;}}
+    </style>""", unsafe_allow_html=True)
+    
+    st.markdown(f"""<div class="login-left"><div class="login-overlay">{logo_html}</div></div>""", unsafe_allow_html=True)
+    
+    # Placeholder pour vidage complet
+    login_ph = st.empty()
+    with login_ph.form("login_form"):
+        st.markdown("<h2 style='text-align:center; color:#333; margin-bottom: 30px;'>Iniciar Sesión</h2>", unsafe_allow_html=True)
+        st.text_input("Email", placeholder="admin@tuvalum.com")
+        password = st.text_input("Password", type="password", placeholder="••••••••")
+        
+        if st.form_submit_button("INICIAR SESIÓN", type="primary", use_container_width=True):
+            if password == st.secrets["security"]["password"]:
+                st.session_state["password_correct"] = True
+                login_ph.empty() # VIDE LE DOM AVANT LE RERUN
+                st.rerun()
+            else: st.error("Contraseña incorrecta")
+    return False
+
+if not check_password(): st.stop()
+
+# --- SIDEBAR (MODERN MENU - AVEC HOVER) ---
 with st.sidebar:
     if os.path.exists("logo.png"): st.image("logo.png", width=180)
     st.markdown("---")
+    
+    # MENU NAVIGATION (Full Width + Hover)
     st.markdown("<p style='font-size: 12px; color: #888; font-weight: bold; margin-bottom: 5px; padding-left: 10px;'>DASHBOARD</p>", unsafe_allow_html=True)
     page = option_menu(
-        menu_title=None, options=[t["nav_res"], t["nav_evol"], t["nav_table"], t["nav_calc"], t["nav_price"]],
-        icons=["bar-chart-fill", "graph-up", "table", "calculator", "tag"], default_index=0,
+        menu_title=None, 
+        options=[t["nav_res"], t["nav_evol"], t["nav_table"], t["nav_calc"], t["nav_price"]],
+        icons=["bar-chart-fill", "graph-up", "table", "calculator", "tag"], 
+        default_index=0,
         styles={
             "container": {"padding": "0!important", "background-color": "transparent", "margin": "0!important", "width": "100%"},
             "icon": {"color": "#64748b", "font-size": "14px"}, 
-            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#f0f2f6", "color": "#333", "border-radius": "0px", "width": "100%"},
-            "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"}
+            "nav-link": {
+                "font-size": "14px", "text-align": "left", "margin": "0px", "padding": "12px 15px", 
+                "color": "#333", "border-radius": "0px", "width": "100%"
+            },
+            "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
+            "nav-link:hover": {"background-color": "#e2e8f0"} # HOVER RECTIFIÉ
         }
     )
+    
     st.markdown("---")
+    
+    # MENU PERIODO (Full Width + Hover)
     st.markdown("<p style='font-size: 12px; color: #888; font-weight: bold; margin-bottom: 5px; padding-left: 10px;'>PERIODO</p>", unsafe_allow_html=True)
     date_mode = option_menu(
-        menu_title=None, options=[t['opt_prev_month'], t['opt_yesterday'], t['opt_today'], t['opt_month'], t['opt_year'], t['opt_custom']],
-        icons=["calendar-minus", "calendar-check", "calendar-event", "calendar-month", "calendar-range", "calendar3"], default_index=3,
+        menu_title=None,
+        options=[t['opt_prev_month'], t['opt_yesterday'], t['opt_today'], t['opt_month'], t['opt_year'], t['opt_custom']],
+        icons=["calendar-minus", "calendar-check", "calendar-event", "calendar-month", "calendar-range", "calendar3"], 
+        default_index=3,
         styles={
             "container": {"padding": "0!important", "background-color": "transparent", "margin": "0!important", "width": "100%"},
             "icon": {"color": "#64748b", "font-size": "14px"}, 
-            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#f0f2f6", "color": "#333", "border-radius": "0px", "width": "100%"},
-            "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"}
+            "nav-link": {
+                "font-size": "14px", "text-align": "left", "margin": "0px", "padding": "12px 15px", 
+                "color": "#333", "border-radius": "0px", "width": "100%"
+            },
+            "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
+            "nav-link:hover": {"background-color": "#e2e8f0"} # HOVER RECTIFIÉ
         }
     )
+    
+    # DATE LOGIC
     now = datetime.now(); today_dt = now.date()
     if 'start_date_state' not in st.session_state: st.session_state.start_date_state = today_dt.replace(day=1)
     if 'end_date_state' not in st.session_state: st.session_state.end_date_state = today_dt
@@ -488,6 +481,7 @@ if page == t["nav_res"]:
     st.subheader(f"📅 {header_txt}")
     p_ok = df_period[df_period["status"]=="paid"]; p_ko = df_period[df_period["status"]!="paid"]
     
+    # Calculos KPIs
     count_ok = len(p_ok)
     recond_cost = count_ok * RECOND_UNIT_COST
     shipping_cost = p_ok["country"].map(SHIPPING_COSTS).fillna(SHIPPING_COSTS["default"]).sum()
@@ -545,6 +539,7 @@ if page == t["nav_res"]:
 
 # --- PAGE EVOLUCION ---
 elif page == t["nav_evol"]:
+    
     c_head, c_f1, c_f2 = st.columns([6, 1.5, 1.5])
     years_list = [2025, 2024, 2023, 2022]
     sel_year = c_f2.selectbox(t["sel_year"], options=years_list, index=0)
