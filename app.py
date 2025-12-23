@@ -50,132 +50,89 @@ SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "B
 RECOND_UNIT_COST = 54.5
 
 # ==============================================================================
-# 2. CSS "NUCLEAR" (ARME ATOMIQUE CONTRE LE ROUGE & POUR LA FLECHE)
+# 2. CSS "NUCLEAR" (SOLUTION FINALE)
 # ==============================================================================
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
     <style>
-        /* 1. OVERRIDE ROOT VARIABLES : CECI TUE LE ROUGE PARTOUT */
+        /* 1. VARIABLE ROOT : CECI REMPLACE LA COULEUR PAR DEFAUT DE STREAMLIT */
         :root {{
-            --primary-color: {C_SEC} !important;
+            --primary-color: {C_SEC}; /* C'est ça qui tue le rouge partout */
             --background-color: #ffffff;
             --secondary-background-color: #f0f2f6;
             --text-color: #31333F;
             --font: sans-serif;
         }}
         
-        /* 2. LAYOUT & NETTOYAGE */
-        .block-container {{padding-top: 1rem !important; padding-bottom: 2rem !important;}}
-        
-        /* CACHER HEADER MAIS GARDER LA STRUCTURE POUR LA FLECHE */
-        header {{
+        /* 2. HEADER & SIDEBAR ARROW (LA CORRECTION CRITIQUE) */
+        /* On ne cache pas le header complet, on le rend transparent et on cache ses enfants inutiles */
+        header[data-testid="stHeader"] {{
             background-color: transparent !important;
-            border-bottom: none !important;
+            z-index: 100 !important;
         }}
-        /* Cacher les éléments indésirables du header */
-        div[data-testid="stToolbar"] {{display: none !important;}}
+        /* Cacher la barre rouge de déco */
         div[data-testid="stDecoration"] {{display: none !important;}}
-        div[data-testid="stStatusWidget"] {{display: none !important;}} /* Cache le running man */
+        /* Cacher le menu hamburger et le bouton running */
+        div[data-testid="stToolbar"] {{display: none !important;}}
+        div[data-testid="stStatusWidget"] {{display: none !important; visibility: hidden !important;}}
         
-        /* 3. SAUVER LA FLECHE DE LA SIDEBAR */
-        section[data-testid="stSidebar"] > div {{
-            z-index: 999999;
-        }}
+        /* FORCER LA VISIBILITÉ DU BOUTON DE SIDEBAR (La flèche >) */
         button[data-testid="stSidebarCollapsedControl"] {{
             display: block !important;
+            visibility: visible !important;
             color: {C_MAIN} !important;
             background-color: white !important;
             border: 1px solid #e0e0e0 !important;
             border-radius: 50% !important;
-            top: 1rem !important;
-            left: 1rem !important;
-            z-index: 1000000 !important;
+            position: fixed !important;
+            top: 20px !important;
+            left: 20px !important;
+            z-index: 999999 !important;
         }}
 
-        [data-testid="stAppViewContainer"], .stApp {{background-color: white !important;}}
-        #MainMenu, footer {{visibility: hidden !important; display: none !important;}}
+        /* 3. INPUTS & LOGIN (FORCE VERTE SUPREME) */
+        /* Cible tous les inputs, selectbox, datepicker */
+        .stTextInput input, .stNumberInput input, .stSelectbox div, .stDateInput div {{
+            border-color: #e2e8f0;
+        }}
+        /* Au focus : Vert flashy, outline none pour tuer le rouge natif navigateur */
+        .stTextInput input:focus, .stNumberInput input:focus, 
+        div[data-baseweb="select"] > div:focus-within,
+        div[data-baseweb="base-input"]:focus-within {{
+            border-color: {C_SEC} !important;
+            box-shadow: 0 0 0 1px {C_SEC} !important;
+            outline: none !important;
+        }}
 
-        /* 4. SIDEBAR FULL WIDTH & PADDING */
+        /* 4. LAYOUT */
+        .block-container {{padding-top: 3rem !important; padding-bottom: 2rem !important;}}
+        #MainMenu, footer {{visibility: hidden !important; display: none !important;}}
+        
+        /* 5. SIDEBAR FULL WIDTH */
         [data-testid="stSidebar"] .nav-link {{
             width: 100% !important;
             margin: 0px !important;
             border-radius: 0px !important;
         }}
+        /* Hover gris */
         [data-testid="stSidebar"] .nav-link:hover {{
-            background-color: #f0f2f6 !important; /* GRIS AU SURVOL */
-        }}
-        /* Reduire les marges internes de la sidebar */
-        section[data-testid="stSidebar"] > div > div:nth-child(2) {{
-            padding-top: 3rem !important; /* Place pour la fleche si ouverte */
-            padding-left: 0rem !important;
-            padding-right: 0rem !important;
-        }}
-        /* Marge pour le logo et les titres */
-        [data-testid="stSidebar"] img, [data-testid="stSidebar"] p {{
-            margin-left: 1rem !important;
-            margin-right: 1rem !important;
-        }}
-
-        /* 5. INPUTS, SELECTBOXES & DATEPICKERS (FORCE GREEN) */
-        /* Bordure par défaut */
-        div[data-baseweb="select"] > div, 
-        div[data-baseweb="base-input"] > div, 
-        div[data-testid="stDateInput"] > div {{
-            border-color: #e2e8f0 !important;
+            background-color: #e5e7eb !important;
         }}
         
-        /* ETAT FOCUS : VERT FLASHY OBLIGATOIRE */
-        div[data-baseweb="select"]:focus-within > div, 
-        div[data-baseweb="base-input"]:focus-within > div,
-        div[data-testid="stDateInput"] > div:focus-within {{
-            border-color: {C_SEC} !important;
-            box-shadow: 0 0 0 1px {C_SEC} !important;
-        }}
-        
-        /* 6. CALENDARIO & RADIO */
-        div[data-baseweb="calendar"] button[aria-selected="true"] {{
-            background-color: {C_SEC} !important; color: {C_MAIN} !important;
-        }}
-        div[data-baseweb="calendar"] div[aria-selected="true"] {{
-            background-color: {C_SEC} !important;
-        }}
-        div[role="radiogroup"] div[aria-checked="true"] > div:first-child {{
-            background-color: {C_SEC} !important; border-color: {C_SEC} !important;
-        }}
-
-        /* 7. BOUTONS */
-        .stButton > button {{
-            background-color: {C_MAIN} !important; color: white !important; 
-            border: 2px solid {C_MAIN} !important; border-radius: 8px !important; 
-            transition: all 0.3s ease !important;
-        }}
-        .stButton > button:hover {{
-            background-color: {C_SEC} !important; color: {C_MAIN} !important; border-color: {C_SEC} !important;
-        }}
-        a[href] {{color: {C_MAIN} !important;}}
-
-        /* 8. KPI CARDS (HAUTEUR FIXE) */
+        /* 6. KPI CARDS */
         .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
             padding: 15px 20px; border-radius: 15px; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-            margin-bottom: 15px; 
-            height: 160px !important; 
-            display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 15px; 
+            height: 160px !important; display: flex; flex-direction: column; justify-content: space-between;
         }}
         .kpi-card {{ background-color: white; border: 1px solid #e1e8e8; }}
         .kpi-card-soft, .kpi-card-soft-v3 {{ background-color: {C_SOFT}; border: 1px solid #d1fae5; opacity: 0.95; }}
         
         .kpi-title {{font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 5px;}} 
         .kpi-value {{font-size: 28px; color: {C_MAIN}; font-weight: 800; margin: 5px 0;}} 
-        .kpi-sub-container {{
-            display:flex; justify-content:space-between; 
-            border-top: 1px solid rgba(0,0,0,0.05); 
-            padding-top: 10px; font-size: 13px; font-weight: 600;
-            margin-bottom: 5px;
-        }}
-        .kpi-sub-left {{color: #64748b;}}
-        .kpi-sub-right {{color: {C_MAIN};}}
+        .kpi-sub-container {{display:flex; justify-content:space-between; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 10px; font-size: 13px; font-weight: 600; margin-bottom: 5px;}}
+        .kpi-sub-left {{color: #64748b;}} .kpi-sub-right {{color: {C_MAIN};}}
         
         .product-img {{border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; width: 100%; object-fit: cover;}}
     </style>
@@ -300,8 +257,18 @@ def check_password():
         .login-overlay {{position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: {C_MAIN}; opacity: 0.85; display: flex; align-items: center; justify-content: center;}}
         div[data-testid="stForm"] {{position: fixed; top: 65%; right: 25%; transform: translate(50%, -50%); width: 380px; padding: 40px; border: none; box-shadow: none; background-color: white; z-index: 999;}}
         div[data-testid="stForm"] input {{background-color: white !important; border: 1px solid #e0e0e0 !important; color: #333;}}
-        /* FORCE GREEN BORDER FOCUS */
-        div[data-testid="stForm"] input:focus {{border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important;}}
+        
+        /* FORCE GREEN BORDER FOCUS FOR LOGIN */
+        div[data-testid="stForm"] input:focus {{
+            border-color: {C_SEC} !important; 
+            box-shadow: 0 0 0 1px {C_SEC} !important;
+            outline: none !important;
+        }}
+        div[data-testid="stForm"] div[data-baseweb="base-input"]:focus-within {{
+            border-color: {C_SEC} !important;
+            box-shadow: 0 0 0 1px {C_SEC} !important;
+        }}
+
         div[data-testid="stForm"] button {{background-color: transparent !important; color: #333 !important; border: none;}}
         div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{background-color: {C_SEC} !important; color: white !important; font-weight: bold; border-radius: 6px; height: 50px; margin-top: 20px;}}
     </style>""", unsafe_allow_html=True)
@@ -511,7 +478,6 @@ def calculate_smart_discount(days, current_margin, current_price, is_deposit=Fal
 # AFFICHAGE PAGES
 # ==============================================================================
 placeholder = st.empty(); 
-# CUSTOM LOADING (EN HAUT)
 with placeholder.container(): st.markdown(f"<div style='text-align:center; padding-top:100px;'><h3>Cargando, un momento por favor...</h3></div>", unsafe_allow_html=True)
 df_merged, _ = get_data_v100(start_date); placeholder.empty()
 df_today = df_merged[(df_merged["date"] >= pd.to_datetime(today_dt)) & (df_merged["date"] < pd.to_datetime(today_dt) + timedelta(days=1))] if not df_merged.empty else pd.DataFrame()
