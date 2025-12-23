@@ -60,9 +60,36 @@ st.markdown(
     <style>
         /* LAYOUT GENERAL */
         .block-container {{padding-top: 2rem !important; padding-bottom: 2rem !important;}}
-        #MainMenu, header, footer {{visibility: hidden; display: none !important;}}
+        
+        /* --- HEADER & SIDEBAR TOGGLE (CORRECTION CRITIQUE) --- */
+        /* On cache la déco rouge et le menu hamburger, MAIS on garde le header transparent pour le bouton > */
+        header[data-testid="stHeader"] {{
+            background-color: transparent !important;
+            z-index: 1 !important;
+        }}
+        /* Cacher les 3 points et la ligne rouge */
+        div[data-testid="stToolbar"], div[data-testid="stDecoration"] {{
+            visibility: hidden !important;
+            display: none !important;
+        }}
+        /* FORCER L'AFFICHAGE DU BOUTON POUR ROUVRIR LA SIDEBAR (La flèche >) */
+        button[data-testid="stSidebarCollapsedControl"] {{
+            visibility: visible !important;
+            display: block !important;
+            color: {C_MAIN} !important;
+            background-color: white !important; /* Petit fond blanc pour le voir */
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 50% !important;
+            top: 10px !important;
+            left: 10px !important;
+        }}
+        
+        #MainMenu, footer {{visibility: hidden; display: none !important;}}
         [data-testid="stAppViewContainer"], .stApp {{background-color: white !important;}}
         
+        /* CACHER "RUNNING..." EN HAUT A DROITE */
+        div[data-testid="stStatusWidget"] {{visibility: hidden;}}
+
         /* HACK SIDEBAR 100% LARGEUR (INFALLIBLE) */
         section[data-testid="stSidebar"] > div > div:nth-child(2) {{
             padding-top: 1rem !important;
@@ -77,8 +104,7 @@ st.markdown(
             margin-left: 1rem;
         }}
 
-        /* --- INPUTS: TOUS LES CHAMPS (Select, Text, Number, Date) EN VERT FLASHY --- */
-        /* Bordure par défaut */
+        /* --- INPUTS: TOUS LES CHAMPS EN VERT FLASHY --- */
         div[data-baseweb="select"] > div, 
         div[data-baseweb="base-input"] > div, 
         div[data-baseweb="input"] > div,
@@ -87,7 +113,7 @@ st.markdown(
             border-color: #e2e8f0 !important;
         }}
         
-        /* ETAT FOCUS : VERT FLASHY OBLIGATOIRE */
+        /* ETAT FOCUS */
         div[data-baseweb="select"]:focus-within > div, 
         div[data-baseweb="base-input"]:focus-within > div,
         div[data-baseweb="input"]:focus-within > div,
@@ -99,21 +125,17 @@ st.markdown(
         
         /* --- CALENDRIER (CERCLES & SELECTION) --- */
         div[data-baseweb="calendar"] button:focus {{background-color: {C_SOFT} !important;}}
-        
-        /* La plage sélectionnée (Rectangle ou Cercle) */
         div[data-baseweb="calendar"] div[aria-selected="true"] {{
             background-color: {C_SEC} !important; color: {C_MAIN} !important; font-weight: bold;
         }}
-        /* Le jour survolé */
         div[data-baseweb="calendar"] div[aria-label]:hover {{
             background-color: {C_SOFT} !important; cursor: pointer;
         }}
-        /* Date du jour (soulignée) */
         div[data-baseweb="calendar"] div[text-decoration="underline"] {{
             text-decoration-color: {C_SEC} !important;
         }}
 
-        /* --- RADIO BUTTONS & CHECKBOXES (SIDEBAR & MAIN) --- */
+        /* --- RADIO BUTTONS & CHECKBOXES --- */
         div[role="radiogroup"] div[aria-checked="true"] > div:first-child {{
             background-color: {C_SEC} !important; border-color: {C_SEC} !important;
         }}
@@ -137,7 +159,7 @@ st.markdown(
             padding: 15px 20px; border-radius: 15px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03);
             margin-bottom: 15px; 
-            height: 160px !important; /* HAUTEUR STRICTE */
+            height: 160px !important; 
             display: flex; flex-direction: column; justify-content: space-between;
         }}
         .kpi-card {{ background-color: white; border: 1px solid #e1e8e8; }}
@@ -292,7 +314,7 @@ with st.sidebar:
         styles={
             "container": {"padding": "0!important", "background-color": "transparent", "margin": "0!important", "width": "100%"},
             "icon": {"color": "#64748b", "font-size": "14px"}, 
-            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#e2e8f0", "color": "#333", "border-radius": "0px", "width": "100%"},
+            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#f0f2f6", "color": "#333", "border-radius": "0px", "width": "100%"},
             "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
         }
     )
@@ -307,7 +329,7 @@ with st.sidebar:
         styles={
             "container": {"padding": "0!important", "background-color": "transparent", "margin": "0!important", "width": "100%"},
             "icon": {"color": "#64748b", "font-size": "14px"}, 
-            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#e2e8f0", "color": "#333", "border-radius": "0px", "width": "100%"},
+            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#f0f2f6", "color": "#333", "border-radius": "0px", "width": "100%"},
             "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
         }
     )
@@ -475,6 +497,7 @@ def calculate_smart_discount(days, current_margin, current_price, is_deposit=Fal
 # AFFICHAGE PAGES
 # ==============================================================================
 placeholder = st.empty(); 
+# CUSTOM LOADING
 with placeholder.container(): 
     with st.spinner("Cargando, un momento por favor..."):
         df_merged, _ = get_data_v100(start_date)
@@ -533,6 +556,7 @@ if page == t["nav_res"]:
         with g2: 
             st.subheader(t["chart_mp"])
             df_mp = p_ok[p_ok["channel"]=="Marketplace"].groupby("mp_name").size().reset_index(name="c")
+            # Horizontal + Logos + Decathlon Color logic embedded in plot_bar_smart
             st.plotly_chart(plot_bar_smart(df_mp, "mp_name", "c", orientation='h', limit=7, show_logos=True), use_container_width=True)
         g3, g4 = st.columns(2)
         with g3: 
@@ -563,9 +587,7 @@ elif page == t["nav_evol"]:
     sel_year = c_f2.selectbox(t["sel_year"], options=years_list, index=0)
     
     start_of_year = datetime(sel_year, 1, 1)
-    # FORCE LOADING SPINNER FOR EVOLUTION
-    with st.spinner(f"Cargando datos completos de {sel_year}..."):
-        df_full_year, _ = get_data_v100(start_of_year)
+    df_full_year, _ = get_data_v100(start_of_year)
     
     months_in_year = [1,2,3,4,5,6,7,8,9,10,11,12]
     def_month_idx = datetime.now().month
@@ -677,7 +699,6 @@ elif page == t["nav_calc"]:
         st.markdown("<br>", unsafe_allow_html=True)
         final_margin = (final_P - cost_val)/1.21 if active_regime == "REBU" else ((final_P/(1+vat_rate)) - (cost_val/1.21) if active_regime == "PRO" else ((final_P/(1+vat_rate)) - cost_val if active_regime == "INTRA" else 0))
         if active_regime: st.markdown(f"""<div style="background:{C_SOFT}; border: 3px solid {C_SEC}; transform:scale(1.02); box-shadow:0 10px 20px rgba(0,0,0,0.1); padding:20px; border-radius:15px; text-align:center; margin: 0 auto; width: 100%; margin-bottom:15px;"><div style="font-weight:bold; color:#555; font-size:18px;">{active_regime} -> {sel_country}</div><div style="font-size:42px; font-weight:900; color:{C_MAIN}">{fmt_price(final_margin)}</div></div>""", unsafe_allow_html=True)
-        
         with st.expander(t["help_fiscal_title"], expanded=False):
             st.markdown("""
             ### 1️⃣ ORIGEN REBU (Comprado a Particular)
