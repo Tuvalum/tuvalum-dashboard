@@ -11,7 +11,7 @@ import base64
 from streamlit_option_menu import option_menu
 
 # ==============================================================================
-# 1. CONFIGURATION
+# 1. CONFIGURATION INITIALE
 # ==============================================================================
 st.set_page_config(
     page_title="Tuvalum Dashboard",
@@ -30,7 +30,7 @@ C_DECATHLON = "#0292e9"
 C_BG = "#ffffff"
 C_GRAY_LIGHT = "#f8f9fa"
 
-# VARIABLES GLOBALES
+# VARIABLES
 VAT_DB = {
     "Alemania (19%)": 0.19, "Austria (20%)": 0.20, "Bélgica (21%)": 0.21,
     "Bulgaria (20%)": 0.20, "Canarias (0%)": 0.00, "Ceuta/Melilla (0%)": 0.00,
@@ -45,102 +45,10 @@ VAT_DB = {
     "Rep. Checa (21%)": 0.21, "Rumanía (19%)": 0.19, "Suecia (25%)": 0.25,
     "Suiza (0% - Export)": 0.00, "UE B2B Intracomunitario (0%)": 0.00
 }
-
 SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "BE": 49.0, "default": 105.0}
 RECOND_UNIT_COST = 54.5
 
-# ==============================================================================
-# 2. CSS "NUCLEAR" (SOLUTION FINALE)
-# ==============================================================================
-st.markdown(
-    f"""
-    <meta name="robots" content="noindex, nofollow">
-    <style>
-        /* 1. VARIABLE ROOT : CECI REMPLACE LA COULEUR PAR DEFAUT DE STREAMLIT */
-        :root {{
-            --primary-color: {C_SEC}; /* C'est ça qui tue le rouge partout */
-            --background-color: #ffffff;
-            --secondary-background-color: #f0f2f6;
-            --text-color: #31333F;
-            --font: sans-serif;
-        }}
-        
-        /* 2. HEADER & SIDEBAR ARROW (LA CORRECTION CRITIQUE) */
-        /* On ne cache pas le header complet, on le rend transparent et on cache ses enfants inutiles */
-        header[data-testid="stHeader"] {{
-            background-color: transparent !important;
-            z-index: 100 !important;
-        }}
-        /* Cacher la barre rouge de déco */
-        div[data-testid="stDecoration"] {{display: none !important;}}
-        /* Cacher le menu hamburger et le bouton running */
-        div[data-testid="stToolbar"] {{display: none !important;}}
-        div[data-testid="stStatusWidget"] {{display: none !important; visibility: hidden !important;}}
-        
-        /* FORCER LA VISIBILITÉ DU BOUTON DE SIDEBAR (La flèche >) */
-        button[data-testid="stSidebarCollapsedControl"] {{
-            display: block !important;
-            visibility: visible !important;
-            color: {C_MAIN} !important;
-            background-color: white !important;
-            border: 1px solid #e0e0e0 !important;
-            border-radius: 50% !important;
-            position: fixed !important;
-            top: 20px !important;
-            left: 20px !important;
-            z-index: 999999 !important;
-        }}
-
-        /* 3. INPUTS & LOGIN (FORCE VERTE SUPREME) */
-        /* Cible tous les inputs, selectbox, datepicker */
-        .stTextInput input, .stNumberInput input, .stSelectbox div, .stDateInput div {{
-            border-color: #e2e8f0;
-        }}
-        /* Au focus : Vert flashy, outline none pour tuer le rouge natif navigateur */
-        .stTextInput input:focus, .stNumberInput input:focus, 
-        div[data-baseweb="select"] > div:focus-within,
-        div[data-baseweb="base-input"]:focus-within {{
-            border-color: {C_SEC} !important;
-            box-shadow: 0 0 0 1px {C_SEC} !important;
-            outline: none !important;
-        }}
-
-        /* 4. LAYOUT */
-        .block-container {{padding-top: 3rem !important; padding-bottom: 2rem !important;}}
-        #MainMenu, footer {{visibility: hidden !important; display: none !important;}}
-        
-        /* 5. SIDEBAR FULL WIDTH */
-        [data-testid="stSidebar"] .nav-link {{
-            width: 100% !important;
-            margin: 0px !important;
-            border-radius: 0px !important;
-        }}
-        /* Hover gris */
-        [data-testid="stSidebar"] .nav-link:hover {{
-            background-color: #e5e7eb !important;
-        }}
-        
-        /* 6. KPI CARDS */
-        .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
-            padding: 15px 20px; border-radius: 15px; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 15px; 
-            height: 160px !important; display: flex; flex-direction: column; justify-content: space-between;
-        }}
-        .kpi-card {{ background-color: white; border: 1px solid #e1e8e8; }}
-        .kpi-card-soft, .kpi-card-soft-v3 {{ background-color: {C_SOFT}; border: 1px solid #d1fae5; opacity: 0.95; }}
-        
-        .kpi-title {{font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 5px;}} 
-        .kpi-value {{font-size: 28px; color: {C_MAIN}; font-weight: 800; margin: 5px 0;}} 
-        .kpi-sub-container {{display:flex; justify-content:space-between; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 10px; font-size: 13px; font-weight: 600; margin-bottom: 5px;}}
-        .kpi-sub-left {{color: #64748b;}} .kpi-sub-right {{color: {C_MAIN};}}
-        
-        .product-img {{border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; width: 100%; object-fit: cover;}}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# TRADUCTIONS
+# TEXTES
 TRADUCTIONS = {
     "Español": {
         "nav_res": "Resultados", "nav_evol": "Evolución", "nav_table": "Tabla Ventas", "nav_calc": "Margen & Dto", "nav_price": "Control Precios",
@@ -161,27 +69,162 @@ TRADUCTIONS = {
 t = TRADUCTIONS["Español"]
 
 # HELPERS
+def get_img_as_base64(file_path):
+    try:
+        with open(file_path, "rb") as f: data = f.read(); return base64.b64encode(data).decode()
+    except: return None
+
+def fmt_price(x): return f"{x:,.0f}".replace(",", " ") + " €"
+
 def date_to_spanish(dt, format_type="full"):
     months_es = {1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril", 5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto", 9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"}
     if format_type == "month": return months_es[dt.month]
     if format_type == "day_num": return dt.strftime("%d/%m")
     return dt.strftime("%d/%m")
 
-def get_img_as_base64(file_path):
-    try:
-        with open(file_path, "rb") as f: data = f.read(); return base64.b64encode(data).decode()
-    except: return None
+# ==============================================================================
+# 2. LOGIN (ISOLÉ AVEC SON PROPRE CSS ET NETTOYAGE)
+# ==============================================================================
+def check_password():
+    if "password_correct" not in st.session_state: st.session_state["password_correct"] = False
+    if st.session_state["password_correct"]: return True
+    
+    bg_path = "fondo.png"; logo_path = "logo_blanc.png"
+    bg_b64 = get_img_as_base64(bg_path); logo_b64 = get_img_as_base64(logo_path)
+    bg_css = f"background-image: url('data:image/jpeg;base64,{bg_b64}');" if bg_b64 else "background-color: #0a4650;"
+    logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="max-width: 300px;">' if logo_b64 else '<h1 style="color:white; font-size:60px;">Tuvalum</h1>'
+    
+    # CSS SPECIFIQUE LOGIN
+    st.markdown(f"""
+    <style>
+        [data-testid="stHeader"], [data-testid="stToolbar"] {{display: none !important;}}
+        .stApp {{background-color: white;}}
+        .login-left {{position: fixed; top: 0; left: 0; width: 50%; height: 100vh; {bg_css} background-size: cover; background-position: center;}}
+        .login-overlay {{position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: {C_MAIN}; opacity: 0.85; display: flex; align-items: center; justify-content: center;}}
+        div[data-testid="stForm"] {{position: fixed; top: 65%; right: 25%; transform: translate(50%, -50%); width: 380px; padding: 40px; border: none; box-shadow: none; background-color: white; z-index: 999;}}
+        
+        /* FORCER LE VERT SUR LES INPUTS LOGIN */
+        input {{ border-color: #e0e0e0 !important; }}
+        input:focus {{border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important; caret-color: {C_SEC} !important;}}
+        
+        div[data-testid="stForm"] button {{background-color: transparent !important; color: #333 !important; border: none;}}
+        div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{background-color: {C_SEC} !important; color: white !important; font-weight: bold; border-radius: 6px; height: 50px; margin-top: 20px;}}
+    </style>""", unsafe_allow_html=True)
+    
+    st.markdown(f"""<div class="login-left"><div class="login-overlay">{logo_html}</div></div>""", unsafe_allow_html=True)
+    
+    # Placeholder pour pouvoir le vider proprement
+    login_container = st.empty()
+    with login_container.form("login_form"):
+        st.markdown("<h2 style='text-align:center; color:#333; margin-bottom: 30px;'>Iniciar Sesión</h2>", unsafe_allow_html=True)
+        st.text_input("Email", placeholder="admin@tuvalum.com")
+        password = st.text_input("Password", type="password", placeholder="••••••••")
+        
+        if st.form_submit_button("INICIAR SESIÓN", type="primary", use_container_width=True):
+            if password == st.secrets["security"]["password"]:
+                st.session_state["password_correct"] = True
+                login_container.empty() # ICI : ON VIDE TOUT AVANT DE CONTINUER
+                st.rerun()
+            else: st.error("Contraseña incorrecta")
+    return False
 
-def fmt_price(x):
-    return f"{x:,.0f}".replace(",", " ") + " €"
+if not check_password(): st.stop()
+
+# ==============================================================================
+# 3. CSS APP PRINCIPALE (HEADER TRANSPARENT + FLECHE FORCEE)
+# ==============================================================================
+st.markdown(
+    f"""
+    <meta name="robots" content="noindex, nofollow">
+    <style>
+        /* 1. NETTOYAGE HEADER (SANS TUER LA FLECHE) */
+        header[data-testid="stHeader"] {{
+            background-color: transparent !important;
+            border: none !important;
+        }}
+        /* Cacher la ligne de déco rouge */
+        div[data-testid="stDecoration"] {{display: none !important;}}
+        /* Cacher le menu hamburger et les options à droite */
+        div[data-testid="stToolbar"] {{display: none !important;}}
+        /* Cacher le "Running..." */
+        div[data-testid="stStatusWidget"] {{display: none !important;}}
+        #MainMenu, footer {{display: none !important;}}
+
+        /* 2. FORCER LA FLECHE DE LA SIDEBAR (METHODE BRUTE) */
+        button[data-testid="stSidebarCollapsedControl"] {{
+            display: block !important;
+            visibility: visible !important;
+            color: {C_MAIN} !important;
+            background-color: white !important;
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 50% !important;
+            position: fixed !important; /* Sort du flux */
+            top: 15px !important;
+            left: 15px !important;
+            z-index: 9999999 !important; /* Au-dessus de tout */
+            width: 40px !important;
+            height: 40px !important;
+        }}
+
+        /* 3. INPUTS & SELECTBOXES (VERT TOTAL) */
+        /* On cible TOUT ce qui ressemble à un input */
+        .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"] div {{
+            border-color: #e2e8f0 !important;
+        }}
+        /* Focus Vert */
+        .stTextInput input:focus, .stNumberInput input:focus, 
+        div[data-baseweb="select"] > div:focus-within {{
+            border-color: {C_SEC} !important;
+            box-shadow: 0 0 0 1px {C_SEC} !important;
+            caret-color: {C_SEC} !important;
+        }}
+        
+        /* 4. CALENDRIER & RADIOS (ZERO ROUGE) */
+        div[data-baseweb="calendar"] button[aria-selected="true"] {{background-color: {C_SEC} !important; color: {C_MAIN} !important;}}
+        div[data-baseweb="calendar"] div[aria-selected="true"] {{background-color: {C_SEC} !important;}}
+        div[data-baseweb="calendar"] div[text-decoration="underline"] {{text-decoration-color: {C_SEC} !important;}}
+        
+        /* 5. SIDEBAR */
+        section[data-testid="stSidebar"] {{
+            width: 300px !important; /* Largeur fixe */
+        }}
+        section[data-testid="stSidebar"] > div > div:nth-child(2) {{
+            padding-top: 3rem !important; /* Espace pour la flèche */
+            padding-left: 0rem !important;
+            padding-right: 0rem !important;
+        }}
+
+        /* 6. BOUTONS */
+        .stButton > button {{
+            background-color: {C_MAIN} !important; color: white !important; border: none;
+        }}
+        .stButton > button:hover {{
+            background-color: {C_SEC} !important; color: {C_MAIN} !important;
+        }}
+
+        /* 7. KPI CARDS (FIXED HEIGHT) */
+        .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
+            padding: 15px 20px; border-radius: 15px; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 15px; 
+            height: 160px !important; display: flex; flex-direction: column; justify-content: space-between;
+        }}
+        .kpi-card {{ background-color: white; border: 1px solid #e1e8e8; }}
+        .kpi-card-soft, .kpi-card-soft-v3 {{ background-color: {C_SOFT}; border: 1px solid #d1fae5; opacity: 0.95; }}
+        
+        .kpi-title {{font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 5px;}} 
+        .kpi-value {{font-size: 28px; color: {C_MAIN}; font-weight: 800; margin: 5px 0;}} 
+        .kpi-sub-container {{display:flex; justify-content:space-between; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 10px; font-size: 13px; font-weight: 600; margin-bottom: 5px;}}
+        .kpi-sub-left {{color: #64748b;}} .kpi-sub-right {{color: {C_MAIN};}}
+        
+        .product-img {{border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; width: 100%; object-fit: cover;}}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # KPI HELPERS
 def card_kpi_white_complex(c, title, count, label_rev, val_rev, label_mar, val_mar, col):
     html = f"""<div class="kpi-card" style="border-left:5px solid {col};"><div class="kpi-title">{title}</div><div class="kpi-value">{count} <span style="font-size:16px; color:#666; font-weight:normal;"></span></div><div class="kpi-sub-container"><span class="kpi-sub-left">{label_rev} {val_rev}</span><span class="kpi-sub-right">{label_mar} {val_mar}</span></div></div>"""
-    c.markdown(html, unsafe_allow_html=True)
-
-def card_kpi_soft_v3(c, title, main_val, left_label, left_val, right_label, right_val):
-    html = f"""<div class="kpi-card-soft-v3"><div class="kpi-title">{title}</div><div class="kpi-value">{main_val}</div><div class="kpi-sub-container"><span class="kpi-sub-left">{left_label} {left_val}</span><span class="kpi-sub-right">{right_label} {right_val}</span></div></div>"""
     c.markdown(html, unsafe_allow_html=True)
 
 def card_kpi_unified(c, title, main_val, label_rev, val_rev, label_mar, val_mar, border_col, is_soft=False):
@@ -236,60 +279,6 @@ def plot_bar_smart(df, x_col, y_col, color_col=None, colors=None, orientation='v
         for i, row in df.iterrows(): 
             if row[y_col]>0: fig.add_annotation(y=row[x_col_plot], x=row[y_col], text=f"<b>{int(row[y_col])}</b>", xshift=25, showarrow=False, font=dict(size=14, color="black"))
     return fig
-
-# ==============================================================================
-# 2. LOGIN SYSTEM
-# ==============================================================================
-def check_password():
-    if "password_correct" not in st.session_state: st.session_state["password_correct"] = False
-    if st.session_state["password_correct"]: return True
-    
-    bg_path = "fondo.png"; logo_path = "logo_blanc.png"
-    bg_b64 = get_img_as_base64(bg_path); logo_b64 = get_img_as_base64(logo_path)
-    bg_css = f"background-image: url('data:image/jpeg;base64,{bg_b64}');" if bg_b64 else "background-color: #0a4650;"
-    logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="max-width: 300px;">' if logo_b64 else '<h1 style="color:white; font-size:60px;">Tuvalum</h1>'
-    
-    st.markdown(f"""
-    <style>
-        [data-testid="stHeader"], [data-testid="stToolbar"] {{display: none !important;}}
-        .stApp {{background-color: white;}}
-        .login-left {{position: fixed; top: 0; left: 0; width: 50%; height: 100vh; {bg_css} background-size: cover; background-position: center;}}
-        .login-overlay {{position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: {C_MAIN}; opacity: 0.85; display: flex; align-items: center; justify-content: center;}}
-        div[data-testid="stForm"] {{position: fixed; top: 65%; right: 25%; transform: translate(50%, -50%); width: 380px; padding: 40px; border: none; box-shadow: none; background-color: white; z-index: 999;}}
-        div[data-testid="stForm"] input {{background-color: white !important; border: 1px solid #e0e0e0 !important; color: #333;}}
-        
-        /* FORCE GREEN BORDER FOCUS FOR LOGIN */
-        div[data-testid="stForm"] input:focus {{
-            border-color: {C_SEC} !important; 
-            box-shadow: 0 0 0 1px {C_SEC} !important;
-            outline: none !important;
-        }}
-        div[data-testid="stForm"] div[data-baseweb="base-input"]:focus-within {{
-            border-color: {C_SEC} !important;
-            box-shadow: 0 0 0 1px {C_SEC} !important;
-        }}
-
-        div[data-testid="stForm"] button {{background-color: transparent !important; color: #333 !important; border: none;}}
-        div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{background-color: {C_SEC} !important; color: white !important; font-weight: bold; border-radius: 6px; height: 50px; margin-top: 20px;}}
-    </style>""", unsafe_allow_html=True)
-    
-    st.markdown(f"""<div class="login-left"><div class="login-overlay">{logo_html}</div></div>""", unsafe_allow_html=True)
-    
-    login_placeholder = st.empty()
-    with login_placeholder.form("login_form"):
-        st.markdown("<h2 style='text-align:center; color:#333; margin-bottom: 30px;'>Iniciar Sesión</h2>", unsafe_allow_html=True)
-        st.text_input("Email", placeholder="admin@tuvalum.com")
-        password = st.text_input("Password", type="password", placeholder="••••••••")
-        
-        if st.form_submit_button("INICIAR SESIÓN", type="primary", use_container_width=True):
-            if password == st.secrets["security"]["password"]:
-                st.session_state["password_correct"] = True
-                login_placeholder.empty() # CLEAN UP
-                st.rerun()
-            else: st.error("Contraseña incorrecta")
-    return False
-
-if not check_password(): st.stop()
 
 # --- SIDEBAR (MODERN MENU) ---
 with st.sidebar:
@@ -499,7 +488,6 @@ if page == t["nav_res"]:
     st.subheader(f"📅 {header_txt}")
     p_ok = df_period[df_period["status"]=="paid"]; p_ko = df_period[df_period["status"]!="paid"]
     
-    # Calculos KPIs
     count_ok = len(p_ok)
     recond_cost = count_ok * RECOND_UNIT_COST
     shipping_cost = p_ok["country"].map(SHIPPING_COSTS).fillna(SHIPPING_COSTS["default"]).sum()
