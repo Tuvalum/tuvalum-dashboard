@@ -13,12 +13,10 @@ from streamlit_option_menu import option_menu
 # ==============================================================================
 # 1. CONFIGURATION & FAVICON
 # ==============================================================================
-# Si subes un archivo llamado 'favicon.png' a GitHub, se usará. Si no, usa el emoji.
-fav_icon = "favicon.png" if os.path.exists("favicon.png") else "🚲"
 
 st.set_page_config(
     page_title="Tuvalum Dashboard",
-    page_icon=fav_icon,
+    page_icon="favicon.png",
     layout="wide",
     initial_sidebar_state="expanded", # Barra siempre abierta
     menu_items={'Get Help': None, 'Report a bug': None, 'About': None}
@@ -756,3 +754,4 @@ elif page == t["nav_price"]:
         with st.expander(f"🟡 ATENCION (90-180 días) - {len(df_warn)} bicis", expanded=False): st.data_editor(df_warn, column_config=cfg, use_container_width=True, hide_index=True, key="warn") if not df_warn.empty else st.info("0 bicis.")
         with st.expander(f"🟢 MONITORIZAR (45-90 días) - {len(df_watch)} bicis", expanded=False): st.data_editor(df_watch, column_config=cfg, use_container_width=True, hide_index=True, key="watch") if not df_watch.empty else st.info("0 bicis.")
     else: st.info("No data.")
+
