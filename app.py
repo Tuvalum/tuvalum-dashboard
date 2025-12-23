@@ -21,11 +21,24 @@ st.set_page_config(
     menu_items={'Get Help': None, 'Report a bug': None, 'About': None}
 )
 
+# --- TASAS DE CAMBIO (ESTÁTICAS PARA RAPIDEZ) ---
+# Actualizar si hay fluctuaciones masivas. Base: 1 EUR
+EXCHANGE_RATES = {
+    "EUR": 1.0,
+    "PLN": 0.23,  # Zloty Polaco
+    "HUF": 0.0025, # Florín Húngaro
+    "SEK": 0.088, # Corona Sueca
+    "DKK": 0.13,  # Corona Danesa
+    "GBP": 1.17,  # Libra Esterlina
+    "CZK": 0.040, # Corona Checa
+    "USD": 0.92   # Dolar
+}
+
 # COULEURS
 C_MAIN = "#0a4650"   # Vert Foncé
-C_SEC = "#08e394"    # Vert Flashy
+C_SEC = "#08e394"    # Vert Flashy (Boutons, Focus, Bordures, Selectores)
 C_TER = "#dcff54"    # Vert Clair
-C_SOFT = "#e0fdf4"   # Vert Doux
+C_SOFT = "#e0fdf4"   # Vert Doux (Fonds)
 C_DECATHLON = "#0292e9"
 C_BG = "#ffffff"
 C_GRAY_LIGHT = "#f8f9fa"
@@ -50,13 +63,13 @@ SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "B
 RECOND_UNIT_COST = 54.5
 
 # ==============================================================================
-# 2. CSS "NUCLEAR" (OVERRIDE TOTAL + LOGO FIXE + SIDEBAR SANS FLECHE)
+# 2. CSS HARDCORE (SOLUTION FINALE)
 # ==============================================================================
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
     <style>
-        /* 1. VARIABLE SYSTEME FORCEE AU VERT */
+        /* 1. REECRITURE DES VARIABLES DE COULEUR (TUE LE ROUGE A LA RACINE) */
         :root {{
             --primary-color: {C_SEC} !important;
             --background-color: #ffffff !important;
@@ -65,47 +78,62 @@ st.markdown(
             --font: sans-serif !important;
         }}
         
-        /* 2. SIDEBAR VERROUILLEE (PAS DE FLECHE) */
+        /* 2. SIDEBAR : FIGÉE, SANS FLÈCHE, LARGEUR FIXE */
         [data-testid="stSidebarCollapsedControl"] {{
-            display: none !important; /* On tue le bouton de fermeture */
+            display: none !important; /* SUPPRESSION TOTALE DE LA FLECHE */
         }}
         section[data-testid="stSidebar"] {{
             width: 300px !important;
             min-width: 300px !important;
         }}
         
-        /* 3. LOGO SIDEBAR NON CLIQUABLE (FIGÉ) */
+        /* 3. LOGO SIDEBAR : FIGÉ (NON CLIQUABLE) */
         [data-testid="stSidebar"] img {{
             pointer-events: none !important;
             user-select: none !important;
             margin-left: 20px;
         }}
-        /* Cacher le bouton agrandir sur le logo */
+        /* Cacher le bouton agrandir */
         [data-testid="stSidebar"] [data-testid="StyledFullScreenButton"] {{
             display: none !important;
         }}
         
-        /* 4. NETTOYAGE HEADER & RUNNING */
+        /* 4. NETTOYAGE UI (HEADER, FOOTER, RUNNING) */
         header {{visibility: hidden !important;}}
-        [data-testid="stToolbar"] {{visibility: hidden !important; display: none !important;}}
+        [data-testid="stToolbar"] {{display: none !important;}}
         [data-testid="stDecoration"] {{display: none !important;}}
-        [data-testid="stStatusWidget"] {{display: none !important; visibility: hidden !important;}}
-        #MainMenu, footer {{display: none !important;}}
+        [data-testid="stStatusWidget"] {{display: none !important;}}
+        footer {{display: none !important;}} /* ADIEU FOOTER STREAMLIT */
+        #MainMenu {{display: none !important;}}
 
-        /* 5. INPUTS & SELECTBOXES (VERT OBLIGATOIRE) */
-        .stTextInput input, .stNumberInput input, .stSelectbox div, .stDateInput div {{
+        /* 5. GUERRE AU ROUGE : INPUTS & CALCULATRICE */
+        /* Cible les champs texte, nombre et select */
+        .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"] > div {{
             border-color: #e2e8f0 !important;
         }}
+        
+        /* ETAT FOCUS (QUAND ON CLIQUE) -> VERT FLASHY */
         .stTextInput input:focus, 
         .stNumberInput input:focus,
         div[data-baseweb="select"] > div:focus-within,
         div[data-baseweb="base-input"]:focus-within,
-        div[data-testid="stDateInput"] > div:focus-within,
-        div[data-baseweb="input"]:focus-within {{
+        div[data-testid="stNumberInput"]:focus-within {{
             border-color: {C_SEC} !important;
             box-shadow: 0 0 0 1px {C_SEC} !important;
             caret-color: {C_SEC} !important;
             outline: none !important;
+        }}
+        
+        /* Cible les boutons +/- des inputs numériques (souvent rouges par défaut) */
+        button[kind="secondaryFormSubmit"] {{
+             border-color: {C_SEC} !important;
+        }}
+        [data-testid="stNumberInputStepDown"], [data-testid="stNumberInputStepUp"] {{
+             color: {C_MAIN} !important;
+        }}
+        [data-testid="stNumberInputStepDown"]:hover, [data-testid="stNumberInputStepUp"]:hover {{
+             color: {C_SEC} !important;
+             background-color: transparent !important;
         }}
 
         /* 6. CALENDRIER & RADIOS */
@@ -294,8 +322,9 @@ with st.sidebar:
         styles={
             "container": {"padding": "0!important", "background-color": "transparent", "margin": "0!important", "width": "100%"},
             "icon": {"color": "#64748b", "font-size": "14px"}, 
-            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#f0f2f6", "color": "#333", "border-radius": "0px", "width": "100%"},
-            "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"}
+            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#e2e8f0", "color": "#333", "border-radius": "0px", "width": "100%"},
+            "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
+            "nav-link:hover": {"background-color": "#e2e8f0 !important"} # HOVER FORCE
         }
     )
     st.markdown("---")
@@ -306,8 +335,9 @@ with st.sidebar:
         styles={
             "container": {"padding": "0!important", "background-color": "transparent", "margin": "0!important", "width": "100%"},
             "icon": {"color": "#64748b", "font-size": "14px"}, 
-            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#f0f2f6", "color": "#333", "border-radius": "0px", "width": "100%"},
-            "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"}
+            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "padding": "10px 15px", "--hover-color": "#e2e8f0", "color": "#333", "border-radius": "0px", "width": "100%"},
+            "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"},
+            "nav-link:hover": {"background-color": "#e2e8f0 !important"} # HOVER FORCE
         }
     )
     now = datetime.now(); today_dt = now.date()
@@ -375,7 +405,13 @@ def get_data_v100(start_date_limit):
         if "tienda tuvalum" in t_tags: c="Tienda"
         elif "marketplace" in t_tags: c="Marketplace"; mp = next((m.capitalize() for m in MPs if m in t_tags),"Autre MP"); 
         if mp not in ["Decathlon", "Alltricks", "Campsider", "Bikeroom"] and c=="Marketplace": mp = "Autre MP"
-        country = (o.get("shipping_address") or {}).get("country_code", "Autre"); raw_price = float(o["total_price"]); total_eur = raw_price
+        country = (o.get("shipping_address") or {}).get("country_code", "Autre"); raw_price = float(o["total_price"]); 
+        
+        # LOGIC DEVISE (AUTOMATIQUE)
+        currency_code = o.get("currency", "EUR")
+        rate = EXCHANGE_RATES.get(currency_code, 1.0)
+        total_eur = raw_price * rate # CONVERSION
+        
         pid = None; sku = ""
         if o.get("line_items"):
             for line in o["line_items"]:
