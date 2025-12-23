@@ -17,7 +17,7 @@ st.set_page_config(
     page_title="Tuvalum Dashboard",
     page_icon="🚲",
     layout="wide",
-    initial_sidebar_state="expanded", # Toujours ouvert
+    initial_sidebar_state="expanded", # Force l'ouverture
     menu_items={'Get Help': None, 'Report a bug': None, 'About': None}
 )
 
@@ -50,13 +50,13 @@ SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "B
 RECOND_UNIT_COST = 54.5
 
 # ==============================================================================
-# 2. CSS "HARDCORE" (SIDEBAR FIXE + VERT TOTAL)
+# 2. CSS "NUCLEAR" (OVERRIDE TOTAL)
 # ==============================================================================
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
     <style>
-        /* 1. ECRASER LA COULEUR PRIMAIRE PARTOUT */
+        /* 1. VARIABLE SYSTEME FORCEE AU VERT */
         :root {{
             --primary-color: {C_SEC} !important;
             --background-color: #ffffff !important;
@@ -65,19 +65,20 @@ st.markdown(
             --font: sans-serif !important;
         }}
         
-        /* 2. SIDEBAR FIXE (SANS FLECHE) */
+        /* 2. SIDEBAR VERROUILLEE (PAS DE FLECHE, TOUJOURS OUVERTE) */
         [data-testid="stSidebarCollapsedControl"] {{
-            display: none !important; /* On cache le bouton de fermeture */
+            display: none !important; /* On tue le bouton de fermeture */
         }}
         section[data-testid="stSidebar"] {{
             width: 300px !important; /* Largeur fixe */
+            min-width: 300px !important;
         }}
         
-        /* 3. NETTOYAGE HEADER */
+        /* 3. NETTOYAGE HEADER & RUNNING */
         header {{visibility: hidden !important;}}
         [data-testid="stToolbar"] {{visibility: hidden !important; display: none !important;}}
         [data-testid="stDecoration"] {{display: none !important;}}
-        [data-testid="stStatusWidget"] {{display: none !important;}}
+        [data-testid="stStatusWidget"] {{display: none !important; visibility: hidden !important;}}
         #MainMenu, footer {{display: none !important;}}
 
         /* 4. INPUTS & SELECTBOXES (VERT OBLIGATOIRE) */
@@ -274,7 +275,7 @@ def check_password():
 
 if not check_password(): st.stop()
 
-# --- SIDEBAR (MODERN MENU) ---
+# --- SIDEBAR (MODERN MENU - FIXED) ---
 with st.sidebar:
     if os.path.exists("logo.png"): st.image("logo.png", width=180)
     st.markdown("---")
