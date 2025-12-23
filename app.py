@@ -23,13 +23,31 @@ st.set_page_config(
     menu_items={'Get Help': None, 'Report a bug': None, 'About': None}
 )
 
-# --- TAUX DE CHANGE (Monnaie -> EUR) ---
+# --- VARIABLES GLOBALES (DEFINIES AU DEBUT POUR EVITER NAMEERROR) ---
+VAT_DB = {
+    "Alemania (19%)": 0.19, "Austria (20%)": 0.20, "Bélgica (21%)": 0.21,
+    "Bulgaria (20%)": 0.20, "Canarias (0%)": 0.00, "Ceuta/Melilla (0%)": 0.00,
+    "Chipre (19%)": 0.19, "Croacia (25%)": 0.25, "Dinamarca (25%)": 0.25,
+    "Eslovaquia (20%)": 0.20, "Eslovenia (22%)": 0.22, "España (21%)": 0.21,
+    "Estonia (20%)": 0.20, "Finlandia (24%)": 0.24, "Francia (20%)": 0.20,
+    "Grecia (24%)": 0.24, "Hungría (27%)": 0.27, "Irlanda (23%)": 0.23,
+    "Italia (22%)": 0.22, "Letonia (21%)": 0.21, "Lituania (21%)": 0.21,
+    "Luxemburgo (17%)": 0.17, "Malta (18%)": 0.18, "Noruega (0% - Export)": 0.00,
+    "Otro País / Resto Mundo (0% - Export)": 0.00, "Países Bajos (21%)": 0.21,
+    "Polonia (23%)": 0.23, "Portugal (23%)": 0.23, "Reino Unido (0% - Export)": 0.00,
+    "Rep. Checa (21%)": 0.21, "Rumanía (19%)": 0.19, "Suecia (25%)": 0.25,
+    "Suiza (0% - Export)": 0.00, "UE B2B Intracomunitario (0%)": 0.00
+}
+
 EXCHANGE_RATES = {
     "EUR": 1.0,
     "PLN": 0.232, "HUF": 0.0025, "SEK": 0.088, "DKK": 0.134,
     "GBP": 1.17, "CZK": 0.039, "USD": 0.92, "CHF": 1.06,
     "RON": 0.201, "BGN": 0.511, "HRK": 0.132, "NOK": 0.087
 }
+
+SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "BE": 49.0, "default": 105.0}
+RECOND_UNIT_COST = 54.5
 
 # COULEURS
 C_MAIN = "#0a4650"   # Vert Foncé
@@ -39,10 +57,6 @@ C_SOFT = "#e0fdf4"   # Vert Doux
 C_DECATHLON = "#0292e9"
 C_BG = "#ffffff"
 C_GRAY_LIGHT = "#f8f9fa"
-
-# VARIABLES GLOBALES
-SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "BE": 49.0, "default": 105.0}
-RECOND_UNIT_COST = 54.5
 
 # ==============================================================================
 # 2. CSS "NUCLEAR" (SUPPRESSION TOTALE ROUGE + FLECHE)
@@ -60,13 +74,18 @@ st.markdown(
             --font: sans-serif !important;
         }}
         
-        /* 2. TUER LA FLECHE DE LA SIDEBAR */
+        /* 2. TUER LA FLECHE DE LA SIDEBAR (CIBLAGE MULTIPLE) */
         [data-testid="stSidebarCollapsedControl"] {{
             display: none !important;
             visibility: hidden !important;
             width: 0px !important;
+            height: 0px !important;
             opacity: 0 !important;
             pointer-events: none !important;
+        }}
+        /* Cible le container SVG de la flèche aussi */
+        div[data-testid="stSidebarCollapsedControl"] svg {{
+            display: none !important;
         }}
         
         /* 3. SIDEBAR FIXE ET LOGO FIGÉ */
@@ -82,7 +101,7 @@ st.markdown(
         [data-testid="stSidebar"] [data-testid="StyledFullScreenButton"] {{ display: none !important; }}
         
         /* 4. NETTOYAGE HEADER/FOOTER/PUB */
-        header {{visibility: hidden !important;}}
+        header {{visibility: hidden !important; height: 0px !important;}}
         [data-testid="stToolbar"] {{display: none !important;}}
         [data-testid="stDecoration"] {{display: none !important;}}
         [data-testid="stStatusWidget"] {{display: none !important;}}
@@ -90,8 +109,7 @@ st.markdown(
         #MainMenu {{display: none !important;}}
         .viewerBadge_container__1QSob {{display: none !important;}} /* Pub Streamlit Cloud */
 
-        /* 5. INPUTS, SELECTBOX, DATE : ZERO ROUGE */
-        /* Bordure par défaut */
+        /* 5. INPUTS, SELECTBOX, DATE : ZERO ROUGE (VERT FLASHY) */
         .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"] > div, .stDateInput div {{
             border-color: #e2e8f0 !important;
             box-shadow: none !important;
@@ -105,7 +123,7 @@ st.markdown(
         div[data-testid="stDateInput"] > div:focus-within {{
             border-color: {C_SEC} !important;
             box-shadow: 0 0 0 1px {C_SEC} !important;
-            caret-color: {C_SEC} !important; /* Le curseur clignotant */
+            caret-color: {C_SEC} !important;
             outline: none !important;
         }}
         
@@ -255,8 +273,10 @@ def check_password():
         .login-left {{position: fixed; top: 0; left: 0; width: 50%; height: 100vh; {bg_css} background-size: cover; background-position: center;}}
         .login-overlay {{position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: {C_MAIN}; opacity: 0.85; display: flex; align-items: center; justify-content: center;}}
         div[data-testid="stForm"] {{position: fixed; top: 65%; right: 25%; transform: translate(50%, -50%); width: 380px; padding: 40px; border: none; box-shadow: none; background-color: white; z-index: 999;}}
+        
         div[data-testid="stForm"] input {{background-color: white !important; border: 1px solid #e0e0e0 !important; color: #333;}}
         div[data-testid="stForm"] input:focus {{border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important; caret-color: {C_SEC} !important; outline: none !important;}}
+        
         div[data-testid="stForm"] button {{background-color: transparent !important; color: #333 !important; border: none;}}
         div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{background-color: {C_SEC} !important; color: white !important; font-weight: bold; border-radius: 6px; height: 50px; margin-top: 20px;}}
     </style>""", unsafe_allow_html=True)
@@ -380,8 +400,10 @@ def get_data_v100(start_date_limit):
             total_eur = raw_price
         else:
             rate = EXCHANGE_RATES.get(currency)
-            if rate: total_eur = raw_price * rate
-            else: total_eur = 0.0 # SECURITE: SI DEVISE INCONNUE, 0 POUR NE PAS FAUSSER LE CA
+            if rate:
+                total_eur = raw_price * rate
+            else:
+                total_eur = 0.0 # SECURITE: SI DEVISE INCONNUE, 0 POUR NE PAS FAUSSER LE CA
         
         raw_price_str = f"{raw_price:,.2f} {currency}" # STOCKAGE STRING ORIGINAL
         
@@ -686,7 +708,7 @@ elif page == t["nav_table"] and not df_merged.empty:
         styler = styler.set_properties(subset=[t["col_margin"], t["col_margin_tot"]], **{'background-color': '#d1fae5', 'color': '#0a4650', 'font-weight': 'bold'})
         styler = styler.apply(lambda row: [f'background-color: {"#f8f9fa" if df_show.loc[row.name, "date_group"]%2==0 else "white"}' for _ in row], axis=1)
         
-        # CONFIGURATION COLONNES (LARGEUR)
+        # CONFIGURATION COLONNES (LARGEUR ET ALIGNEMENT)
         st.dataframe(
             styler, 
             use_container_width=True, 
@@ -694,7 +716,8 @@ elif page == t["nav_table"] and not df_merged.empty:
             hide_index=True, 
             column_config={
                 "#": st.column_config.TextColumn("#", width="small"),
-                t["col_date"]: st.column_config.TextColumn(t["col_date"], width="medium")
+                t["col_date"]: st.column_config.TextColumn(t["col_date"], width="medium"),
+                t["col_cambio"]: st.column_config.TextColumn(t["col_cambio"], width="medium", help="Precio original"), # ALIGNEMENT DROITE PAR DEFAUT SUR TEXTCOLUMN NON FORMATÉ
             }
         )
 
