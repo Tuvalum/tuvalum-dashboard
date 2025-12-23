@@ -50,13 +50,13 @@ SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "B
 RECOND_UNIT_COST = 54.5
 
 # ==============================================================================
-# 2. CSS "HARDCORE" (OVERRIDE TOTAL)
+# 2. CSS "NUCLEAR" (OVERRIDE TOTAL)
 # ==============================================================================
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
     <style>
-        /* 1. ECRASER LES VARIABLES NATIVES (ADIEU LE ROUGE) */
+        /* 1. ECRASER LA VARIABLE SYSTEME (C'EST LA CLE POUR TUER LE ROUGE) */
         :root {{
             --primary-color: {C_SEC} !important;
             --background-color: #ffffff !important;
@@ -65,59 +65,84 @@ st.markdown(
             --font: sans-serif !important;
         }}
         
-        /* 2. NETTOYAGE HEADER SANS TUER LA FLECHE */
-        header {{
+        /* 2. NETTOYAGE HEADER MAIS SAUVETAGE DE LA FLECHE */
+        header[data-testid="stHeader"] {{
             background-color: transparent !important;
+            height: 0px !important; /* On réduit la hauteur pour éviter le vide */
         }}
-        [data-testid="stToolbar"] {{visibility: hidden !important; pointer-events: none !important;}}
+        /* Cacher tout le contenu du header sauf le bouton sidebar */
+        [data-testid="stToolbar"] {{display: none !important;}}
         [data-testid="stDecoration"] {{display: none !important;}}
-        [data-testid="stStatusWidget"] {{visibility: hidden !important;}}
+        [data-testid="stStatusWidget"] {{display: none !important;}}
         
-        /* 3. FORCER LA FLECHE SIDEBAR */
-        section[data-testid="stSidebar"] > div:first-child {{
-            z-index: 9999999 !important;
-        }}
+        /* 3. FORCER LA FLECHE SIDEBAR (POSITION FIXE) */
         button[data-testid="stSidebarCollapsedControl"] {{
             display: block !important;
             visibility: visible !important;
-            pointer-events: auto !important;
             color: {C_MAIN} !important;
             background-color: white !important;
             border: 1px solid #e0e0e0 !important;
             border-radius: 50% !important;
-            position: fixed !important;
+            position: fixed !important; /* Sort du flux normal */
             top: 20px !important;
             left: 20px !important;
-            z-index: 10000000 !important;
+            z-index: 10000000 !important; /* Au-dessus de tout */
+            width: 40px !important;
+            height: 40px !important;
+            transition: all 0.3s ease;
+        }}
+        button[data-testid="stSidebarCollapsedControl"]:hover {{
+            border-color: {C_SEC} !important;
+            color: {C_SEC} !important;
         }}
 
-        /* 4. LAYOUT GENERAL */
-        .block-container {{padding-top: 3rem !important; padding-bottom: 2rem !important;}}
-        #MainMenu, footer {{display: none !important;}}
+        /* 4. SUPPRESSION BORDURES ROUGES DES FORMULAIRES */
+        div[data-testid="stForm"] {{
+            border: none !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+        }}
 
-        /* 5. FORCER LE VERT SUR TOUS LES INPUTS */
-        input {{caret-color: {C_SEC} !important;}}
-        .stTextInput div[data-baseweb="base-input"]:focus-within,
-        .stNumberInput div[data-baseweb="base-input"]:focus-within,
-        div[data-baseweb="select"]:focus-within > div,
+        /* 5. FORCER LE VERT SUR TOUS LES INPUTS (FOCUS) */
+        /* Cible : Input text, number, selectbox container, datepicker container */
+        .stTextInput input:focus, 
+        .stNumberInput input:focus,
+        div[data-baseweb="select"] > div:focus-within,
+        div[data-baseweb="base-input"]:focus-within,
         div[data-testid="stDateInput"] > div:focus-within {{
             border-color: {C_SEC} !important;
             box-shadow: 0 0 0 1px {C_SEC} !important;
+            caret-color: {C_SEC} !important;
+            outline: none !important;
         }}
-        div[data-baseweb="base-input"], div[data-baseweb="select"] > div {{border-color: #e2e8f0 !important;}}
+        
+        /* Bordure par défaut grise */
+        div[data-baseweb="select"] > div,
+        div[data-baseweb="base-input"] > div,
+        div[data-testid="stDateInput"] > div {{
+            border-color: #e2e8f0 !important;
+        }}
 
-        /* 6. CALENDRIER */
+        /* 6. CALENDRIER & RADIOS */
         div[data-baseweb="calendar"] button[aria-selected="true"] {{background-color: {C_SEC} !important; color: {C_MAIN} !important;}}
         div[data-baseweb="calendar"] div[aria-selected="true"] {{background-color: {C_SEC} !important;}}
-        div[data-baseweb="calendar"] div[text-decoration="underline"] {{text-decoration-color: {C_SEC} !important;}}
+        div[role="radiogroup"] div[aria-checked="true"] > div:first-child {{
+            background-color: {C_SEC} !important; border-color: {C_SEC} !important;
+        }}
+
+        /* 7. LAYOUT & SIDEBAR */
+        .block-container {{padding-top: 3rem !important; padding-bottom: 2rem !important;}}
+        #MainMenu, footer {{display: none !important;}}
         
-        /* 7. BOUTONS */
-        .stButton > button {{
-            background-color: {C_MAIN} !important; color: white !important; border: 2px solid {C_MAIN} !important;
+        /* Sidebar Full Width */
+        [data-testid="stSidebar"] .nav-link {{
+            width: 100% !important; margin: 0px !important; border-radius: 0px !important;
         }}
-        .stButton > button:hover {{
-            background-color: {C_SEC} !important; color: {C_MAIN} !important; border-color: {C_SEC} !important;
+        section[data-testid="stSidebar"] > div > div:nth-child(2) {{
+            padding-top: 3rem !important; /* Place pour la fleche */
+            padding-left: 0rem !important; padding-right: 0rem !important;
         }}
+        [data-testid="stSidebar"] img {{margin-left: 20px;}}
 
         /* 8. KPI CARDS */
         .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
@@ -160,7 +185,7 @@ TRADUCTIONS = {
 t = TRADUCTIONS["Español"]
 
 # ==============================================================================
-# 3. HELPER FUNCTIONS (DEFINIES AVANT UTILISATION)
+# 3. HELPER FUNCTIONS
 # ==============================================================================
 def get_img_as_base64(file_path):
     try:
@@ -224,7 +249,7 @@ def plot_bar_smart(df, x_col, y_col, color_col=None, colors=None, orientation='v
     return fig
 
 # ==============================================================================
-# 4. LOGIN SYSTEM
+# 4. LOGIN SYSTEM (TRANSITION PROPRE)
 # ==============================================================================
 def check_password():
     if "password_correct" not in st.session_state: st.session_state["password_correct"] = False
@@ -235,6 +260,7 @@ def check_password():
     bg_css = f"background-image: url('data:image/jpeg;base64,{bg_b64}');" if bg_b64 else "background-color: #0a4650;"
     logo_html = f'<img src="data:image/png;base64,{logo_b64}" style="max-width: 300px;">' if logo_b64 else '<h1 style="color:white; font-size:60px;">Tuvalum</h1>'
     
+    # CSS LOGIN FORCE GREEN
     st.markdown(f"""
     <style>
         [data-testid="stHeader"], [data-testid="stToolbar"] {{display: none !important;}}
@@ -244,7 +270,7 @@ def check_password():
         div[data-testid="stForm"] {{position: fixed; top: 65%; right: 25%; transform: translate(50%, -50%); width: 380px; padding: 40px; border: none; box-shadow: none; background-color: white; z-index: 999;}}
         
         div[data-testid="stForm"] input {{background-color: white !important; border: 1px solid #e0e0e0 !important; color: #333;}}
-        div[data-testid="stForm"] input:focus {{border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important; caret-color: {C_SEC} !important;}}
+        div[data-testid="stForm"] input:focus {{border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important; caret-color: {C_SEC} !important; outline: none !important;}}
         
         div[data-testid="stForm"] button {{background-color: transparent !important; color: #333 !important; border: none;}}
         div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{background-color: {C_SEC} !important; color: white !important; font-weight: bold; border-radius: 6px; height: 50px; margin-top: 20px;}}
@@ -268,7 +294,7 @@ def check_password():
 
 if not check_password(): st.stop()
 
-# --- SIDEBAR (MODERN MENU) ---
+# --- SIDEBAR (MODERN MENU - AVEC HOVER) ---
 with st.sidebar:
     if os.path.exists("logo.png"): st.image("logo.png", width=180)
     st.markdown("---")
@@ -476,7 +502,6 @@ if page == t["nav_res"]:
     st.subheader(f"📅 {header_txt}")
     p_ok = df_period[df_period["status"]=="paid"]; p_ko = df_period[df_period["status"]!="paid"]
     
-    # Calculos KPIs
     count_ok = len(p_ok)
     recond_cost = count_ok * RECOND_UNIT_COST
     shipping_cost = p_ok["country"].map(SHIPPING_COSTS).fillna(SHIPPING_COSTS["default"]).sum()
@@ -534,6 +559,7 @@ if page == t["nav_res"]:
 
 # --- PAGE EVOLUCION ---
 elif page == t["nav_evol"]:
+    
     c_head, c_f1, c_f2 = st.columns([6, 1.5, 1.5])
     years_list = [2025, 2024, 2023, 2022]
     sel_year = c_f2.selectbox(t["sel_year"], options=years_list, index=0)
