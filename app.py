@@ -41,32 +41,17 @@ C_BG = "#ffffff"
 C_GRAY_LIGHT = "#f8f9fa"
 
 # VARIABLES GLOBALES
-VAT_DB = {
-    "Alemania (19%)": 0.19, "Austria (20%)": 0.20, "Bélgica (21%)": 0.21,
-    "Bulgaria (20%)": 0.20, "Canarias (0%)": 0.00, "Ceuta/Melilla (0%)": 0.00,
-    "Chipre (19%)": 0.19, "Croacia (25%)": 0.25, "Dinamarca (25%)": 0.25,
-    "Eslovaquia (20%)": 0.20, "Eslovenia (22%)": 0.22, "España (21%)": 0.21,
-    "Estonia (20%)": 0.20, "Finlandia (24%)": 0.24, "Francia (20%)": 0.20,
-    "Grecia (24%)": 0.24, "Hungría (27%)": 0.27, "Irlanda (23%)": 0.23,
-    "Italia (22%)": 0.22, "Letonia (21%)": 0.21, "Lituania (21%)": 0.21,
-    "Luxemburgo (17%)": 0.17, "Malta (18%)": 0.18, "Noruega (0% - Export)": 0.00,
-    "Otro País / Resto Mundo (0% - Export)": 0.00, "Países Bajos (21%)": 0.21,
-    "Polonia (23%)": 0.23, "Portugal (23%)": 0.23, "Reino Unido (0% - Export)": 0.00,
-    "Rep. Checa (21%)": 0.21, "Rumanía (19%)": 0.19, "Suecia (25%)": 0.25,
-    "Suiza (0% - Export)": 0.00, "UE B2B Intracomunitario (0%)": 0.00
-}
-
 SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "BE": 49.0, "default": 105.0}
 RECOND_UNIT_COST = 54.5
 
 # ==============================================================================
-# 2. CSS HARDCORE
+# 2. CSS "NUCLEAR" (SUPPRESSION TOTALE ROUGE + FLECHE)
 # ==============================================================================
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
     <style>
-        /* 1. SUPPRESSION TOTALE DU ROUGE STREAMLIT */
+        /* 1. ECRASER LA VARIABLE SYSTEME (C'est la clé pour le rouge fantôme) */
         :root {{
             --primary-color: {C_SEC} !important;
             --background-color: #ffffff !important;
@@ -75,13 +60,16 @@ st.markdown(
             --font: sans-serif !important;
         }}
         
-        /* 2. SIDEBAR : SUPPRESSION FLECHE & LOGO FIGÉ */
+        /* 2. TUER LA FLECHE DE LA SIDEBAR */
         [data-testid="stSidebarCollapsedControl"] {{
             display: none !important;
             visibility: hidden !important;
+            width: 0px !important;
             opacity: 0 !important;
-            width: 0 !important;
+            pointer-events: none !important;
         }}
+        
+        /* 3. SIDEBAR FIXE ET LOGO FIGÉ */
         section[data-testid="stSidebar"] {{
             width: 300px !important;
             min-width: 300px !important;
@@ -93,22 +81,23 @@ st.markdown(
         }}
         [data-testid="stSidebar"] [data-testid="StyledFullScreenButton"] {{ display: none !important; }}
         
-        /* 3. NETTOYAGE HEADER/FOOTER */
+        /* 4. NETTOYAGE HEADER/FOOTER/PUB */
         header {{visibility: hidden !important;}}
         [data-testid="stToolbar"] {{display: none !important;}}
         [data-testid="stDecoration"] {{display: none !important;}}
         [data-testid="stStatusWidget"] {{display: none !important;}}
-        footer {{display: none !important;}}
+        footer {{display: none !important; opacity: 0 !important;}}
         #MainMenu {{display: none !important;}}
-        .viewerBadge_container__1QSob {{display: none !important;}}
+        .viewerBadge_container__1QSob {{display: none !important;}} /* Pub Streamlit Cloud */
 
-        /* 4. INPUTS, SELECTBOX, DATE : BORDURE VERTE AU FOCUS */
+        /* 5. INPUTS, SELECTBOX, DATE : ZERO ROUGE */
+        /* Bordure par défaut */
         .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"] > div, .stDateInput div {{
             border-color: #e2e8f0 !important;
             box-shadow: none !important;
         }}
         
-        /* Cible ultra-précise pour écraser le rouge */
+        /* ETAT FOCUS : VERT FLASHY OBLIGATOIRE */
         .stTextInput input:focus, 
         .stNumberInput input:focus,
         div[data-baseweb="select"] > div:focus-within,
@@ -116,7 +105,7 @@ st.markdown(
         div[data-testid="stDateInput"] > div:focus-within {{
             border-color: {C_SEC} !important;
             box-shadow: 0 0 0 1px {C_SEC} !important;
-            caret-color: {C_SEC} !important;
+            caret-color: {C_SEC} !important; /* Le curseur clignotant */
             outline: none !important;
         }}
         
@@ -130,17 +119,17 @@ st.markdown(
              background-color: transparent !important;
         }}
 
-        /* 5. CALENDRIER & RADIOS */
+        /* 6. CALENDRIER & RADIOS */
         div[data-baseweb="calendar"] button[aria-selected="true"] {{background-color: {C_SEC} !important; color: {C_MAIN} !important;}}
         div[data-baseweb="calendar"] div[aria-selected="true"] {{background-color: {C_SEC} !important;}}
         div[data-baseweb="calendar"] div[text-decoration="underline"] {{text-decoration-color: {C_SEC} !important;}}
         div[role="radiogroup"] div[aria-checked="true"] > div:first-child {{background-color: {C_SEC} !important; border-color: {C_SEC} !important;}}
         
-        /* 6. BOUTONS */
+        /* 7. BOUTONS */
         .stButton > button {{background-color: {C_MAIN} !important; color: white !important; border: none; transition: all 0.3s ease;}}
         .stButton > button:hover {{background-color: {C_SEC} !important; color: {C_MAIN} !important;}}
 
-        /* 7. KPI CARDS */
+        /* 8. KPI CARDS */
         .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
             padding: 15px 20px; border-radius: 15px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 15px; 
@@ -155,6 +144,9 @@ st.markdown(
         .kpi-sub-left {{color: #64748b;}} .kpi-sub-right {{color: {C_MAIN};}}
         
         .product-img {{border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; width: 100%; object-fit: cover;}}
+        
+        /* 9. LAYOUT */
+        .block-container {{padding-top: 2rem !important; padding-bottom: 2rem !important;}}
     </style>
     """,
     unsafe_allow_html=True
@@ -381,7 +373,7 @@ def get_data_v100(start_date_limit):
         if mp not in ["Decathlon", "Alltricks", "Campsider", "Bikeroom"] and c=="Marketplace": mp = "Autre MP"
         country = (o.get("shipping_address") or {}).get("country_code", "Autre"); 
         
-        # LOGIC DEVISE
+        # LOGIC DEVISE (AUTOMATIQUE ET SURE)
         raw_price = float(o["total_price"])
         currency = o.get("currency", "EUR")
         if currency == "EUR":
@@ -389,9 +381,9 @@ def get_data_v100(start_date_limit):
         else:
             rate = EXCHANGE_RATES.get(currency)
             if rate: total_eur = raw_price * rate
-            else: total_eur = 0.0 # SECURITE
+            else: total_eur = 0.0 # SECURITE: SI DEVISE INCONNUE, 0 POUR NE PAS FAUSSER LE CA
         
-        raw_price_str = f"{raw_price:,.0f} {currency}" # STOCKAGE STRING ORIGINAL
+        raw_price_str = f"{raw_price:,.2f} {currency}" # STOCKAGE STRING ORIGINAL
         
         pid = None; sku = ""
         if o.get("line_items"):
@@ -404,6 +396,7 @@ def get_data_v100(start_date_limit):
         if fin_status == "refunded" and fulfill != "unfulfilled": continue
         if o.get("cancelled_at") or total_eur < 200.0: continue
         
+        # GESTION FUSEAU HORAIRE (UTC -> EUROPE/MADRID)
         ts = pd.to_datetime(o["created_at"])
         if ts.tzinfo is None: ts = ts.tz_localize("UTC")
         ts_local = ts.tz_convert("Europe/Madrid")
@@ -553,13 +546,17 @@ if page == t["nav_res"]:
             st.subheader(t["chart_mp"])
             df_mp = p_ok[p_ok["channel"]=="Marketplace"].groupby("mp_name").size().reset_index(name="c")
             
-            # LOGIQUE BAR CHART VERTICAL TOP 5 + AUTRE
+            # LOGIQUE BAR CHART VERTICAL TOP 4 + AUTRE
             mp_counts = df_mp.groupby("mp_name").size().sort_values(ascending=False)
             top_4 = mp_counts.head(4)
-            others = mp_counts.iloc[4:].sum()
-            final_mp_data = top_4.to_dict()
-            if others > 0: final_mp_data["Autre MP"] = others
-            df_mp_final = pd.DataFrame(list(final_mp_data.items()), columns=["mp_name", "c"])
+            others_count = mp_counts.iloc[4:].sum()
+            
+            # Reconstruction DataFrame pour le graph
+            final_data = top_4.to_dict()
+            if others_count > 0:
+                final_data["Autre MP"] = others_count
+            
+            df_mp_final = pd.DataFrame(list(final_data.items()), columns=["mp_name", "c"])
             
             st.plotly_chart(plot_bar_smart(df_mp_final, "mp_name", "c", orientation='v', show_logos=True), use_container_width=True)
 
@@ -658,19 +655,18 @@ elif page == t["nav_table"] and not df_merged.empty:
     def display_styled_table(df_input, is_mp=False):
         df_show = df_input.copy()
         
-        # LOGIQUE COMPTEUR SPECIFIQUE POUR MARKETPLACE
+        # LOGIQUE COMPTEUR SPECIFIQUE
         if is_mp:
             df_show = df_show.sort_values("date", ascending=True)
             df_show["margin_cum"] = df_show["margin_real"].cumsum()
             df_show = df_show.sort_values("date", ascending=False)
-            # COMPTEUR 1, 2, 3... spécifique
             df_show["#"] = range(len(df_show), 0, -1)
         
         df_show["canal_full"] = df_show.apply(lambda x: f"{x['channel']} ({x['mp_name']})" if x['channel']=="Marketplace" else x['channel'], axis=1)
         df_show["date_str"] = df_show["date"].dt.strftime("%d/%m/%Y")
         df_show["date_group"] = (df_show["date_str"] != df_show["date_str"].shift()).cumsum()
         
-        # COLONNES SELON TYPE
+        # COLONNES AVEC "PRECIO CAMBIO" POUR MP
         if is_mp:
              cols = ["#", "date_str", "order_name", "canal_full", "country", "sku", "cost", "raw_price_str", "total_ttc", "margin_real", "margin_cum"]
              col_names = ["#", t["col_date"], t["col_order"], t["col_channel"], t["col_country"], t["col_sku"], t["col_cost"], t["col_cambio"], t["col_price"], t["col_margin"], t["col_margin_tot"]]
@@ -689,7 +685,18 @@ elif page == t["nav_table"] and not df_merged.empty:
         })
         styler = styler.set_properties(subset=[t["col_margin"], t["col_margin_tot"]], **{'background-color': '#d1fae5', 'color': '#0a4650', 'font-weight': 'bold'})
         styler = styler.apply(lambda row: [f'background-color: {"#f8f9fa" if df_show.loc[row.name, "date_group"]%2==0 else "white"}' for _ in row], axis=1)
-        st.dataframe(styler, use_container_width=True, height=600, hide_index=True, column_config={"#": st.column_config.TextColumn("#", width="small")})
+        
+        # CONFIGURATION COLONNES (LARGEUR)
+        st.dataframe(
+            styler, 
+            use_container_width=True, 
+            height=600, 
+            hide_index=True, 
+            column_config={
+                "#": st.column_config.TextColumn("#", width="small"),
+                t["col_date"]: st.column_config.TextColumn(t["col_date"], width="medium")
+            }
+        )
 
     display_styled_table(df_x)
     st.markdown("---"); st.subheader(t["mp_forecast"]); df_mp = df_x[df_x["channel"] == "Marketplace"].copy()
@@ -758,6 +765,8 @@ elif page == t["nav_calc"]:
         if f_img: 
             st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True); bg_age = "#e5e7eb"; age_txt = "-"; color_age = "#374151"
             if days_stock > 0: age_txt = f"{days_stock} {t['unit_days']}"; bg_age = "#d1fae5" if days_stock <= 45 else ("#ffedd5" if days_stock <= 90 else "#fee2e2"); color_age = "#065f46" if days_stock <= 90 else "#991b1b"
+            st.markdown(f"""<div style="background-color:{bg_age}; padding:15px; border-radius:10px; color:{color_age}; text-align:center; border:1px solid {color_age}; margin-bottom:15px;"><div style="font-size:14px; text-transform:uppercase; font-weight:bold;">{t['age']}</div><div style="font-size:32px; font-weight:800;">{age_txt}</div></div>""", unsafe_allow_html=True); st.markdown(f'<img src="{f_img}" class="product-img">', unsafe_allow_html=True)
+            border_col = C_ALERT if is_sold else C_SEC; bg_col = "#fee2e2" if is_sold else "#d1fae5"; sold_txt = " 🔴 VENDIDO" if is_sold else ""
             st.markdown(f"""<div style="background-color:{bg_col}; padding:15px; border-radius:10px; color:#0a4650; margin-top:15px; border:2px solid {border_col};"><h3 style="margin:0; padding-bottom:10px;">✅ {f_title}{sold_txt}</h3><ul style="margin-left: 20px;">
             <li><b>Estado:</b> {specs.get('state','-')}</li>
             <li><b>Año:</b> {specs.get('year','-')}</li>
