@@ -11,36 +11,40 @@ import base64
 from streamlit_option_menu import option_menu
 
 # ==============================================================================
-# 1. CONFIGURATION & FAVICON
+# 1. CONFIGURATION
 # ==============================================================================
+# Favicon personnalisé si présent
+fav_icon = "favicon.png" if os.path.exists("favicon.png") else "🚲"
 
 st.set_page_config(
     page_title="Tuvalum Dashboard",
-    page_icon="favicon.png",
+    page_icon=fav_icon,
     layout="wide",
-    initial_sidebar_state="expanded", # Barra siempre abierta
+    initial_sidebar_state="expanded",
     menu_items={'Get Help': None, 'Report a bug': None, 'About': None}
 )
 
-# --- TASAS DE CAMBIO (Moneda -> EUR) ---
-# Actualizar periódicamente si hay grandes cambios
+# --- BASE DE DONNÉES DEVISES (Taux approximatifs moyens) ---
+# Si la devise n'est pas ici, le montant sera 0 pour éviter les erreurs.
 EXCHANGE_RATES = {
     "EUR": 1.0,
-    "PLN": 0.23,   # Zloty Polaco
-    "HUF": 0.0025, # Florín Húngaro
-    "SEK": 0.088,  # Corona Sueca
-    "DKK": 0.13,   # Corona Danesa
-    "GBP": 1.17,   # Libra Esterlina
-    "CZK": 0.040,  # Corona Checa
-    "USD": 0.92,   # Dólar
-    "CHF": 1.06    # Franco Suizo
+    # Europe (Hors Euro)
+    "GBP": 1.17, "CHF": 1.06, "PLN": 0.232, "HUF": 0.0025, "CZK": 0.039,
+    "SEK": 0.088, "DKK": 0.134, "NOK": 0.087, "RON": 0.201, "BGN": 0.511,
+    "ISK": 0.006, "RSD": 0.0085, "TRY": 0.029, "UAH": 0.024,
+    # Amériques
+    "USD": 0.92, "CAD": 0.68, "MXN": 0.054, "BRL": 0.18, "ARS": 0.001, "CLP": 0.00095, "COP": 0.00023,
+    # Asie / Pacifique
+    "AUD": 0.60, "NZD": 0.56, "JPY": 0.0061, "CNY": 0.13, "HKD": 0.12, "SGD": 0.68, "KRW": 0.00069, "INR": 0.011,
+    # Autres
+    "ZAR": 0.049, "AED": 0.25, "SAR": 0.24, "ILS": 0.25
 }
 
 # COULEURS
 C_MAIN = "#0a4650"   # Vert Foncé
-C_SEC = "#08e394"    # Vert Flashy (Boutons, Focus, Bordures, Selectores)
+C_SEC = "#08e394"    # Vert Flashy
 C_TER = "#dcff54"    # Vert Clair
-C_SOFT = "#e0fdf4"   # Vert Doux (Fonds)
+C_SOFT = "#e0fdf4"   # Vert Doux
 C_DECATHLON = "#0292e9"
 C_BG = "#ffffff"
 C_GRAY_LIGHT = "#f8f9fa"
@@ -65,13 +69,13 @@ SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "B
 RECOND_UNIT_COST = 54.5
 
 # ==============================================================================
-# 2. CSS "ROOT OVERRIDE" (ELIMINACIÓN TOTAL DEL ROJO)
+# 2. CSS HARDCORE (LE VERT PARTOUT, LA FLECHE NULLE PART)
 # ==============================================================================
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
     <style>
-        /* 1. CAMBIO DE VARIABLE GLOBAL: ESTO ELIMINA EL ROJO NATIVO */
+        /* 1. VARIABLE SYSTEME FORCEE AU VERT */
         :root {{
             --primary-color: {C_SEC} !important;
             --background-color: #ffffff !important;
@@ -80,15 +84,15 @@ st.markdown(
             --font: sans-serif !important;
         }}
         
-        /* 2. SIDEBAR FIJA Y LIMPIA */
+        /* 2. SIDEBAR FIXE ET FIGÉE */
         [data-testid="stSidebarCollapsedControl"] {{
-            display: none !important; /* ADIÓS FLECHA */
+            display: none !important; /* Pas de flèche */
         }}
         section[data-testid="stSidebar"] {{
             width: 300px !important;
             min-width: 300px !important;
         }}
-        /* LOGO ESTÁTICO */
+        /* LOGO FIGÉ */
         [data-testid="stSidebar"] img {{
             pointer-events: none !important;
             user-select: none !important;
@@ -96,38 +100,45 @@ st.markdown(
         }}
         [data-testid="stSidebar"] [data-testid="StyledFullScreenButton"] {{ display: none !important; }}
         
-        /* 3. LIMPIEZA DE HEADER Y FOOTER */
-        header {{background-color: transparent !important;}}
+        /* 3. NETTOYAGE HEADER / FOOTER */
+        header {{visibility: hidden !important;}}
         [data-testid="stToolbar"] {{display: none !important;}}
         [data-testid="stDecoration"] {{display: none !important;}}
         [data-testid="stStatusWidget"] {{display: none !important;}}
         footer {{display: none !important;}}
         #MainMenu {{display: none !important;}}
-        .viewerBadge_container__1QSob {{display: none !important;}} /* Publi Streamlit */
+        .viewerBadge_container__1QSob {{display: none !important;}}
 
-        /* 4. INPUTS: BORDES VERDES AL HACER CLICK (FOCUS) */
-        /* Estado Normal: Gris claro */
-        input, .stSelectbox div[data-baseweb="select"] > div, .stNumberInput input {{
+        /* 4. GUERRE AU ROUGE : INPUTS & CALCULATRICE */
+        /* Bordures par défaut */
+        input, textarea, .stSelectbox div[data-baseweb="select"] > div, .stNumberInput input, .stDateInput div {{
             border-color: #e2e8f0 !important;
             box-shadow: none !important;
         }}
-        /* Estado Focus: VERDE FLASHY */
-        input:focus, 
+        
+        /* ETAT FOCUS/ACTIVE : VERT FLASHY OBLIGATOIRE */
+        input:focus, input:active,
+        textarea:focus,
         .stSelectbox div[data-baseweb="select"] > div:focus-within,
-        .stNumberInput div[data-baseweb="input"]:focus-within {{
+        .stNumberInput div[data-baseweb="input"]:focus-within,
+        .stDateInput div[data-baseweb="input"]:focus-within {{
             border-color: {C_SEC} !important;
             box-shadow: 0 0 0 1px {C_SEC} !important;
+            caret-color: {C_SEC} !important;
+            outline: none !important;
         }}
         
-        /* Botones +/- de la calculadora */
+        /* Boutons +/- Calculatrice */
         button[kind="secondaryFormSubmit"] {{ border-color: transparent !important; }}
         [data-testid="stNumberInputStepDown"], [data-testid="stNumberInputStepUp"] {{
              color: {C_MAIN} !important;
         }}
-        /* Hover en inputs */
-        div[data-baseweb="input"]:hover {{ border-color: {C_SEC} !important; }}
+        [data-testid="stNumberInputStepDown"]:hover, [data-testid="stNumberInputStepUp"]:hover {{
+             color: {C_SEC} !important;
+             background-color: transparent !important;
+        }}
 
-        /* 5. CALENDARIO & RADIOS */
+        /* 5. CALENDRIER & RADIOS */
         div[data-baseweb="calendar"] button[aria-selected="true"] {{
             background-color: {C_SEC} !important; color: {C_MAIN} !important;
         }}
@@ -137,8 +148,11 @@ st.markdown(
         div[data-baseweb="calendar"] div[text-decoration="underline"] {{
             text-decoration-color: {C_SEC} !important;
         }}
+        div[role="radiogroup"] div[aria-checked="true"] > div:first-child {{
+            background-color: {C_SEC} !important; border-color: {C_SEC} !important;
+        }}
         
-        /* 6. BOTONES */
+        /* 6. BOUTONS */
         .stButton > button {{
             background-color: {C_MAIN} !important; color: white !important; border: none;
             transition: all 0.3s ease;
@@ -147,7 +161,10 @@ st.markdown(
             background-color: {C_SEC} !important; color: {C_MAIN} !important;
         }}
 
-        /* 7. KPI CARDS */
+        /* 7. LAYOUT */
+        .block-container {{padding-top: 2rem !important; padding-bottom: 2rem !important;}}
+        
+        /* 8. KPI CARDS */
         .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
             padding: 15px 20px; border-radius: 15px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 15px; 
@@ -204,7 +221,7 @@ def date_to_spanish(dt, format_type="full"):
     return dt.strftime("%d/%m")
 
 def card_kpi_white_complex(c, title, count, label_rev, val_rev, label_mar, val_mar, col):
-    html = f"""<div class="kpi-card" style="border-left:5px solid {col};"><div class="kpi-title">{title}</div><div class="kpi-value">{count} <span style="font-size:16px; color:#666; font-weight:normal;"></span></div><div class="kpi-sub-container"><span class="kpi-sub-left">{label_rev} {val_rev}</span><span class="kpi-sub-right">{label_mar} {val_mar}</span></div></div>"""
+    html = f"""<div class="kpi-card" style="border-left:5px solid {col};"><div class="kpi-title">{title}</div><div class="kpi-value">{count}</div><div class="kpi-sub-container"><span class="kpi-sub-left">{label_rev} {val_rev}</span><span class="kpi-sub-right">{label_mar} {val_mar}</span></div></div>"""
     c.markdown(html, unsafe_allow_html=True)
 
 def card_kpi_soft_v3(c, title, main_val, left_label, left_val, right_label, right_val):
@@ -270,8 +287,10 @@ def check_password():
         .login-left {{position: fixed; top: 0; left: 0; width: 50%; height: 100vh; {bg_css} background-size: cover; background-position: center;}}
         .login-overlay {{position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: {C_MAIN}; opacity: 0.85; display: flex; align-items: center; justify-content: center;}}
         div[data-testid="stForm"] {{position: fixed; top: 65%; right: 25%; transform: translate(50%, -50%); width: 380px; padding: 40px; border: none; box-shadow: none; background-color: white; z-index: 999;}}
+        
         div[data-testid="stForm"] input {{background-color: white !important; border: 1px solid #e0e0e0 !important; color: #333;}}
-        div[data-testid="stForm"] input:focus {{border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important; outline: none !important;}}
+        div[data-testid="stForm"] input:focus {{border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important; caret-color: {C_SEC} !important; outline: none !important;}}
+        
         div[data-testid="stForm"] button {{background-color: transparent !important; color: #333 !important; border: none;}}
         div[data-testid="stForm"] [data-testid="stFormSubmitButton"] button {{background-color: {C_SEC} !important; color: white !important; font-weight: bold; border-radius: 6px; height: 50px; margin-top: 20px;}}
     </style>""", unsafe_allow_html=True)
@@ -388,11 +407,17 @@ def get_data_v100(start_date_limit):
         if mp not in ["Decathlon", "Alltricks", "Campsider", "Bikeroom"] and c=="Marketplace": mp = "Autre MP"
         country = (o.get("shipping_address") or {}).get("country_code", "Autre"); 
         
-        # LOGIC DEVISE (AUTOMATIQUE)
+        # LOGIC DEVISE (AUTOMATIQUE ET SURE)
         raw_price = float(o["total_price"])
         currency = o.get("currency", "EUR")
-        rate = EXCHANGE_RATES.get(currency, 1.0)
-        total_eur = raw_price * rate
+        if currency == "EUR":
+            total_eur = raw_price
+        else:
+            rate = EXCHANGE_RATES.get(currency)
+            if rate:
+                total_eur = raw_price * rate
+            else:
+                total_eur = 0.0 # SECURITE: SI DEVISE INCONNUE, 0 POUR NE PAS FAUSSER LE CA
         
         pid = None; sku = ""
         if o.get("line_items"):
@@ -404,7 +429,11 @@ def get_data_v100(start_date_limit):
         fin_status = o.get("financial_status"); fulfill = o.get("fulfillment_status")
         if fin_status == "refunded" and fulfill != "unfulfilled": continue
         if o.get("cancelled_at") or total_eur < 200.0: continue
-        clean_o.append({"date":pd.to_datetime(o["created_at"]).tz_convert(None), "total_ttc": total_eur, "status": fin_status, "channel":c, "mp_name":mp, "order_name":o["name"], "parent_id": pid, "country": country, "sku": sku})
+        
+        # AJUSTE DATE (LIMIT DATE -2 JOURS POUR ETRE SUR)
+        created_at_dt = pd.to_datetime(o["created_at"]).tz_convert(None)
+        
+        clean_o.append({"date":created_at_dt, "total_ttc": total_eur, "status": fin_status, "channel":c, "mp_name":mp, "order_name":o["name"], "parent_id": pid, "country": country, "sku": sku})
     df_ord = pd.DataFrame(clean_o)
     if not df_ord.empty and product_ids_to_fetch:
         COST_MAP = fetch_product_details_batch(product_ids_to_fetch)
@@ -514,7 +543,6 @@ if page == t["nav_res"]:
     st.subheader(f"📅 {header_txt}")
     p_ok = df_period[df_period["status"]=="paid"]; p_ko = df_period[df_period["status"]!="paid"]
     
-    # Calculos KPIs
     count_ok = len(p_ok)
     recond_cost = count_ok * RECOND_UNIT_COST
     shipping_cost = p_ok["country"].map(SHIPPING_COSTS).fillna(SHIPPING_COSTS["default"]).sum()
@@ -572,7 +600,6 @@ if page == t["nav_res"]:
 
 # --- PAGE EVOLUCION ---
 elif page == t["nav_evol"]:
-    
     c_head, c_f1, c_f2 = st.columns([6, 1.5, 1.5])
     years_list = [2025, 2024, 2023, 2022]
     sel_year = c_f2.selectbox(t["sel_year"], options=years_list, index=0)
@@ -754,4 +781,3 @@ elif page == t["nav_price"]:
         with st.expander(f"🟡 ATENCION (90-180 días) - {len(df_warn)} bicis", expanded=False): st.data_editor(df_warn, column_config=cfg, use_container_width=True, hide_index=True, key="warn") if not df_warn.empty else st.info("0 bicis.")
         with st.expander(f"🟢 MONITORIZAR (45-90 días) - {len(df_watch)} bicis", expanded=False): st.data_editor(df_watch, column_config=cfg, use_container_width=True, hide_index=True, key="watch") if not df_watch.empty else st.info("0 bicis.")
     else: st.info("No data.")
-
