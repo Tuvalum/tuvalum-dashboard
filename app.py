@@ -12,7 +12,7 @@ import pytz
 from streamlit_option_menu import option_menu
 
 # ==============================================================================
-# 1. CONFIGURATION & VARIABLES GLOBALES
+# 1. CONFIGURACIÓN Y ESTILOS
 # ==============================================================================
 fav_icon = "favicon.png" if os.path.exists("favicon.png") else "🚲"
 
@@ -27,24 +27,7 @@ st.set_page_config(
 # TIMEZONE
 MADRID_TZ = pytz.timezone('Europe/Madrid')
 
-# COULEURS
-C_MAIN = "#0a4650"
-C_SEC = "#08e394"
-C_TER = "#dcff54"
-C_SOFT = "#e0fdf4"
-C_DECATHLON = "#0292e9"
-C_ALERT = "#ef4444"
-C_BG = "#ffffff"
-C_GRAY_LIGHT = "#f8f9fa"
-
-# TAUX DE CHANGE
-EXCHANGE_RATES = {
-    "EUR": 1.0, "PLN": 0.232, "HUF": 0.0025, "SEK": 0.088, "DKK": 0.134,
-    "GBP": 1.17, "CZK": 0.039, "USD": 0.92, "CHF": 1.06,
-    "RON": 0.201, "BGN": 0.511, "HRK": 0.132, "NOK": 0.087
-}
-
-# VARIABLES METIER
+# VARIABLES GLOBALES
 SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "BE": 49.0, "default": 105.0}
 RECOND_UNIT_COST = 54.5
 VAT_DB = {
@@ -61,98 +44,76 @@ VAT_DB = {
     "Rep. Checa (21%)": 0.21, "Rumanía (19%)": 0.19, "Suecia (25%)": 0.25,
     "Suiza (0% - Export)": 0.00, "UE B2B Intracomunitario (0%)": 0.00
 }
+EXCHANGE_RATES = {
+    "EUR": 1.0, "PLN": 0.232, "HUF": 0.0025, "SEK": 0.088, "DKK": 0.134,
+    "GBP": 1.17, "CZK": 0.039, "USD": 0.92, "CHF": 1.06,
+    "RON": 0.201, "BGN": 0.511, "HRK": 0.132, "NOK": 0.087
+}
 
-# ==============================================================================
-# 2. CSS "NUCLEAR" (PAS DE FLECHE, VERT PARTOUT)
-# ==============================================================================
-st.markdown(
-    f"""
+# COULEURS
+C_MAIN = "#0a4650"
+C_SEC = "#08e394"
+C_TER = "#dcff54"
+C_SOFT = "#e0fdf4"
+C_DECATHLON = "#0292e9"
+C_ALERT = "#ef4444"
+C_BG = "#ffffff"
+C_GRAY_LIGHT = "#f8f9fa"
+
+# CSS "NUCLEAR"
+st.markdown(f"""
     <meta name="robots" content="noindex, nofollow">
     <style>
-        :root {{
-            --primary-color: {C_SEC} !important;
-            --background-color: #ffffff !important;
-            --secondary-background-color: #f0f2f6 !important;
-            --text-color: #31333F !important;
-            --font: sans-serif !important;
-        }}
+        :root {{ --primary-color: {C_SEC} !important; --background-color: #ffffff !important; --secondary-background-color: #f0f2f6 !important; --text-color: #31333F !important; --font: sans-serif !important; }}
         
-        /* SIDEBAR SANS FLECHE (Ciblage multiple) */
-        [data-testid="stSidebarCollapsedControl"] {{display: none !important; width: 0 !important;}}
-        section[data-testid="stSidebar"] {{width: 300px !important; min-width: 300px !important;}}
-        [data-testid="stSidebar"] img {{pointer-events: none !important; margin-left: 20px;}}
+        /* SIDEBAR FIXED & NO ARROW */
+        [data-testid="stSidebarCollapsedControl"] {{ display: none !important; width: 0 !important; }}
+        section[data-testid="stSidebar"] {{ width: 300px !important; min-width: 300px !important; }}
+        [data-testid="stSidebar"] img {{ pointer-events: none !important; margin-left: 20px; }}
         [data-testid="stSidebar"] [data-testid="StyledFullScreenButton"] {{ display: none !important; }}
         
         /* CLEAN UI */
-        header {{visibility: hidden !important;}}
-        [data-testid="stToolbar"] {{display: none !important;}}
-        [data-testid="stDecoration"] {{display: none !important;}}
-        [data-testid="stStatusWidget"] {{display: none !important;}}
-        footer {{display: none !important;}}
-        .viewerBadge_container__1QSob {{display: none !important;}}
-
+        header {{ visibility: hidden !important; height: 0px !important; }}
+        [data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"], footer, .viewerBadge_container__1QSob {{ display: none !important; }}
+        
         /* INPUTS VERTS */
-        input, textarea, .stSelectbox div[data-baseweb="select"] > div, .stNumberInput input, .stDateInput div {{
-            border-color: #e2e8f0 !important;
-            box-shadow: none !important;
-        }}
-        input:focus, .stSelectbox div[data-baseweb="select"] > div:focus-within,
-        .stNumberInput div[data-baseweb="input"]:focus-within,
-        .stDateInput div[data-baseweb="input"]:focus-within {{
-            border-color: {C_SEC} !important;
-            box-shadow: 0 0 0 1px {C_SEC} !important;
-            outline: none !important;
-        }}
-        /* Boutons +/- Calculatrice */
-        [data-testid="stNumberInputStepDown"], [data-testid="stNumberInputStepUp"] {{
-             color: {C_MAIN} !important; border-color: transparent !important;
-        }}
-        [data-testid="stNumberInputStepDown"]:hover, [data-testid="stNumberInputStepUp"]:hover {{
-             color: {C_SEC} !important; background-color: transparent !important;
-        }}
+        input, textarea, .stSelectbox div[data-baseweb="select"] > div, .stNumberInput input, .stDateInput div {{ border-color: #e2e8f0 !important; box-shadow: none !important; }}
+        input:focus, .stSelectbox div[data-baseweb="select"] > div:focus-within, .stNumberInput div[data-baseweb="input"]:focus-within, .stDateInput div[data-baseweb="input"]:focus-within {{ border-color: {C_SEC} !important; box-shadow: 0 0 0 1px {C_SEC} !important; outline: none !important; }}
+        [data-testid="stNumberInputStepDown"], [data-testid="stNumberInputStepUp"] {{ color: {C_MAIN} !important; border-color: transparent !important; }}
+        [data-testid="stNumberInputStepDown"]:hover, [data-testid="stNumberInputStepUp"]:hover {{ color: {C_SEC} !important; background-color: transparent !important; }}
         
         /* KPI & CARDS */
-        .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
-            padding: 15px 20px; border-radius: 15px; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 15px; 
-            height: 160px !important; display: flex; flex-direction: column; justify-content: space-between;
-        }}
+        .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{ padding: 15px 20px; border-radius: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 15px; height: 160px !important; display: flex; flex-direction: column; justify-content: space-between; }}
         .kpi-card {{ background-color: white; border: 1px solid #e1e8e8; }}
         .kpi-card-soft, .kpi-card-soft-v3 {{ background-color: {C_SOFT}; border: 1px solid #d1fae5; opacity: 0.95; }}
-        .kpi-title {{font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 5px;}} 
-        .kpi-value {{font-size: 28px; color: {C_MAIN}; font-weight: 800; margin: 5px 0;}} 
-        .kpi-sub-container {{display:flex; justify-content:space-between; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 10px; font-size: 13px; font-weight: 600; margin-bottom: 5px;}}
-        .kpi-sub-left {{color: #64748b;}} .kpi-sub-right {{color: {C_MAIN};}}
-        .product-img {{border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; width: 100%; object-fit: cover;}}
-        .block-container {{padding-top: 2rem !important; padding-bottom: 2rem !important;}}
+        .kpi-title {{ font-size: 13px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 5px; }} 
+        .kpi-value {{ font-size: 28px; color: {C_MAIN}; font-weight: 800; margin: 5px 0; }} 
+        .kpi-sub-container {{ display:flex; justify-content:space-between; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 10px; font-size: 13px; font-weight: 600; margin-bottom: 5px; }}
+        .kpi-sub-left {{ color: #64748b; }} .kpi-sub-right {{ color: {C_MAIN}; }}
+        .product-img {{ border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; width: 100%; object-fit: cover; }}
+        .block-container {{ padding-top: 2rem !important; padding-bottom: 2rem !important; }}
     </style>
-    """,
-    unsafe_allow_html=True
-)
+    """, unsafe_allow_html=True)
 
-# TRADUCTIONS
-TRADUCTIONS = {
-    "Español": {
-        "nav_res": "Resultados", "nav_evol": "Evolución", "nav_table": "Tabla Ventas", "nav_calc": "Margen & Dto", "nav_price": "Control Precios",
-        "opt_prev_month": "Mes Pasado", "opt_yesterday": "Ayer", "opt_today": "Hoy", "opt_month": "Este Mes", "opt_year": "Este Año", "opt_custom": "Personalizado", 
-        "btn_refresh": "Actualizar",
-        "t_kpi1": "Ventas Hoy (Pagadas)", "t_kpi2": "Ventas Hoy (Pendientes)", 
-        "t_kpi3": "Ventas (pagadas)", "t_kpi4": "Ventas pendientes (select)",
-        "sub_rev": "Ingresos", "sub_mar": "Margen",
-        "chart_channel": "Canales", "chart_mp": "Marketplaces (Top 5)", "chart_subcat": "Categoría", "chart_brand": "Top 5 Marcas", "chart_price": "Rango de Precios", "chart_country": "Países",
-        "avg_price": "Precio Medio", "avg_margin": "Margen Medio", "avg_margin_pct": "% Margen", "avg_rot": "Rotación Media", "loading": "⏳ Cargando...", 
-        "calc_title": "Calculadora Financiera", "sku_ph": "ej: 201414", "sku_not_found": "SKU no encontrado", "age": "Antigüedad", "price_input": "Precio Venta (€)", "cost_input": "Coste Compra (€)", "discount_input": "Descuento (€)", "unit_days": "días", 
-        "col_sku": "SKU", "col_order": "Pedido", "col_country": "País", "col_channel": "Canal", "col_price": "Precio Pagado", "col_cost": "Coste Compra", "col_margin": "Margen", "col_margin_tot": "Margen Total", "col_date": "Fecha Compra", "col_cambio": "Precio Cambio",
-        "col_disc": "Dto.", "col_comm": "Comisión MP", "col_cat": "Categoría", "col_subcat": "Subcat.", "col_type": "Tipo", "col_brand": "Marca",
-        "pricing_title": "Control de Precios & Rotación", "col_img": "Foto", "col_p_curr": "P. Actual", "col_p_rec": "P. Rec.", "col_action": "Acción (€)", "col_margin_proj": "Margen Proy.",
-        "advice_ok": "✅ Mantener Precio", "advice_disc": "📉 Descuento Máximo", "advice_neutral": "⚪ Descuento Recomendado", "btn_search": "Comparar Precio (Google)", "vat_select": "🌍 País Destino (IVA)",
-        "help_fiscal_title": "📘 Ayuda Fiscal", "evol_title": "Ventas - Ingresos - Margenes", "sel_month": "Mes", "sel_year": "Año", "settings": "⚙️ Ajustes", "mp_forecast": "Ventas Marketplace (fecha selec.)"
-    }
+# TRADUCCIONES
+t = {
+    "nav_res": "Resultados", "nav_evol": "Evolución", "nav_table": "Tabla Ventas", "nav_calc": "Margen & Dto", "nav_price": "Control Precios",
+    "opt_prev_month": "Mes Pasado", "opt_yesterday": "Ayer", "opt_today": "Hoy", "opt_month": "Este Mes", "opt_year": "Este Año", "opt_custom": "Personalizado", 
+    "btn_refresh": "Actualizar",
+    "t_kpi1": "Ventas Hoy (Pagadas)", "t_kpi2": "Ventas Hoy (Pendientes)", 
+    "t_kpi3": "Ventas (pagadas)", "t_kpi4": "Ventas pendientes (select)",
+    "chart_channel": "Canales", "chart_mp": "Marketplaces (Top 5)", "chart_subcat": "Categoría", "chart_brand": "Top 5 Marcas", "chart_price": "Rango de Precios", "chart_country": "Países",
+    "avg_price": "Precio Medio", "avg_margin": "Margen Medio", "avg_margin_pct": "% Margen", "avg_rot": "Rotación Media", 
+    "calc_title": "Calculadora Financiera", "sku_ph": "ej: 201414", "sku_not_found": "SKU no encontrado", "age": "Antigüedad", "price_input": "Precio Venta (€)", "cost_input": "Coste Compra (€)", "discount_input": "Descuento (€)", "unit_days": "días", 
+    "col_sku": "SKU", "col_order": "Pedido", "col_country": "País", "col_channel": "Canal", "col_price": "Precio Pagado", "col_cost": "Coste Compra", "col_margin": "Margen", "col_margin_tot": "Margen Total", "col_date": "Fecha Compra", "col_cambio": "Precio Cambio",
+    "col_disc": "Dto.", "col_comm": "Comisión MP", "col_cat": "Categoría", "col_subcat": "Subcat.", "col_type": "Tipo", "col_brand": "Marca",
+    "pricing_title": "Control de Precios & Rotación", "col_img": "Foto", "col_p_curr": "P. Actual", "col_p_rec": "P. Rec.", "col_action": "Acción (€)", "col_margin_proj": "Margen Proy.",
+    "advice_ok": "✅ Mantener Precio", "advice_disc": "📉 Descuento Máximo", "advice_neutral": "⚪ Descuento Recomendado", "btn_search": "Comparar Precio (Google)", "vat_select": "🌍 País Destino (IVA)",
+    "help_fiscal_title": "📘 Ayuda Fiscal", "evol_title": "Ventas - Ingresos - Margenes", "sel_month": "Mes", "sel_year": "Año", "settings": "⚙️ Ajustes", "mp_forecast": "Ventas Marketplace (fecha selec.)"
 }
-t = TRADUCTIONS["Español"]
 
 # ==============================================================================
-# 3. HELPER FUNCTIONS
+# 3. FUNCIONES AUXILIARES (DEFINIDAS ANTES DEL USO)
 # ==============================================================================
 def get_img_as_base64(file_path):
     try:
@@ -255,7 +216,6 @@ def check_password():
 
 if not check_password(): st.stop()
 
-# --- SIDEBAR ---
 with st.sidebar:
     if os.path.exists("logo.png"): st.image("logo.png", width=180)
     st.markdown("---")
@@ -272,7 +232,7 @@ with st.sidebar:
         icons=["calendar-minus", "calendar-check", "calendar-event", "calendar-month", "calendar-range", "calendar3"], default_index=3,
         styles={"container": {"padding": "0!important", "background-color": "transparent"}, "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "--hover-color": "#e5e7eb"}, "nav-link-selected": {"background-color": C_SEC, "color": "white", "font-weight": "bold"}}
     )
-    # DATE MADRID (Variable disponible globalement après exécution)
+    # DATE MADRID
     now = datetime.now(MADRID_TZ)
     today_dt = now.date()
     if 'start_date_state' not in st.session_state: st.session_state.start_date_state = today_dt.replace(day=1)
@@ -318,10 +278,11 @@ def fetch_product_details_batch(prod_id_list):
                         subcat_raw = n["subcat"]["value"] if (n.get("subcat") and n["subcat"]["value"]) else "-"
                         km_raw = n["km"]["value"] if (n.get("km") and n["km"]["value"]) else "0"
                         motor_raw = n["motor"]["value"] if (n.get("motor") and n["motor"]["value"]) else "-"
-                        # LOGIQUE TYPE
+                        # LOGIQUE TYPE E-BIKE (DETECTION)
                         type_final = "Muscular"
                         try:
-                            if float(km_raw) > 1 or (motor_raw != "-" and motor_raw is not None): type_final = "E-Bike"
+                            if (motor_raw != "-" and motor_raw is not None): type_final = "E-Bike"
+                            elif float(km_raw) > 1: type_final = "E-Bike"
                         except: pass
                         # LOGIQUE CATEGORIE
                         cat_final = "Autre"; s_low = str(subcat_raw).lower()
@@ -349,7 +310,6 @@ def get_data_v100(start_date_limit):
         if 'next' in r.links: url_o = r.links['next']['url']
         else: break
     clean_o = []; product_ids_to_fetch = []; 
-    # DETECTION MARKETPLACE ELARGIE
     MP_KEYWORDS = ["decathlon", "alltricks", "refurbed", "campsider", "ebikemood", "bikeroom", "troc", "cycle tyre", "cycletyre", "buycycle", "bikeflip"]
     for o in orders:
         t_tags = (o.get("tags","") or "").lower(); c = "Online"; mp = "-"
@@ -528,13 +488,18 @@ if page == t["nav_res"]:
             st.plotly_chart(plot_bar_smart(df_c, "channel", "c", "channel", {"Online": C_SEC, "Marketplace": C_MAIN, "Tienda": C_TER}), use_container_width=True)
         with g2: 
             st.subheader(t["chart_mp"])
-            df_mp = p_ok[p_ok["channel"]=="Marketplace"].groupby("mp_name").size().reset_index(name="c")
-            mp_counts = df_mp.groupby("clean_mp").sum().sort_values("c", ascending=False)
+            # FIX KEYERROR: Use 'clean_mp' for grouping
+            df_mp = p_ok[p_ok["channel"]=="Marketplace"].groupby("clean_mp").size().reset_index(name="c")
+            mp_counts = df_mp.sort_values("c", ascending=False)
             top_4 = mp_counts.head(4)
-            others_count = mp_counts.iloc[4:].sum().iloc[0] if len(mp_counts) > 4 else 0
-            final_data = top_4.to_dict()["c"]
-            if others_count > 0: final_data["Autre MP"] = others_count
-            df_mp_final = pd.DataFrame(list(final_data.items()), columns=["mp_name", "c"])
+            others_count = mp_counts.iloc[4:].sum()["c"] if len(mp_counts) > 4 else 0
+            
+            # Prepare data
+            final_data = top_4.to_dict('records')
+            if others_count > 0: final_data.append({"clean_mp": "Autre MP", "c": others_count})
+            df_mp_final = pd.DataFrame(final_data)
+            df_mp_final.rename(columns={"clean_mp": "mp_name"}, inplace=True)
+            
             st.plotly_chart(plot_bar_smart(df_mp_final, "mp_name", "c", orientation='v', show_logos=True), use_container_width=True)
 
         g3, g4 = st.columns(2)
@@ -562,7 +527,7 @@ elif page == t["nav_table"] and not df_merged.empty:
     st.header("📋 Ventas (Fecha Select)"); 
     df_x = df_period[df_period["status"]=="paid"].copy().sort_values("date", ascending=True); df_x["margin_cum"] = df_x["margin_real"].cumsum(); df_x = df_x.sort_values("date", ascending=False)
     
-    # CORRECTION CRITIQUE KEYERROR: RESET INDEX
+    # FIX KEYERROR: RESET INDEX
     df_x = df_x.reset_index(drop=True)
     df_x["#"] = range(len(df_x), 0, -1)
     
@@ -572,22 +537,15 @@ elif page == t["nav_table"] and not df_merged.empty:
             df_show = df_show.sort_values("date", ascending=True)
             df_show["margin_cum"] = df_show["margin_real"].cumsum()
             df_show = df_show.sort_values("date", ascending=False)
-            
-            # RE-INDEX IMPORTANT
             df_show = df_show.reset_index(drop=True)
             df_show["#"] = range(len(df_show), 0, -1)
         
         df_show["canal_full"] = df_show.apply(lambda x: f"{x['channel']} ({x['mp_name']})" if x['channel']=="Marketplace" else x['channel'], axis=1)
         df_show["date_str"] = df_show["date"].dt.strftime("%d/%m/%Y")
-        
-        # DATE GROUP
         df_show["date_group"] = (df_show["date_str"] != df_show["date_str"].shift()).cumsum()
         
         cols = ["#", "date_str", "order_name", "canal_full", "country", "cat", "subcat", "sku", "type", "cost", "raw_price_str", "total_ttc", "discount", "commission", "margin_real", "margin_cum"]
         col_names = ["#", t["col_date"], t["col_order"], t["col_channel"], t["col_country"], t["col_cat"], t["col_subcat"], t["col_sku"], t["col_type"], t["col_cost"], t["col_cambio"], t["col_price"], t["col_disc"], t["col_comm"], t["col_margin"], t["col_margin_tot"]]
-
-        for c in cols:
-            if c not in df_show.columns: df_show[c] = 0.0
 
         df_final = df_show[cols].copy(); df_final.columns = col_names
         
@@ -633,8 +591,18 @@ elif page == t["nav_calc"]:
         st.markdown("<br>", unsafe_allow_html=True)
         final_margin = (final_P - cost_val)/1.21 if active_regime == "REBU" else ((final_P/(1+vat_rate)) - (cost_val/1.21) if active_regime == "PRO" else ((final_P/(1+vat_rate)) - cost_val if active_regime == "INTRA" else 0))
         if active_regime: st.markdown(f"""<div style="background:{C_SOFT}; border: 3px solid {C_SEC}; transform:scale(1.02); box-shadow:0 10px 20px rgba(0,0,0,0.1); padding:20px; border-radius:15px; text-align:center; margin: 0 auto; width: 100%; margin-bottom:15px;"><div style="font-weight:bold; color:#555; font-size:18px;">{active_regime} -> {sel_country}</div><div style="font-size:42px; font-weight:900; color:{C_MAIN}">{fmt_price(final_margin)}</div></div>""", unsafe_allow_html=True)
+        
+        # FIX: Expander placed safely
+        st.markdown("---")
         with st.expander(t["help_fiscal_title"], expanded=False):
-            st.markdown("""### 1️⃣ ORIGEN REBU...""")
+            st.markdown("""
+            ### 1️⃣ ORIGEN REBU (Particular)
+            `((PVP - Coste) / 1.21)`
+            ### 2️⃣ ORIGEN PRO (Tienda/Empresa)
+            `(PVP / (1+IVA)) - (Coste / 1.21)`
+            ### 3️⃣ ORIGEN INTRA (UE sin IVA)
+            `(PVP / (1+IVA)) - Coste`
+            """)
 
     with c_right:
         if f_img: 
@@ -642,7 +610,15 @@ elif page == t["nav_calc"]:
             if days_stock > 0: age_txt = f"{days_stock} {t['unit_days']}"; bg_age = "#d1fae5" if days_stock <= 45 else ("#ffedd5" if days_stock <= 90 else "#fee2e2"); color_age = "#065f46" if days_stock <= 90 else "#991b1b"
             st.markdown(f"""<div style="background-color:{bg_age}; padding:15px; border-radius:10px; color:{color_age}; text-align:center; border:1px solid {color_age}; margin-bottom:15px;"><div style="font-size:14px; text-transform:uppercase; font-weight:bold;">{t['age']}</div><div style="font-size:32px; font-weight:800;">{age_txt}</div></div>""", unsafe_allow_html=True); st.markdown(f'<img src="{f_img}" class="product-img">', unsafe_allow_html=True)
             border_col = C_ALERT if is_sold else C_SEC; bg_col = "#fee2e2" if is_sold else "#d1fae5"; sold_txt = " 🔴 VENDIDO" if is_sold else ""
-            st.markdown(f"""<div style="background-color:{bg_col}; padding:15px; border-radius:10px; color:#0a4650; margin-top:15px; border:2px solid {border_col};"><h3 style="margin:0; padding-bottom:10px;">✅ {f_title}{sold_txt}</h3></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div style="background-color:{bg_col}; padding:15px; border-radius:10px; color:#0a4650; margin-top:15px; border:2px solid {border_col};"><h3 style="margin:0; padding-bottom:10px;">✅ {f_title}{sold_txt}</h3><ul style="margin-left: 20px;">
+            <li><b>Estado:</b> {specs.get('state','-')}</li>
+            <li><b>Año:</b> {specs.get('year','-')}</li>
+            <li><b>Talla:</b> {specs.get('size','-')}</li>
+            <li><b>Cuadro:</b> {specs.get('frame','-')}</li>
+            <li><b>Ruedas:</b> {specs.get('wheels','-')}</li>
+            <li><b>Transmisión:</b> {specs.get('group','-')}</li>
+            <li><b>Frenos:</b> {specs.get('brakes','-')}</li>
+            </ul></div>""", unsafe_allow_html=True)
 
 elif page == t["nav_price"]:
     st.header(f"📉 {t['pricing_title']}"); 
@@ -676,6 +652,15 @@ elif page == t["nav_evol"]:
     st.markdown("---"); st.header(f"VISTA ANUAL {sel_year} (Enero - Diciembre)")
     df_year = df_full_year[(df_full_year['date'].dt.year == sel_year) & (df_full_year["status"]=="paid")].copy()
     full_months_idx = range(1, 13); month_map = {1: "Ene", 2: "Feb", 3: "Mar", 4: "Abr", 5: "May", 6: "Jun", 7: "Jul", 8: "Ago", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dic"}; tick_vals = list(month_map.keys()); tick_text = list(month_map.values())
+    
+    # GRAPHIQUE ANNUEL GLOBAL (AJOUTE)
+    annual_stats = df_year.groupby(df_year['date'].dt.month).agg(ingresos=("total_ttc", "sum"), margen=("margin_real", "sum"), ventas=("total_ttc", "count")).reindex(full_months_idx, fill_value=0).reset_index(); annual_stats.columns = ["month", "ingresos", "margen", "ventas"]
+    fig_yr = make_subplots(specs=[[{"secondary_y": True}]]); 
+    fig_yr.add_trace(go.Bar(x=annual_stats["month"], y=annual_stats["ingresos"], name="Ingresos (€)", marker_color=C_TER, opacity=0.6), secondary_y=False)
+    fig_yr.add_trace(go.Scatter(x=annual_stats["month"], y=annual_stats["margen"], name="Margen (€)", line=dict(color=C_SEC, width=3, shape='spline'), mode='lines+markers'), secondary_y=False)
+    fig_yr.add_trace(go.Scatter(x=annual_stats["month"], y=annual_stats["ventas"], name="Ventas (#)", line=dict(color=C_MAIN, width=3, shape='spline', dash='dot'), mode='lines+markers'), secondary_y=True)
+    fig_yr.update_layout(height=450, hovermode="x unified", xaxis=dict(tickmode='array', tickvals=tick_vals, ticktext=tick_text)); fig_yr.update_yaxes(title_text="€", secondary_y=False, showgrid=True); fig_yr.update_yaxes(title_text="#", secondary_y=True, showgrid=False); st.plotly_chart(fig_yr, use_container_width=True)
+
     st.subheader("🚲 Categorías (Evolución Anual)")
     df_cat = df_year.groupby([df_year['date'].dt.month, "type"]).size().reset_index(name="count"); df_cat.columns = ["month", "type", "count"]
     fig2 = px.line(df_cat, x="month", y="count", color="type", markers=True, color_discrete_map={"Muscular": C_MAIN, "E-Bike": "#f59e0b"})
