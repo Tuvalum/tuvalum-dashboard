@@ -12,7 +12,7 @@ import pytz
 from streamlit_option_menu import option_menu
 
 # ==============================================================================
-# 1. CONFIGURATION & TIMEZONE
+# 1. CONFIGURATION
 # ==============================================================================
 fav_icon = "favicon.png" if os.path.exists("favicon.png") else "🚲"
 
@@ -27,7 +27,10 @@ st.set_page_config(
 # TIMEZONE MADRID
 MADRID_TZ = pytz.timezone('Europe/Madrid')
 
-# --- DEVISES & TAUX ---
+# LISTE MARKETPLACES A DETECTER (Même si tag "marketplace" absent)
+MP_KEYWORDS = ["decathlon", "alltricks", "refurbed", "campsider", "ebikemood", "bikeroom", "troc", "cycle tyre", "cycletyre", "buycycle", "bikeflip"]
+
+# --- TAUX DE CHANGE ---
 EXCHANGE_RATES = {
     "EUR": 1.0,
     "PLN": 0.232, "HUF": 0.0025, "SEK": 0.088, "DKK": 0.134,
@@ -35,16 +38,16 @@ EXCHANGE_RATES = {
     "RON": 0.201, "BGN": 0.511, "HRK": 0.132, "NOK": 0.087
 }
 
-# --- COULEURS ---
-C_MAIN = "#0a4650"   # Vert Foncé
-C_SEC = "#08e394"    # Vert Flashy
-C_TER = "#dcff54"    # Vert Clair
-C_SOFT = "#e0fdf4"   # Vert Doux
+# COULEURS
+C_MAIN = "#0a4650"
+C_SEC = "#08e394"
+C_TER = "#dcff54"
+C_SOFT = "#e0fdf4"
 C_DECATHLON = "#0292e9"
 C_BG = "#ffffff"
 C_GRAY_LIGHT = "#f8f9fa"
 
-# --- VARIABLES GLOBALES ---
+# VARIABLES GLOBALES
 SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "BE": 49.0, "default": 105.0}
 RECOND_UNIT_COST = 54.5
 VAT_DB = {
@@ -63,13 +66,12 @@ VAT_DB = {
 }
 
 # ==============================================================================
-# 2. CSS "NUCLEAR" (SUPPRESSION TOTALE ROUGE + FLECHE)
+# 2. CSS "NUCLEAR" (PAS DE FLECHE, VERT PARTOUT)
 # ==============================================================================
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
     <style>
-        /* 1. ECRASER LA VARIABLE SYSTEME (TUE LE ROUGE) */
         :root {{
             --primary-color: {C_SEC} !important;
             --background-color: #ffffff !important;
@@ -78,16 +80,19 @@ st.markdown(
             --font: sans-serif !important;
         }}
         
-        /* 2. TUER LA FLECHE SIDEBAR */
+        /* SIDEBAR SANS FLECHE (Ciblage multiple pour sécurité) */
         [data-testid="stSidebarCollapsedControl"] {{
             display: none !important;
-            width: 0px !important;
+            width: 0 !important;
         }}
+        
+        /* Sidebar Fixe */
         section[data-testid="stSidebar"] {{
             width: 300px !important;
             min-width: 300px !important;
         }}
-        /* LOGO FIGÉ */
+        
+        /* Logo Figé */
         [data-testid="stSidebar"] img {{
             pointer-events: none !important;
             user-select: none !important;
@@ -95,52 +100,36 @@ st.markdown(
         }}
         [data-testid="stSidebar"] [data-testid="StyledFullScreenButton"] {{ display: none !important; }}
         
-        /* 3. NETTOYAGE HEADER/FOOTER/PUB */
-        header {{visibility: hidden !important; height: 0px !important;}}
+        /* CLEAN UI */
+        header {{visibility: hidden !important;}}
         [data-testid="stToolbar"] {{display: none !important;}}
         [data-testid="stDecoration"] {{display: none !important;}}
         [data-testid="stStatusWidget"] {{display: none !important;}}
         footer {{display: none !important;}}
-        #MainMenu {{display: none !important;}}
-        .viewerBadge_container__1QSob {{display: none !important;}} 
+        .viewerBadge_container__1QSob {{display: none !important;}}
 
-        /* 4. INPUTS : BORDURE VERTE AU FOCUS (ECRASE LE ROUGE) */
-        .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"] > div, .stDateInput div {{
+        /* INPUTS VERTS (Guerre au rouge) */
+        input, textarea, .stSelectbox div[data-baseweb="select"] > div, .stNumberInput input, .stDateInput div {{
             border-color: #e2e8f0 !important;
             box-shadow: none !important;
         }}
-        .stTextInput input:focus, 
-        .stNumberInput input:focus,
-        div[data-baseweb="select"] > div:focus-within,
-        div[data-baseweb="base-input"]:focus-within,
-        div[data-testid="stDateInput"] > div:focus-within {{
+        input:focus, .stSelectbox div[data-baseweb="select"] > div:focus-within,
+        .stNumberInput div[data-baseweb="input"]:focus-within,
+        .stDateInput div[data-baseweb="input"]:focus-within {{
             border-color: {C_SEC} !important;
             box-shadow: 0 0 0 1px {C_SEC} !important;
             caret-color: {C_SEC} !important;
             outline: none !important;
         }}
-        
-        /* Calculatrice Boutons +/- */
+        /* Boutons +/- Calculatrice */
         [data-testid="stNumberInputStepDown"], [data-testid="stNumberInputStepUp"] {{
-             color: {C_MAIN} !important;
-             border-color: transparent !important;
+             color: {C_MAIN} !important; border-color: transparent !important;
         }}
         [data-testid="stNumberInputStepDown"]:hover, [data-testid="stNumberInputStepUp"]:hover {{
-             color: {C_SEC} !important;
-             background-color: transparent !important;
+             color: {C_SEC} !important; background-color: transparent !important;
         }}
-
-        /* 5. CALENDRIER & RADIOS */
-        div[data-baseweb="calendar"] button[aria-selected="true"] {{background-color: {C_SEC} !important; color: {C_MAIN} !important;}}
-        div[data-baseweb="calendar"] div[aria-selected="true"] {{background-color: {C_SEC} !important;}}
-        div[data-baseweb="calendar"] div[text-decoration="underline"] {{text-decoration-color: {C_SEC} !important;}}
-        div[role="radiogroup"] div[aria-checked="true"] > div:first-child {{background-color: {C_SEC} !important; border-color: {C_SEC} !important;}}
         
-        /* 6. BOUTONS */
-        .stButton > button {{background-color: {C_MAIN} !important; color: white !important; border: none; transition: all 0.3s ease;}}
-        .stButton > button:hover {{background-color: {C_SEC} !important; color: {C_MAIN} !important;}}
-
-        /* 7. KPI CARDS */
+        /* KPI & CARDS */
         .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
             padding: 15px 20px; border-radius: 15px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 15px; 
@@ -361,7 +350,7 @@ def fetch_product_details_batch(prod_id_list):
                         cost_val = float(re.sub(r'[^\d.]', '', str(raw_cost).replace(',','.'))) if raw_cost else 0.0
                         fiscal_val = n["fiscal"]["value"] if n["fiscal"] else "PRO"
                         
-                        # MARQUE (METAFIELD) + CLEANING
+                        # MARQUE (CLEANING FORCE)
                         brand_raw = n["brand_real"]["value"] if (n.get("brand_real") and n["brand_real"]["value"]) else (n["vendor"] if n["vendor"] else "Autre")
                         brand_val = str(brand_raw).strip().upper()
                         
@@ -391,7 +380,7 @@ def fetch_product_details_batch(prod_id_list):
 
 @st.cache_data(ttl=600, show_spinner=False)
 def get_data_v100(start_date_limit):
-    COMMISSION_MP = 0.10 # 10%
+    COMMISSION_MP = 0.10 # Base pour fallback
     shop_url = st.secrets["shopify"]["shop_url"]; token = st.secrets["shopify"]["access_token"]; h_rest = {"X-Shopify-Access-Token": token}; limit_dt = pd.to_datetime(start_date_limit) - timedelta(days=2); url_o = f"https://{shop_url}/admin/api/2024-01/orders.json?status=any&limit=250&order=created_at+desc"; orders = []; MAX_PAGES = 100 
     for _ in range(MAX_PAGES):
         r = requests.get(url_o, headers=h_rest); 
@@ -418,7 +407,7 @@ def get_data_v100(start_date_limit):
         if "marketplace" in t_tags: is_mp = True; c = "Marketplace";
         if mp == "-" and is_mp: mp = "Autre MP"
         
-        # LOGIQUE MAGASIN (DATE > NOV 2025 ou TAG)
+        # LOGIQUE MAGASIN
         if "venta asistida" in t_tags: c = "Tienda"
 
         country = (o.get("shipping_address") or {}).get("country_code", "Autre"); 
@@ -474,7 +463,8 @@ def get_data_v100(start_date_limit):
                 
                 if "alltricks" in mp_low:
                      c_val = local_price * 0.10
-                     comm_mp = 150.0 if c_val > 150.0 else c_val
+                     if curr == "EUR" and c_val > 150.0: c_val = 150.0
+                     comm_mp = c_val
                 elif "decathlon" in mp_low:
                      if curr == "PLN":
                          c_val = local_price * 0.11; comm_mp = 1210.0 if c_val > 1210.0 else c_val
@@ -487,6 +477,7 @@ def get_data_v100(start_date_limit):
                 elif "campsider" in mp_low: comm_mp = local_price * 0.10
                 elif "refurbed" in mp_low: comm_mp = local_price * 0.10
                 elif "ebikemood" in mp_low: comm_mp = local_price * 0.06
+                else: comm_mp = local_price * 0.10
                 
                 # Conversion commission en EUR si nécessaire
                 if curr != "EUR":
@@ -648,16 +639,137 @@ elif page == t["nav_table"] and not df_merged.empty:
     if not df_mp.empty: display_styled_table(df_mp, is_mp=True)
     else: st.info("No hay ventas de Marketplace en este periodo.")
 
-elif page == t["nav_calc"] or page == t["nav_price"] or page == t["nav_evol"]:
-    if page == t["nav_evol"]:
-        st.header(t["evol_title"])
-        st.info("Module Evolution en maintenance pour intégration KPIs")
-    if page == t["nav_calc"]:
-        st.header(t["calc_title"])
-        c1, c2 = st.columns(2)
-        with c1:
-             sel_country = st.selectbox(t["vat_select"], options=sorted(list(VAT_DB.keys())), index=11)
-             st.number_input(t["price_input"], value=2000.0, step=10.0)
-    if page == t["nav_price"]:
-        st.header(t["pricing_title"])
-        st.info("Module Pricing en cours")
+# --- PAGE CALCULADORA (RESTAURADA) ---
+elif page == t["nav_calc"]:
+    c_left, c_right = st.columns([1, 1]); f_cost=0.0; f_price=0.0; f_fiscal="PRO"; f_img=None; specs={}; days_stock=0; f_title=""; active_regime=None; is_deposit=False; is_sold=False
+    with c_left:
+        st.markdown("### ⚙️ Configuración"); sku_query = st.text_input("🚲 SKU", placeholder=t["sku_ph"])
+        if sku_query:
+            r = search_sku_live(sku_query.strip())
+            if r["found"]:
+                f_cost=r["cost"]; f_price=r["price"]; f_fiscal=r["fiscal"]; f_img=r["img"]; specs=r["specs"]; f_title=r["title"]; days_stock = (datetime.now() - r["created_at"]).days if pd.notnull(r["created_at"]) else 0; f_fiscal_up = str(f_fiscal).upper(); active_regime = "REBU" if "REBU" in f_fiscal_up else ("INTRA" if "INTRA" in f_fiscal_up else "PRO"); is_deposit = str(sku_query).startswith("5"); is_sold = specs["inv"] < 1
+                if is_deposit: st.error("⛔ DEPÓSITO - NO DESCUENTO")
+            else: st.warning(t["sku_not_found"])
+        
+        sel_country = st.selectbox(t["vat_select"], options=sorted(list(VAT_DB.keys())), index=11); vat_rate = VAT_DB[sel_country]
+        c_i1, c_i2, c_i3 = st.columns(3); cost_val = c_i1.number_input(t["cost_input"], value=float(f_cost), step=10.0); price_val = c_i2.number_input(t["price_input"], value=float(f_price), step=10.0); disc_val = c_i3.number_input(t["discount_input"], value=0.0, step=10.0); final_P = max(0, price_val - disc_val)
+        
+        if f_title: st.link_button(f"🔍 {t['btn_search']}", f"https://www.google.com/search?q={f_title} {specs.get('year','')} precio", type="secondary", use_container_width=True)
+        st.markdown("---"); m_curr = ((price_val - cost_val)/1.21) if "REBU" in str(f_fiscal) else ((price_val - cost_val) if "INTRA" in str(f_fiscal) else ((price_val/1.21) - (cost_val/1.21))); rec_disc = calculate_smart_discount(days_stock, m_curr, price_val, is_deposit)
+        
+        if not sku_query: st.markdown(f"<div style='background:#e5e7eb; color:#6b7280; padding:10px; border-radius:5px; text-align:center; font-weight:bold;'>{t['advice_neutral']}</div>", unsafe_allow_html=True)
+        else:
+            if is_deposit: st.markdown(f"<div style='background:#fee2e2; color:#991b1b; padding:10px; border-radius:5px; text-align:center; font-weight:bold;'>⛔ NO DESCUENTO (DEPÓSITO)</div>", unsafe_allow_html=True)
+            elif rec_disc > 0: st.markdown(f"<div style='background:#ffa421; color:white; padding:10px; border-radius:5px; text-align:center; font-weight:bold;'>{t['advice_disc']}: -{int(rec_disc)} €</div>", unsafe_allow_html=True)
+            else: st.markdown(f"<div style='background:#065f46; color:white; padding:10px; border-radius:5px; text-align:center; font-weight:bold;'>{t['advice_ok']}</div>", unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        final_margin = (final_P - cost_val)/1.21 if active_regime == "REBU" else ((final_P/(1+vat_rate)) - (cost_val/1.21) if active_regime == "PRO" else ((final_P/(1+vat_rate)) - cost_val if active_regime == "INTRA" else 0))
+        
+        if active_regime: st.markdown(f"""<div style="background:{C_SOFT}; border: 3px solid {C_SEC}; transform:scale(1.02); box-shadow:0 10px 20px rgba(0,0,0,0.1); padding:20px; border-radius:15px; text-align:center; margin: 0 auto; width: 100%; margin-bottom:15px;"><div style="font-weight:bold; color:#555; font-size:18px;">{active_regime} -> {sel_country}</div><div style="font-size:42px; font-weight:900; color:{C_MAIN}">{fmt_price(final_margin)}</div></div>""", unsafe_allow_html=True)
+        
+        with st.expander(t["help_fiscal_title"], expanded=False):
+            st.markdown("""
+            ### 1️⃣ ORIGEN REBU (Comprado a Particular)
+            * **Fórmula:** `((PVP - Coste) / 1.21)`
+            ### 2️⃣ ORIGEN PRO (Comprado a Tienda/Empresa)
+            * **Fórmula:** `(PVP / 1.21) - (Coste / 1.21)`
+            ### 3️⃣ ORIGEN INTRA (Comprado a Profesional UE sin IVA)
+            * **Fórmula:** `(PVP / 1.21) - Coste`
+            """)
+
+    with c_right:
+        if f_img: 
+            st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True); bg_age = "#e5e7eb"; age_txt = "-"; color_age = "#374151"
+            if days_stock > 0: age_txt = f"{days_stock} {t['unit_days']}"; bg_age = "#d1fae5" if days_stock <= 45 else ("#ffedd5" if days_stock <= 90 else "#fee2e2"); color_age = "#065f46" if days_stock <= 90 else "#991b1b"
+            st.markdown(f"""<div style="background-color:{bg_age}; padding:15px; border-radius:10px; color:{color_age}; text-align:center; border:1px solid {color_age}; margin-bottom:15px;"><div style="font-size:14px; text-transform:uppercase; font-weight:bold;">{t['age']}</div><div style="font-size:32px; font-weight:800;">{age_txt}</div></div>""", unsafe_allow_html=True); st.markdown(f'<img src="{f_img}" class="product-img">', unsafe_allow_html=True)
+            border_col = C_ALERT if is_sold else C_SEC; bg_col = "#fee2e2" if is_sold else "#d1fae5"; sold_txt = " 🔴 VENDIDO" if is_sold else ""
+            st.markdown(f"""<div style="background-color:{bg_col}; padding:15px; border-radius:10px; color:#0a4650; margin-top:15px; border:2px solid {border_col};"><h3 style="margin:0; padding-bottom:10px;">✅ {f_title}{sold_txt}</h3><ul style="margin-left: 20px;">
+            <li><b>Estado:</b> {specs.get('state','-')}</li>
+            <li><b>Año:</b> {specs.get('year','-')}</li>
+            <li><b>Talla:</b> {specs.get('size','-')}</li>
+            <li><b>Cuadro:</b> {specs.get('frame','-')}</li>
+            <li><b>Ruedas:</b> {specs.get('wheels','-')}</li>
+            <li><b>Transmisión:</b> {specs.get('group','-')}</li>
+            <li><b>Frenos:</b> {specs.get('brakes','-')}</li>
+            </ul></div>""", unsafe_allow_html=True)
+
+# --- PAGE CONTROL PRECIOS ---
+elif page == t["nav_price"]:
+    st.header(f"📉 {t['pricing_title']}"); 
+    with st.spinner("Analizando inventario..."): df_stock = get_current_stock_and_pricing()
+    if not df_stock.empty:
+        df_stock["disc"] = df_stock.apply(lambda x: calculate_smart_discount(x["days"], x["margin_curr"], x["price_curr"]), axis=1); df_stock["rec"] = df_stock["price_curr"] - df_stock["disc"]; df_stock["m_proj"] = df_stock.apply(lambda x: (((x["rec"]-x["cost"])/1.21)) if "REBU" in str(x["fiscal"]) else (((x["rec"]/1.21)-(x["cost"]/1.21))), axis=1)
+        cfg = {"img": st.column_config.ImageColumn(t["col_img"]), "sku": st.column_config.TextColumn("SKU"), "days": st.column_config.NumberColumn("Días Stock", format="%d"), "price_curr": st.column_config.NumberColumn(t["col_p_curr"], format="%d€"), "rec": st.column_config.NumberColumn(t["col_p_rec"], format="%d€"), "disc": st.column_config.NumberColumn(t["col_action"], format="-%d€"), "m_proj": st.column_config.NumberColumn(t["col_margin_proj"], format="%d€"), "updated_at": st.column_config.DateColumn("Últ. Modif.", format="DD/MM/YYYY")}
+        df_crit = df_stock[df_stock["days"] > 360]; df_urg = df_stock[(df_stock["days"] > 180) & (df_stock["days"] <= 360)]; df_warn = df_stock[(df_stock["days"] > 90) & (df_stock["days"] <= 180)]; df_watch = df_stock[(df_stock["days"] > 45) & (df_stock["days"] <= 90)]
+        with st.expander(f"🔴 CRITICO (> 360 días) - {len(df_crit)} bicis", expanded=True): st.data_editor(df_crit, column_config=cfg, use_container_width=True, hide_index=True, key="crit") if not df_crit.empty else st.info("0 bicis.")
+        with st.expander(f"🟠 URGENTE (180-360 días) - {len(df_urg)} bicis", expanded=True): st.data_editor(df_urg, column_config=cfg, use_container_width=True, hide_index=True, key="urg") if not df_urg.empty else st.info("0 bicis.")
+        with st.expander(f"🟡 ATENCION (90-180 días) - {len(df_warn)} bicis", expanded=False): st.data_editor(df_warn, column_config=cfg, use_container_width=True, hide_index=True, key="warn") if not df_warn.empty else st.info("0 bicis.")
+        with st.expander(f"🟢 MONITORIZAR (45-90 días) - {len(df_watch)} bicis", expanded=False): st.data_editor(df_watch, column_config=cfg, use_container_width=True, hide_index=True, key="watch") if not df_watch.empty else st.info("0 bicis.")
+    else: st.info("No data.")
+
+# --- PAGE EVOLUCION ---
+elif page == t["nav_evol"]:
+    c_head, c_f1, c_f2 = st.columns([6, 1.5, 1.5])
+    years_list = [2025, 2024, 2023, 2022]
+    sel_year = c_f2.selectbox(t["sel_year"], options=years_list, index=0)
+    
+    start_of_year = datetime(sel_year, 1, 1)
+    with st.spinner(f"Cargando datos completos de {sel_year}..."):
+        df_full_year, _ = get_data_v100(start_of_year)
+    
+    months_in_year = [1,2,3,4,5,6,7,8,9,10,11,12]
+    def_month_idx = datetime.now().month
+    sel_month_idx = c_f1.selectbox(t["sel_month"], options=months_in_year, format_func=lambda x: date_to_spanish(date(2024, x, 1), 'month'), index=def_month_idx-1)
+    
+    with c_head: st.subheader(f"{t['evol_title']} - {date_to_spanish(date(2024, sel_month_idx, 1), 'month')} {sel_year}")
+    
+    df_evol = df_full_year[(df_full_year['date'].dt.month == sel_month_idx) & (df_full_year['date'].dt.year == sel_year)].copy()
+    if True: 
+        start_m = date(sel_year, sel_month_idx, 1); next_m = start_m + timedelta(days=32); end_m = next_m.replace(day=1) - timedelta(days=1); full_range = pd.date_range(start=start_m, end=end_m)
+        daily = df_evol[df_evol["status"]=="paid"].groupby(df_evol['date'].dt.date).agg(ingresos=("total_ttc", "sum"), margen=("margin_real", "sum"), ventas=("total_ttc", "count")).reindex(full_range.date, fill_value=0).reset_index(); daily.columns = ["date", "ingresos", "margen", "ventas"]; daily["label"] = daily["date"].apply(lambda x: date_to_spanish(x, 'day_num'))
+        fig_ev = make_subplots(specs=[[{"secondary_y": True}]]); fig_ev.add_trace(go.Scatter(x=daily["label"], y=daily["ingresos"], name="Ingresos (€)", line=dict(color=C_TER, shape='linear'), mode='lines+markers'), secondary_y=False); fig_ev.add_trace(go.Scatter(x=daily["label"], y=daily["margen"], name="Margen (€)", line=dict(color=C_SEC, shape='linear'), mode='lines+markers'), secondary_y=False); fig_ev.add_trace(go.Scatter(x=daily["label"], y=daily["ventas"], name="Ventas (#)", line=dict(color=C_MAIN, shape='linear', dash='dot'), mode='lines+markers'), secondary_y=True); fig_ev.update_layout(height=450, margin=dict(l=0, r=0, t=10, b=0), hovermode="x unified", legend=dict(orientation="h", y=1.1)); fig_ev.update_yaxes(title_text="€", secondary_y=False, showgrid=True, gridcolor='#eee'); fig_ev.update_yaxes(title_text="#", secondary_y=True, showgrid=False); st.plotly_chart(fig_ev, use_container_width=True)
+
+    st.markdown("---")
+    st.header("VISTA ANUAL (Enero - Diciembre)")
+    c_head_yr, c_sel_yr = st.columns([6, 2])
+    with c_sel_yr: sel_year_anual = st.selectbox(f"{t['sel_year']} (Evolución Anual)", options=years_list, index=0)
+    
+    df_year = df_full_year[(df_full_year['date'].dt.year == sel_year_anual) & (df_full_year["status"]=="paid")].copy()
+    full_months_idx = range(1, 13); month_map = {1: "Ene", 2: "Feb", 3: "Mar", 4: "Abr", 5: "May", 6: "Jun", 7: "Jul", 8: "Ago", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dic"}; tick_vals = list(month_map.keys()); tick_text = list(month_map.values())
+
+    st.subheader("🚲 Categorías (Evolución Anual)")
+    if True:
+        def map_cat(s):
+            s = str(s).lower(); 
+            if "carretera" in s: return "Route"; 
+            if "gravel" in s: return "Gravel"; 
+            if "e-bike" in s: return "E-Bike"; 
+            if "rigid" in s or "doble" in s or "mtb" in s: return "VTT"; 
+            return "Autre"
+        df_year["cat_clean"] = df_year["cat"].apply(map_cat)
+        df_cat = df_year[df_year["cat_clean"] != "Autre"].groupby([df_year['date'].dt.month, "cat_clean"]).size().reset_index(name="count")
+        df_cat.columns = ["month", "cat_clean", "count"]
+        fig2 = px.line(df_cat, x="month", y="count", color="cat_clean", markers=True, color_discrete_map={"Route": C_MAIN, "VTT": C_SEC, "Gravel": C_TER, "E-Bike": "#f59e0b"})
+        fig2.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified", xaxis=dict(tickmode='array', tickvals=tick_vals, ticktext=tick_text, range=[0.5, 12.5]))
+        st.plotly_chart(fig2, use_container_width=True)
+        st.markdown("---")
+
+    st.subheader("💰 Rangos de Precio (Evolución Anual)")
+    if True:
+        bins = [0, 1000, 1500, 2500, 4000, 100000]; labels = ["<1k", "1k-1.5k", "1.5k-2.5k", "2.5k-4k", ">4k"]
+        df_year['price_range'] = pd.cut(df_year['total_ttc'], bins=bins, labels=labels)
+        df_pr = df_year.groupby([df_year['date'].dt.month, "price_range"]).size().reset_index(name="count")
+        df_pr.columns = ["month", "price_range", "count"]
+        fig3 = px.line(df_pr, x="month", y="count", color="price_range", markers=True, color_discrete_sequence=px.colors.sequential.Teal)
+        fig3.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified", xaxis=dict(tickmode='array', tickvals=tick_vals, ticktext=tick_text, range=[0.5, 12.5]))
+        st.plotly_chart(fig3, use_container_width=True)
+    st.markdown("---")
+
+    st.subheader("🌐 Canales (Evolución Anual)")
+    if True:
+        df_ch = df_year.groupby([df_year['date'].dt.month, "channel"]).size().reset_index(name="count")
+        df_ch.columns = ["month", "channel", "count"]
+        fig4 = px.line(df_ch, x="month", y="count", color="channel", markers=True, color_discrete_map={"Online": C_SEC, "Marketplace": C_MAIN, "Tienda": C_TER})
+        fig4.update_layout(height=400, xaxis_title=None, yaxis_title="Ventas (#)", hovermode="x unified", xaxis=dict(tickmode='array', tickvals=tick_vals, ticktext=tick_text, range=[0.5, 12.5]))
+        st.plotly_chart(fig4, use_container_width=True)
