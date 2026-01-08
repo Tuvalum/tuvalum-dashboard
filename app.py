@@ -12,7 +12,7 @@ import pytz
 from streamlit_option_menu import option_menu
 
 # ==============================================================================
-# 1. CONFIGURATION
+# 1. CONFIGURATION & TIMEZONE
 # ==============================================================================
 fav_icon = "favicon.png" if os.path.exists("favicon.png") else "🚲"
 
@@ -24,10 +24,10 @@ st.set_page_config(
     menu_items={'Get Help': None, 'Report a bug': None, 'About': None}
 )
 
-# TIMEZONE
+# TIMEZONE MADRID
 MADRID_TZ = pytz.timezone('Europe/Madrid')
 
-# --- TAUX DE CHANGE ---
+# --- DEVISES & TAUX ---
 EXCHANGE_RATES = {
     "EUR": 1.0,
     "PLN": 0.232, "HUF": 0.0025, "SEK": 0.088, "DKK": 0.134,
@@ -35,16 +35,16 @@ EXCHANGE_RATES = {
     "RON": 0.201, "BGN": 0.511, "HRK": 0.132, "NOK": 0.087
 }
 
-# COULEURS
-C_MAIN = "#0a4650"
-C_SEC = "#08e394"
-C_TER = "#dcff54"
-C_SOFT = "#e0fdf4"
+# --- COULEURS ---
+C_MAIN = "#0a4650"   # Vert Foncé
+C_SEC = "#08e394"    # Vert Flashy
+C_TER = "#dcff54"    # Vert Clair
+C_SOFT = "#e0fdf4"   # Vert Doux
 C_DECATHLON = "#0292e9"
 C_BG = "#ffffff"
 C_GRAY_LIGHT = "#f8f9fa"
 
-# VARIABLES GLOBALES
+# --- VARIABLES GLOBALES ---
 SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "BE": 49.0, "default": 105.0}
 RECOND_UNIT_COST = 54.5
 VAT_DB = {
@@ -63,12 +63,13 @@ VAT_DB = {
 }
 
 # ==============================================================================
-# 2. CSS "NUCLEAR" (PAS DE FLECHE, VERT PARTOUT)
+# 2. CSS "NUCLEAR" (SUPPRESSION TOTALE ROUGE + FLECHE)
 # ==============================================================================
 st.markdown(
     f"""
     <meta name="robots" content="noindex, nofollow">
     <style>
+        /* 1. ECRASER LA VARIABLE SYSTEME (TUE LE ROUGE) */
         :root {{
             --primary-color: {C_SEC} !important;
             --background-color: #ffffff !important;
@@ -77,41 +78,69 @@ st.markdown(
             --font: sans-serif !important;
         }}
         
-        /* SIDEBAR SANS FLECHE */
-        [data-testid="stSidebarCollapsedControl"] {{display: none !important;}}
-        section[data-testid="stSidebar"] {{width: 300px !important; min-width: 300px !important;}}
-        [data-testid="stSidebar"] img {{pointer-events: none !important; margin-left: 20px;}}
+        /* 2. TUER LA FLECHE SIDEBAR */
+        [data-testid="stSidebarCollapsedControl"] {{
+            display: none !important;
+            width: 0px !important;
+        }}
+        section[data-testid="stSidebar"] {{
+            width: 300px !important;
+            min-width: 300px !important;
+        }}
+        /* LOGO FIGÉ */
+        [data-testid="stSidebar"] img {{
+            pointer-events: none !important;
+            user-select: none !important;
+            margin-left: 20px;
+        }}
         [data-testid="stSidebar"] [data-testid="StyledFullScreenButton"] {{ display: none !important; }}
         
-        /* CLEAN UI */
-        header {{visibility: hidden !important;}}
+        /* 3. NETTOYAGE HEADER/FOOTER/PUB */
+        header {{visibility: hidden !important; height: 0px !important;}}
         [data-testid="stToolbar"] {{display: none !important;}}
         [data-testid="stDecoration"] {{display: none !important;}}
         [data-testid="stStatusWidget"] {{display: none !important;}}
         footer {{display: none !important;}}
-        .viewerBadge_container__1QSob {{display: none !important;}}
+        #MainMenu {{display: none !important;}}
+        .viewerBadge_container__1QSob {{display: none !important;}} 
 
-        /* INPUTS VERTS */
-        input, textarea, .stSelectbox div[data-baseweb="select"] > div, .stNumberInput input, .stDateInput div {{
+        /* 4. INPUTS : BORDURE VERTE AU FOCUS (ECRASE LE ROUGE) */
+        .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"] > div, .stDateInput div {{
             border-color: #e2e8f0 !important;
             box-shadow: none !important;
         }}
-        input:focus, .stSelectbox div[data-baseweb="select"] > div:focus-within,
-        .stNumberInput div[data-baseweb="input"]:focus-within,
-        .stDateInput div[data-baseweb="input"]:focus-within {{
+        .stTextInput input:focus, 
+        .stNumberInput input:focus,
+        div[data-baseweb="select"] > div:focus-within,
+        div[data-baseweb="base-input"]:focus-within,
+        div[data-testid="stDateInput"] > div:focus-within {{
             border-color: {C_SEC} !important;
             box-shadow: 0 0 0 1px {C_SEC} !important;
+            caret-color: {C_SEC} !important;
             outline: none !important;
         }}
-        /* Boutons +/- Calculatrice */
+        
+        /* Calculatrice Boutons +/- */
         [data-testid="stNumberInputStepDown"], [data-testid="stNumberInputStepUp"] {{
-             color: {C_MAIN} !important; border-color: transparent !important;
+             color: {C_MAIN} !important;
+             border-color: transparent !important;
         }}
         [data-testid="stNumberInputStepDown"]:hover, [data-testid="stNumberInputStepUp"]:hover {{
-             color: {C_SEC} !important; background-color: transparent !important;
+             color: {C_SEC} !important;
+             background-color: transparent !important;
         }}
+
+        /* 5. CALENDRIER & RADIOS */
+        div[data-baseweb="calendar"] button[aria-selected="true"] {{background-color: {C_SEC} !important; color: {C_MAIN} !important;}}
+        div[data-baseweb="calendar"] div[aria-selected="true"] {{background-color: {C_SEC} !important;}}
+        div[data-baseweb="calendar"] div[text-decoration="underline"] {{text-decoration-color: {C_SEC} !important;}}
+        div[role="radiogroup"] div[aria-checked="true"] > div:first-child {{background-color: {C_SEC} !important; border-color: {C_SEC} !important;}}
         
-        /* KPI & CARDS */
+        /* 6. BOUTONS */
+        .stButton > button {{background-color: {C_MAIN} !important; color: white !important; border: none; transition: all 0.3s ease;}}
+        .stButton > button:hover {{background-color: {C_SEC} !important; color: {C_MAIN} !important;}}
+
+        /* 7. KPI CARDS */
         .kpi-card, .kpi-card-soft, .kpi-card-soft-v3 {{
             padding: 15px 20px; border-radius: 15px; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.03); margin-bottom: 15px; 
@@ -389,7 +418,7 @@ def get_data_v100(start_date_limit):
         if "marketplace" in t_tags: is_mp = True; c = "Marketplace";
         if mp == "-" and is_mp: mp = "Autre MP"
         
-        # LOGIQUE MAGASIN
+        # LOGIQUE MAGASIN (DATE > NOV 2025 ou TAG)
         if "venta asistida" in t_tags: c = "Tienda"
 
         country = (o.get("shipping_address") or {}).get("country_code", "Autre"); 
