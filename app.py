@@ -12,7 +12,7 @@ import pytz
 from streamlit_option_menu import option_menu
 
 # ==============================================================================
-# 1. CONFIGURATION & VARIABLES GLOBALES
+# 1. CONFIGURATION
 # ==============================================================================
 fav_icon = "favicon.png" if os.path.exists("favicon.png") else "🚲"
 
@@ -27,7 +27,7 @@ st.set_page_config(
 # TIMEZONE
 MADRID_TZ = pytz.timezone('Europe/Madrid')
 
-# --- TAUX DE CHANGE (Monnaie -> EUR) ---
+# --- TAUX DE CHANGE ---
 EXCHANGE_RATES = {
     "EUR": 1.0,
     "PLN": 0.232, "HUF": 0.0025, "SEK": 0.088, "DKK": 0.134,
@@ -44,7 +44,7 @@ C_DECATHLON = "#0292e9"
 C_BG = "#ffffff"
 C_GRAY_LIGHT = "#f8f9fa"
 
-# DATA FISCAL & SHIPPING
+# VARIABLES GLOBALES
 SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "BE": 49.0, "default": 105.0}
 RECOND_UNIT_COST = 54.5
 VAT_DB = {
@@ -77,15 +77,9 @@ st.markdown(
             --font: sans-serif !important;
         }}
         
-        /* SIDEBAR SANS FLECHE (Ciblage multiple pour être sûr) */
-        [data-testid="stSidebarCollapsedControl"] {{display: none !important; width: 0 !important;}}
-        div[data-testid="stSidebarCollapsedControl"] {{display: none !important;}}
-        button[kind="header"] {{display: none !important;}}
-        
-        /* Sidebar Fixe */
+        /* SIDEBAR SANS FLECHE */
+        [data-testid="stSidebarCollapsedControl"] {{display: none !important;}}
         section[data-testid="stSidebar"] {{width: 300px !important; min-width: 300px !important;}}
-        
-        /* Logo Figé */
         [data-testid="stSidebar"] img {{pointer-events: none !important; margin-left: 20px;}}
         [data-testid="stSidebar"] [data-testid="StyledFullScreenButton"] {{ display: none !important; }}
         
@@ -97,7 +91,7 @@ st.markdown(
         footer {{display: none !important;}}
         .viewerBadge_container__1QSob {{display: none !important;}}
 
-        /* INPUTS VERTS (Guerre au rouge) */
+        /* INPUTS VERTS */
         input, textarea, .stSelectbox div[data-baseweb="select"] > div, .stNumberInput input, .stDateInput div {{
             border-color: #e2e8f0 !important;
             box-shadow: none !important;
@@ -338,8 +332,9 @@ def fetch_product_details_batch(prod_id_list):
                         cost_val = float(re.sub(r'[^\d.]', '', str(raw_cost).replace(',','.'))) if raw_cost else 0.0
                         fiscal_val = n["fiscal"]["value"] if n["fiscal"] else "PRO"
                         
-                        # MARQUE (METAFIELD)
-                        brand_val = n["brand_real"]["value"] if (n.get("brand_real") and n["brand_real"]["value"]) else (n["vendor"] if n["vendor"] else "Autre")
+                        # MARQUE (METAFIELD) + CLEANING
+                        brand_raw = n["brand_real"]["value"] if (n.get("brand_real") and n["brand_real"]["value"]) else (n["vendor"] if n["vendor"] else "Autre")
+                        brand_val = str(brand_raw).strip().upper()
                         
                         # CHAMPS CATEGORIE
                         subcat_raw = n["subcat"]["value"] if (n.get("subcat") and n["subcat"]["value"]) else "-"
@@ -394,7 +389,7 @@ def get_data_v100(start_date_limit):
         if "marketplace" in t_tags: is_mp = True; c = "Marketplace";
         if mp == "-" and is_mp: mp = "Autre MP"
         
-        # LOGIQUE MAGASIN (DATE > NOV 2025 ou TAG)
+        # LOGIQUE MAGASIN
         if "venta asistida" in t_tags: c = "Tienda"
 
         country = (o.get("shipping_address") or {}).get("country_code", "Autre"); 
@@ -557,10 +552,12 @@ if page == t["nav_res"]:
         g3, g4 = st.columns(2)
         with g3: 
             st.subheader(t["chart_subcat"])
-            df_s = p_ok.groupby("cat").size().reset_index(name="c")
-            st.plotly_chart(plot_bar_smart(df_s, "cat", "c"), use_container_width=True)
+            # Graphique TYPE (Muscular vs Ebike) uniquement comme demandé
+            df_s = p_ok.groupby("type").size().reset_index(name="c")
+            st.plotly_chart(plot_bar_smart(df_s, "type", "c"), use_container_width=True)
         with g4: 
             st.subheader(t["chart_brand"])
+            # Graphique BRAND avec regroupement
             df_b = p_ok.groupby("brand").size().reset_index(name="c")
             st.plotly_chart(plot_bar_smart(df_b, "brand", "c", limit=5), use_container_width=True)
         g5, g6 = st.columns(2)
@@ -595,7 +592,6 @@ elif page == t["nav_table"] and not df_merged.empty:
         
         df_show["canal_full"] = df_show.apply(lambda x: f"{x['channel']} ({x['mp_name']})" if x['channel']=="Marketplace" else x['channel'], axis=1)
         df_show["date_str"] = df_show["date"].dt.strftime("%d/%m/%Y")
-        df_show["date_group"] = (df_show["date_str"] != df_show["date_str"].shift()).cumsum()
         
         # ORDRE COLONNES UNIFIE
         cols = ["#", "date_str", "order_name", "canal_full", "country", "cat", "subcat", "sku", "type", "cost", "raw_price_str", "total_ttc", "discount", "commission", "margin_real", "margin_cum"]
