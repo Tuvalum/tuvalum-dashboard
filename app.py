@@ -24,7 +24,7 @@ st.set_page_config(
     menu_items={'Get Help': None, 'Report a bug': None, 'About': None}
 )
 
-# TIMEZONE MADRID
+# TIMEZONE
 MADRID_TZ = pytz.timezone('Europe/Madrid')
 
 # --- TAUX DE CHANGE ---
@@ -139,11 +139,11 @@ TRADUCTIONS = {
         "t_kpi1": "Ventas Hoy (Pagadas)", "t_kpi2": "Ventas Hoy (Pendientes)", 
         "t_kpi3": "Ventas (pagadas)", "t_kpi4": "Ventas pendientes (select)",
         "sub_rev": "Ingresos", "sub_mar": "Margen",
-        "chart_channel": "Canales", "chart_mp": "Marketplaces (Top 4)", "chart_subcat": "Categoría", "chart_brand": "Top 5 Marcas", "chart_price": "Rango de Precios", "chart_country": "Países",
+        "chart_channel": "Canales", "chart_mp": "Marketplaces (Top 5)", "chart_subcat": "Categoría", "chart_brand": "Top 5 Marcas", "chart_price": "Rango de Precios", "chart_country": "Países",
         "avg_price": "Precio Medio", "avg_margin": "Margen Medio", "avg_margin_pct": "% Margen", "avg_rot": "Rotación Media", "loading": "⏳ Cargando...", 
         "calc_title": "Calculadora Financiera", "sku_ph": "ej: 201414", "sku_not_found": "SKU no encontrado", "age": "Antigüedad", "price_input": "Precio Venta (€)", "cost_input": "Coste Compra (€)", "discount_input": "Descuento (€)", "unit_days": "días", 
         "col_sku": "SKU", "col_order": "Pedido", "col_country": "País", "col_channel": "Canal", "col_price": "Precio Pagado", "col_cost": "Coste Compra", "col_margin": "Margen", "col_margin_tot": "Margen Total", "col_date": "Fecha Compra", "col_cambio": "Precio Cambio",
-        "col_disc": "Dto.", "col_comm": "Comisión MP", "col_cat": "Categoría", "col_subcat": "Subcat.", "col_type": "Tipo",
+        "col_disc": "Dto.", "col_comm": "Comisión MP", "col_cat": "Categoría", "col_subcat": "Subcat.", "col_type": "Tipo", "col_brand": "Marca",
         "pricing_title": "Control de Precios & Rotación", "col_img": "Foto", "col_p_curr": "P. Actual", "col_p_rec": "P. Rec.", "col_action": "Acción (€)", "col_margin_proj": "Margen Proy.",
         "advice_ok": "✅ Mantener Precio", "advice_disc": "📉 Descuento Máximo", "advice_neutral": "⚪ Descuento Recomendado", "btn_search": "Comparar Precio (Google)", "vat_select": "🌍 País Destino (IVA)",
         "help_fiscal_title": "📘 Ayuda Fiscal", "evol_title": "Ventas - Ingresos - Margenes", "sel_month": "Mes", "sel_year": "Año", "settings": "⚙️ Ajustes", "mp_forecast": "Ventas Marketplace (fecha selec.)"
@@ -319,7 +319,7 @@ def fetch_product_details_batch(prod_id_list):
     shop_url = st.secrets["shopify"]["shop_url"]; token = st.secrets["shopify"]["access_token"]; unique_ids = list(set(prod_id_list)); DATA_MAP = {}; chunk_size = 50; chunks = [unique_ids[i:i + chunk_size] for i in range(0, len(unique_ids), chunk_size)]
     for chunk in chunks:
         query_parts = []; 
-        for idx, pid in enumerate(chunk): query_parts.append(f"""p{idx}: product(id: "gid://shopify/Product/{pid}") {{ title vendor createdAt metafield(namespace: "custom", key: "custitem_preciocompra") {{ value }} fiscal: metafield(namespace: "custom", key: "cseg_origenfiscal") {{ value }} modal: metafield(namespace: "custom", key: "cseg_modalidad") {{ value }} subcat: metafield(namespace: "custom", key: "cseg_subcategoria") {{ value }} km: metafield(namespace: "custom", key: "custitem_kilometraje") {{ value }} motor: metafield(namespace: "custom", key: "cseg_motor") {{ value }} }}""")
+        for idx, pid in enumerate(chunk): query_parts.append(f"""p{idx}: product(id: "gid://shopify/Product/{pid}") {{ title vendor createdAt metafield(namespace: "custom", key: "custitem_preciocompra") {{ value }} fiscal: metafield(namespace: "custom", key: "cseg_origenfiscal") {{ value }} modal: metafield(namespace: "custom", key: "cseg_modalidad") {{ value }} subcat: metafield(namespace: "custom", key: "cseg_subcategoria") {{ value }} km: metafield(namespace: "custom", key: "custitem_kilometraje") {{ value }} motor: metafield(namespace: "custom", key: "cseg_motor") {{ value }} brand_real: metafield(namespace: "custom", key: "cseg_all_marca") {{ value }} }}""")
         full_query = "{" + " ".join(query_parts) + "}"; 
         try:
             r = requests.post(f"https://{shop_url}/admin/api/2024-01/graphql.json", json={"query":full_query}, headers={"X-Shopify-Access-Token": token}); data = r.json().get("data", {})
@@ -329,9 +329,13 @@ def fetch_product_details_batch(prod_id_list):
                     if key in data and data[key]:
                         n = data[key]; 
                         raw_cost = n["metafield"]["value"] if n["metafield"] else "0"
-                        cost_val = float(re.sub(r'[^\d.]', '', str(raw_cost).replace(',','.'))) if raw_cost else 0.0; fiscal_val = n["fiscal"]["value"] if n["fiscal"] else "PRO"; brand_val = n["vendor"] if n["vendor"] else "Autre"
+                        cost_val = float(re.sub(r'[^\d.]', '', str(raw_cost).replace(',','.'))) if raw_cost else 0.0
+                        fiscal_val = n["fiscal"]["value"] if n["fiscal"] else "PRO"
                         
-                        # CHAMPS
+                        # MARQUE (METAFIELD)
+                        brand_val = n["brand_real"]["value"] if (n.get("brand_real") and n["brand_real"]["value"]) else (n["vendor"] if n["vendor"] else "Autre")
+                        
+                        # CHAMPS CATEGORIE
                         subcat_raw = n["subcat"]["value"] if (n.get("subcat") and n["subcat"]["value"]) else "-"
                         km_raw = n["km"]["value"] if (n.get("km") and n["km"]["value"]) else "0"
                         motor_raw = n["motor"]["value"] if (n.get("motor") and n["motor"]["value"]) else "-"
@@ -339,14 +343,14 @@ def fetch_product_details_batch(prod_id_list):
                         # LOGIQUE TYPE
                         type_final = "Muscular"
                         try:
-                            if float(km_raw) > 1 or motor_raw != "-": type_final = "E-Bike"
+                            if float(km_raw) > 1 or (motor_raw != "-" and motor_raw is not None): type_final = "E-Bike"
                         except: pass
                         
                         # LOGIQUE CATEGORIE
                         cat_final = "Autre"; s_low = str(subcat_raw).lower()
                         if "carretera" in s_low or "gravel" in s_low: cat_final = "Road"
                         elif "doble" in s_low or "rigid" in s_low or "mtb" in s_low: cat_final = "MTB"
-                        if type_final == "E-Bike": cat_final = "E-Bike" # Override si Ebike
+                        if type_final == "E-Bike": cat_final = "E-Bike"
 
                         created_at = pd.to_datetime(n["createdAt"]).tz_convert(None); 
                         DATA_MAP[pid] = {"cost": cost_val, "fiscal": fiscal_val, "brand": brand_val, "cat": cat_final, "subcat": subcat_raw, "type": type_final, "created_at": created_at}
@@ -357,7 +361,6 @@ def fetch_product_details_batch(prod_id_list):
 
 @st.cache_data(ttl=600, show_spinner=False)
 def get_data_v100(start_date_limit):
-    COMMISSION_MP = 0.10 # 10%
     shop_url = st.secrets["shopify"]["shop_url"]; token = st.secrets["shopify"]["access_token"]; h_rest = {"X-Shopify-Access-Token": token}; limit_dt = pd.to_datetime(start_date_limit) - timedelta(days=2); url_o = f"https://{shop_url}/admin/api/2024-01/orders.json?status=any&limit=250&order=created_at+desc"; orders = []; MAX_PAGES = 100 
     for _ in range(MAX_PAGES):
         r = requests.get(url_o, headers=h_rest); 
@@ -384,7 +387,7 @@ def get_data_v100(start_date_limit):
         if "marketplace" in t_tags: is_mp = True; c = "Marketplace";
         if mp == "-" and is_mp: mp = "Autre MP"
         
-        # LOGIQUE MAGASIN (DATE > NOV 2025 ou TAG)
+        # LOGIQUE MAGASIN
         if "venta asistida" in t_tags: c = "Tienda"
 
         country = (o.get("shipping_address") or {}).get("country_code", "Autre"); 
@@ -422,7 +425,7 @@ def get_data_v100(start_date_limit):
         ts_local = ts.tz_convert("Europe/Madrid")
         created_at_dt = ts_local.tz_localize(None)
         
-        clean_o.append({"date":created_at_dt, "total_ttc": total_eur, "raw_price_str": raw_price_str, "status": fin_status, "channel":c, "mp_name":mp, "order_name":o["name"], "parent_id": pid, "country": country, "sku": sku, "discount": -total_discount})
+        clean_o.append({"date":created_at_dt, "total_ttc": total_eur, "raw_price_str": raw_price_str, "status": fin_status, "channel":c, "mp_name":mp, "order_name":o["name"], "parent_id": pid, "country": country, "sku": sku, "discount": -total_discount, "currency_code": currency, "raw_price_val": raw_price})
 
     df_ord = pd.DataFrame(clean_o)
     if not df_ord.empty and product_ids_to_fetch:
@@ -431,8 +434,34 @@ def get_data_v100(start_date_limit):
             pid = row["parent_id"]; price = row["total_ttc"]; d = COST_MAP.get(pid, {"cost": 0.0, "fiscal": "PRO", "brand": "Autre", "cat": "Autre", "subcat": "-", "type": "Muscular", "created_at": None})
             cost = d["cost"]; fiscal = str(d["fiscal"]).upper(); 
             
-            comm_mp = price * COMMISSION_MP if row["channel"] == "Marketplace" else 0.0
-            
+            # CALCUL COMMISSION MP COMPLEXE
+            comm_mp = 0.0
+            if row["channel"] == "Marketplace":
+                mp_low = str(row["mp_name"]).lower()
+                local_price = row["raw_price_val"]
+                curr = row["currency_code"]
+                
+                if "alltricks" in mp_low:
+                     c_val = local_price * 0.10
+                     comm_mp = 150.0 if c_val > 150.0 else c_val
+                elif "decathlon" in mp_low:
+                     if curr == "PLN":
+                         c_val = local_price * 0.11; comm_mp = 1210.0 if c_val > 1210.0 else c_val
+                     elif curr == "RON":
+                         c_val = local_price * 0.11; comm_mp = 1320.0 if c_val > 1320.0 else c_val
+                     elif curr == "HUF":
+                         c_val = local_price * 0.11; comm_mp = 10450.0 if c_val > 10450.0 else c_val
+                     else:
+                         c_val = local_price * 0.11; comm_mp = 275.0 if c_val > 275.0 else c_val
+                elif "campsider" in mp_low: comm_mp = local_price * 0.10
+                elif "refurbed" in mp_low: comm_mp = local_price * 0.10
+                elif "ebikemood" in mp_low: comm_mp = local_price * 0.06
+                
+                # Conversion commission en EUR si nécessaire
+                if curr != "EUR":
+                    rate = EXCHANGE_RATES.get(curr, 0.0)
+                    comm_mp = comm_mp * rate
+
             margin = 0.0
             if cost > 0:
                 if "REBU" in fiscal: margin = ((price - cost) / 1.21) - comm_mp
@@ -503,25 +532,42 @@ if page == t["nav_res"]:
         with g2: 
             st.subheader(t["chart_mp"])
             df_mp = p_ok[p_ok["channel"]=="Marketplace"].groupby("mp_name").size().reset_index(name="c")
-            mp_counts = df_mp.groupby("mp_name").size().sort_values(ascending=False)
+            
+            # LOGIQUE BAR CHART VERTICAL TOP 5 + AUTRE (Cleaned)
+            # Nettoyage des noms MP avant groupement
+            df_mp["clean_name"] = df_mp["mp_name"].apply(lambda x: "Decathlon" if "Decathlon" in str(x) else ("Alltricks" if "Alltricks" in str(x) else x))
+            
+            mp_counts = df_mp.groupby("clean_name").size().sort_values(ascending=False)
             top_4 = mp_counts.head(4)
             others_count = mp_counts.iloc[4:].sum()
+            
             final_data = top_4.to_dict()
             if others_count > 0: final_data["Autre MP"] = others_count
+            
             df_mp_final = pd.DataFrame(list(final_data.items()), columns=["mp_name", "c"])
             st.plotly_chart(plot_bar_smart(df_mp_final, "mp_name", "c", orientation='v', show_logos=True), use_container_width=True)
-        
-        # GRAPH CAT ET BRAND CORRIGES
+
         g3, g4 = st.columns(2)
         with g3: 
-            st.subheader(t["chart_subcat"]) # Categorie inclut Ebike mtn
+            st.subheader(t["chart_subcat"])
             df_s = p_ok.groupby("cat").size().reset_index(name="c")
             st.plotly_chart(plot_bar_smart(df_s, "cat", "c"), use_container_width=True)
         with g4: 
             st.subheader(t["chart_brand"])
             df_b = p_ok.groupby("brand").size().reset_index(name="c")
             st.plotly_chart(plot_bar_smart(df_b, "brand", "c", limit=5), use_container_width=True)
-            
+        g5, g6 = st.columns(2)
+        with g5: 
+            st.subheader(t["chart_country"])
+            df_ctry = p_ok.groupby("country").size().reset_index(name="c")
+            st.plotly_chart(plot_bar_smart(df_ctry, "country", "c", orientation='h'), use_container_width=True)
+        with g6: 
+            st.subheader(t["chart_price"])
+            bins = [0, 1000, 1500, 2500, 4000, 100000]; labels = ["<1k", "1k-1.5k", "1.5k-2.5k", "2.5k-4k", ">4k"]
+            p_ok['price_range'] = pd.cut(p_ok['total_ttc'], bins=bins, labels=labels)
+            df_pr = p_ok.groupby("price_range").size().reset_index(name="c")
+            st.plotly_chart(plot_bar_smart(df_pr, "price_range", "c", strict_order=labels), use_container_width=True)
+
 elif page == t["nav_table"] and not df_merged.empty:
     st.header("📋 Ventas (Fecha Select)"); 
     df_x = df_period[df_period["status"]=="paid"].copy().sort_values("date", ascending=True); df_x["margin_cum"] = df_x["margin_real"].cumsum(); df_x = df_x.sort_values("date", ascending=False); df_x["#"] = range(len(df_x), 0, -1)
@@ -537,13 +583,13 @@ elif page == t["nav_table"] and not df_merged.empty:
         df_show["canal_full"] = df_show.apply(lambda x: f"{x['channel']} ({x['mp_name']})" if x['channel']=="Marketplace" else x['channel'], axis=1)
         df_show["date_str"] = df_show["date"].dt.strftime("%d/%m/%Y")
         
-        # SELECTION ET ORDRE DES COLONNES
+        # ORDRE COLONNES (TIPO INSERE APRES SKU)
         if is_mp:
              cols = ["#", "date_str", "order_name", "canal_full", "country", "cat", "subcat", "sku", "type", "cost", "raw_price_str", "total_ttc", "discount", "commission", "margin_real", "margin_cum"]
              col_names = ["#", t["col_date"], t["col_order"], t["col_channel"], t["col_country"], t["col_cat"], t["col_subcat"], t["col_sku"], t["col_type"], t["col_cost"], t["col_cambio"], t["col_price"], t["col_disc"], t["col_comm"], t["col_margin"], t["col_margin_tot"]]
         else:
-             cols = ["#", "date_str", "order_name", "canal_full", "country", "cat", "subcat", "sku", "type", "cost", "total_ttc", "discount", "margin_real", "margin_cum"]
-             col_names = ["#", t["col_date"], t["col_order"], t["col_channel"], t["col_country"], t["col_cat"], t["col_subcat"], t["col_sku"], t["col_type"], t["col_cost"], t["col_price"], t["col_disc"], t["col_margin"], t["col_margin_tot"]]
+             cols = ["#", "date_str", "order_name", "canal_full", "country", "cat", "subcat", "sku", "type", "cost", "total_ttc", "discount", "commission", "margin_real", "margin_cum"]
+             col_names = ["#", t["col_date"], t["col_order"], t["col_channel"], t["col_country"], t["col_cat"], t["col_subcat"], t["col_sku"], t["col_type"], t["col_cost"], t["col_price"], t["col_disc"], t["col_comm"], t["col_margin"], t["col_margin_tot"]]
 
         df_final = df_show[cols].copy(); df_final.columns = col_names
         
@@ -552,11 +598,12 @@ elif page == t["nav_table"] and not df_merged.empty:
             t.get("col_disc","Dto."): "{:,.0f} €", t.get("col_comm","Comisión"): "{:,.0f} €"
         })
         styler = styler.set_properties(subset=[t["col_margin"], t["col_margin_tot"]], **{'background-color': '#d1fae5', 'color': '#0a4650', 'font-weight': 'bold'})
+        styler = styler.apply(lambda row: [f'background-color: {"#f8f9fa" if df_show.loc[row.name, "date_group"]%2==0 else "white"}' for _ in row], axis=1)
         
         st.dataframe(styler, use_container_width=True, height=600, hide_index=True, column_config={
             "#": st.column_config.TextColumn("#", width="small"),
             t["col_date"]: st.column_config.TextColumn(t["col_date"], width="medium"),
-            t["col_cambio"]: st.column_config.TextColumn(t["col_cambio"], width="medium"), # ALIGNE PAR DEFAUT
+            t["col_cambio"]: st.column_config.TextColumn(t["col_cambio"], width="medium"), # Alignement auto (text/num)
         })
 
     display_styled_table(df_x)
@@ -565,7 +612,6 @@ elif page == t["nav_table"] and not df_merged.empty:
     else: st.info("No hay ventas de Marketplace en este periodo.")
 
 elif page == t["nav_calc"] or page == t["nav_price"] or page == t["nav_evol"]:
-    # (Pages inchangées, juste reprises pour ne pas casser le script)
     if page == t["nav_evol"]:
         st.header(t["evol_title"])
         st.info("Module Evolution en maintenance pour intégration KPIs")
