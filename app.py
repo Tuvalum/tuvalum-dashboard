@@ -12,7 +12,7 @@ import pytz
 from streamlit_option_menu import option_menu
 
 # ==============================================================================
-# 1. CONFIGURATION
+# 1. CONFIGURATION & VARIABLES GLOBALES
 # ==============================================================================
 fav_icon = "favicon.png" if os.path.exists("favicon.png") else "🚲"
 
@@ -27,7 +27,7 @@ st.set_page_config(
 # TIMEZONE
 MADRID_TZ = pytz.timezone('Europe/Madrid')
 
-# --- TAUX DE CHANGE ---
+# --- TAUX DE CHANGE (Monnaie -> EUR) ---
 EXCHANGE_RATES = {
     "EUR": 1.0,
     "PLN": 0.232, "HUF": 0.0025, "SEK": 0.088, "DKK": 0.134,
@@ -44,7 +44,7 @@ C_DECATHLON = "#0292e9"
 C_BG = "#ffffff"
 C_GRAY_LIGHT = "#f8f9fa"
 
-# VARIABLES GLOBALES
+# DATA FISCAL & SHIPPING
 SHIPPING_COSTS = {"ES": 22.0, "FR": 79.0, "DE": 85.0, "IT": 85.0, "PT": 35.0, "BE": 49.0, "default": 105.0}
 RECOND_UNIT_COST = 54.5
 VAT_DB = {
@@ -77,9 +77,15 @@ st.markdown(
             --font: sans-serif !important;
         }}
         
-        /* SIDEBAR SANS FLECHE */
-        [data-testid="stSidebarCollapsedControl"] {{display: none !important;}}
+        /* SIDEBAR SANS FLECHE (Ciblage multiple pour être sûr) */
+        [data-testid="stSidebarCollapsedControl"] {{display: none !important; width: 0 !important;}}
+        div[data-testid="stSidebarCollapsedControl"] {{display: none !important;}}
+        button[kind="header"] {{display: none !important;}}
+        
+        /* Sidebar Fixe */
         section[data-testid="stSidebar"] {{width: 300px !important; min-width: 300px !important;}}
+        
+        /* Logo Figé */
         [data-testid="stSidebar"] img {{pointer-events: none !important; margin-left: 20px;}}
         [data-testid="stSidebar"] [data-testid="StyledFullScreenButton"] {{ display: none !important; }}
         
@@ -91,7 +97,7 @@ st.markdown(
         footer {{display: none !important;}}
         .viewerBadge_container__1QSob {{display: none !important;}}
 
-        /* INPUTS VERTS */
+        /* INPUTS VERTS (Guerre au rouge) */
         input, textarea, .stSelectbox div[data-baseweb="select"] > div, .stNumberInput input, .stDateInput div {{
             border-color: #e2e8f0 !important;
             box-shadow: none !important;
@@ -361,6 +367,7 @@ def fetch_product_details_batch(prod_id_list):
 
 @st.cache_data(ttl=600, show_spinner=False)
 def get_data_v100(start_date_limit):
+    COMMISSION_MP = 0.10 # 10%
     shop_url = st.secrets["shopify"]["shop_url"]; token = st.secrets["shopify"]["access_token"]; h_rest = {"X-Shopify-Access-Token": token}; limit_dt = pd.to_datetime(start_date_limit) - timedelta(days=2); url_o = f"https://{shop_url}/admin/api/2024-01/orders.json?status=any&limit=250&order=created_at+desc"; orders = []; MAX_PAGES = 100 
     for _ in range(MAX_PAGES):
         r = requests.get(url_o, headers=h_rest); 
@@ -387,7 +394,7 @@ def get_data_v100(start_date_limit):
         if "marketplace" in t_tags: is_mp = True; c = "Marketplace";
         if mp == "-" and is_mp: mp = "Autre MP"
         
-        # LOGIQUE MAGASIN
+        # LOGIQUE MAGASIN (DATE > NOV 2025 ou TAG)
         if "venta asistida" in t_tags: c = "Tienda"
 
         country = (o.get("shipping_address") or {}).get("country_code", "Autre"); 
@@ -572,24 +579,27 @@ elif page == t["nav_table"] and not df_merged.empty:
     st.header("📋 Ventas (Fecha Select)"); 
     df_x = df_period[df_period["status"]=="paid"].copy().sort_values("date", ascending=True); df_x["margin_cum"] = df_x["margin_real"].cumsum(); df_x = df_x.sort_values("date", ascending=False); df_x["#"] = range(len(df_x), 0, -1)
     
+    # CORRECTION CRITIQUE KEYERROR: RESET INDEX
+    df_x = df_x.reset_index(drop=True)
+    
     def display_styled_table(df_input, is_mp=False):
         df_show = df_input.copy()
+        
+        # LOGIQUE COMPTEUR SPECIFIQUE
         if is_mp:
             df_show = df_show.sort_values("date", ascending=True)
             df_show["margin_cum"] = df_show["margin_real"].cumsum()
             df_show = df_show.sort_values("date", ascending=False)
             df_show["#"] = range(len(df_show), 0, -1)
+            df_show = df_show.reset_index(drop=True) # SAFETY
         
         df_show["canal_full"] = df_show.apply(lambda x: f"{x['channel']} ({x['mp_name']})" if x['channel']=="Marketplace" else x['channel'], axis=1)
         df_show["date_str"] = df_show["date"].dt.strftime("%d/%m/%Y")
+        df_show["date_group"] = (df_show["date_str"] != df_show["date_str"].shift()).cumsum()
         
-        # ORDRE COLONNES (TIPO INSERE APRES SKU)
-        if is_mp:
-             cols = ["#", "date_str", "order_name", "canal_full", "country", "cat", "subcat", "sku", "type", "cost", "raw_price_str", "total_ttc", "discount", "commission", "margin_real", "margin_cum"]
-             col_names = ["#", t["col_date"], t["col_order"], t["col_channel"], t["col_country"], t["col_cat"], t["col_subcat"], t["col_sku"], t["col_type"], t["col_cost"], t["col_cambio"], t["col_price"], t["col_disc"], t["col_comm"], t["col_margin"], t["col_margin_tot"]]
-        else:
-             cols = ["#", "date_str", "order_name", "canal_full", "country", "cat", "subcat", "sku", "type", "cost", "total_ttc", "discount", "commission", "margin_real", "margin_cum"]
-             col_names = ["#", t["col_date"], t["col_order"], t["col_channel"], t["col_country"], t["col_cat"], t["col_subcat"], t["col_sku"], t["col_type"], t["col_cost"], t["col_price"], t["col_disc"], t["col_comm"], t["col_margin"], t["col_margin_tot"]]
+        # ORDRE COLONNES UNIFIE
+        cols = ["#", "date_str", "order_name", "canal_full", "country", "cat", "subcat", "sku", "type", "cost", "raw_price_str", "total_ttc", "discount", "commission", "margin_real", "margin_cum"]
+        col_names = ["#", t["col_date"], t["col_order"], t["col_channel"], t["col_country"], t["col_cat"], t["col_subcat"], t["col_sku"], t["col_type"], t["col_cost"], t["col_cambio"], t["col_price"], t["col_disc"], t["col_comm"], t["col_margin"], t["col_margin_tot"]]
 
         df_final = df_show[cols].copy(); df_final.columns = col_names
         
@@ -598,6 +608,8 @@ elif page == t["nav_table"] and not df_merged.empty:
             t.get("col_disc","Dto."): "{:,.0f} €", t.get("col_comm","Comisión"): "{:,.0f} €"
         })
         styler = styler.set_properties(subset=[t["col_margin"], t["col_margin_tot"]], **{'background-color': '#d1fae5', 'color': '#0a4650', 'font-weight': 'bold'})
+        
+        # LAMBDA SAFE AVEC INDEX CORRIGÉ
         styler = styler.apply(lambda row: [f'background-color: {"#f8f9fa" if df_show.loc[row.name, "date_group"]%2==0 else "white"}' for _ in row], axis=1)
         
         st.dataframe(styler, use_container_width=True, height=600, hide_index=True, column_config={
